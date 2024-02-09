@@ -1,0 +1,1 @@
+message("Scripts building...")
