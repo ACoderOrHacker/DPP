@@ -4,6 +4,9 @@
 import os
 import sys
 
+AUTO: int = 0
+build_type: int = AUTO
+
 def mkdir(parent: str, folder: str):
     old_parent: str = os.getcwd()
 
@@ -21,12 +24,18 @@ def bad_build():
     exit(1)
 
 def get_makefile_type():
-    makefile_type: str = input("Please input the Makefile type: ")
-    return makefile_type
+    if build_type != AUTO:
+        makefile_type: str = input("Please input the Makefile type: ")
+        return makefile_type
+    else:
+        return "NMake Makefiles"
 
 def get_makefile_generator():
-    gen: str = input("Please input the generator: ")
-    return gen
+    if build_type != AUTO:
+        gen: str = input("Please input the generator: ")
+        return gen
+    else:
+        return "nmake"
 
 def build():
     path: str = "../"
@@ -53,7 +62,13 @@ def build():
 
 
 def main():
-    if "-h" in sys.argv or "--help" in sys.argv:
+    global build_type
+
+    if len(sys.argv) == 0:
+        # Auto build
+        build_type = AUTO
+
+    elif "-h" in sys.argv or "--help" in sys.argv:
         os.system("cmake --help")
     else:
         build()
