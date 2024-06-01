@@ -1,0 +1,12 @@
+# EditorConfig File
+
+root = true
+
+# For all text file
+[*]
+indent_style = tab
+charset = utf-8
+trim_trailing_whitespace = true
+
+# For C++
+[*.{c++,cc,cpp,cxx,h,h++,hh,hpp,hxx,inl,ipp,tlh,tli}]
