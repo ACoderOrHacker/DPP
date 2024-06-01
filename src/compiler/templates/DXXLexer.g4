@@ -1,7 +1,3 @@
-// $antlr-format alignTrailingComments true, columnLimit 150, maxEmptyLinesToKeep 1, reflowComments false, useTab false
-// $antlr-format allowShortRulesOnASingleLine true, allowShortBlocksOnASingleLine true, minEmptyLines 0, alignSemicolons ownLine
-// $antlr-format alignColons trailing, singleLineOverrulesHangingColon true, alignLexerCommands true, alignLabels true, alignTrailers true
-
 lexer grammar DXXLexer;
 
 options {
@@ -24,6 +20,8 @@ Char: 'char';
 
 Class: 'class';
 
+Compiletime: 'compiletime';
+
 Continue: 'continue';
 
 Default: 'default';
@@ -31,8 +29,6 @@ Default: 'default';
 Delete: 'delete';
 
 Do: 'do';
-
-Else: 'else';
 
 Enum: 'enum';
 
@@ -59,6 +55,8 @@ Inline: 'inline';
 Int: 'int';
 
 Implements: 'implements';
+
+Interface: 'interface';
 
 Long: 'long';
 
@@ -102,13 +100,17 @@ True: 'true';
 
 Try: 'try';
 
-Typedef: 'typedef';
+Type: 'type';
+
+Using: 'using';
 
 Virtual: 'virtual';
 
 Void: 'void';
 
 While: 'while';
+
+With: 'with';
 
 /* Operators */
 
@@ -191,8 +193,6 @@ PlusPlus: '++';
 MinusMinus: '--';
 
 Comma: ',';
-
-Question: '?';
 
 Colon: ':';
 

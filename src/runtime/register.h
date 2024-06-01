@@ -30,10 +30,15 @@ SOFTWARE.
 #include "objects.h"
 
 #define IS_TYPE_EQUAL(type1, type2) (type1 == type2)
-#define INT_TYPE 0
-#define FLOAT_TYPE 1
-#define STRING_TYPE 2
-#define OBJECT_TYPE 3
+enum TYPES {
+	INT_TYPE = 0,
+	FLOAT_TYPE,
+	STRING_TYPE,
+	OBJECT_TYPE,
+	BUILTIN_TYPE_END
+};
+
+uint32_t TYPE_END = BUILTIN_TYPE_END;
 
 // This file is used to register the function with type
 
@@ -56,7 +61,7 @@ SOFTWARE.
 struct _LinkType;
 
 RegType GetReg(uint8_t type);
-template<typename T, typename VAL_T> Dpp_Object *mkConst(uint8_t typeval, VAL_T val);
+template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val);
 
 // for interger
 Dpp_Object *IntAdd(Dpp_Object *lval, Dpp_Object *rval);

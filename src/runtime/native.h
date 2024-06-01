@@ -19,6 +19,6 @@ typedef FARPROC NativeProc;
 Module OpenNativeLib(const char *libname);
 NativeProc GetNativeProc(Module m, const char *procname);
 void FreeNativeLib(Module m);
-const char *WStrToPChar(std::wstring wstr);
-
+std::string WStrToPChar(std::wstring wstr);
+std::wstring stringToWstring(std::string str);
 #endif // !_NATIVE_LIB

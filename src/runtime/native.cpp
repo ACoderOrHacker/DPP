@@ -52,6 +52,10 @@ void FreeNativeLib(Module m) {
 #endif // _WIN32
 }
 
-const char *WStrToPChar(std::wstring wstr) {
-	return std::string(wstr.begin(), wstr.end()).c_str();
+std::string WStrToPChar(std::wstring wstr) {
+	return std::string(wstr.begin(), wstr.end());
+}
+
+std::wstring stringToWstring(std::string str) {
+	return std::wstring(str.begin(), str.end());
 }

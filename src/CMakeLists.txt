@@ -9,6 +9,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # disable warning C4275: <derived>: '<base>' : dependent name is not a type
 endif()
 
+add_custom_target(BUILD_GRAMMAR
+                  COMMAND antlr4 -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o antlr4/)
+
 file(GLOB COMPILER_FILES compiler/*.cpp)
 add_library(compiler SHARED ${COMPILER_FILES})
 find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})

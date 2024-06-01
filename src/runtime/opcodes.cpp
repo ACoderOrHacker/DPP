@@ -366,7 +366,7 @@ void _and(FObject *fObj) {
 	Dpp_Object *lobj = fObj->obj_map.get(_lobj);
 	Dpp_Object *robj = fObj->obj_map.get(_robj);
 	
-	Dpp_Object *_c = mkConst<IntObject, Interger>(INT_TYPE, isTrue(lobj) && isTrue(robj));
+	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) && isTrue(robj));
 	fObj->obj_map.write(to, _c);
 }
 
@@ -378,7 +378,7 @@ void _or(FObject *fObj) {
 	Dpp_Object *lobj = fObj->obj_map.get(_lobj);
 	Dpp_Object *robj = fObj->obj_map.get(_robj);
 	
-	Dpp_Object *_c = mkConst<IntObject, Interger>(INT_TYPE, isTrue(lobj) || isTrue(robj));
+	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) || isTrue(robj));
 	fObj->obj_map.write(to, _c);
 }
 
@@ -387,7 +387,6 @@ void _jmp(FObject *fObj) {
 	
 	fObj->state = fObj->all_states[_jmpto.id];
 }
-
 
 void _call(FObject *fObj) {
 	Object _func = *theap->begin();
@@ -414,8 +413,8 @@ void _calln(FObject *fObj) {
 	if(IS_TYPE_EQUAL(GetObjectType(call_func), STRING_TYPE)) {
 		String _native_func = GetObjectData<StringObject, String>(call_func);
 		
-		const char *native_func = WStrToPChar(_native_func);
-		NativeProc proc = GetNativeProc(fObj->modules[_lib.id], native_func);
+		std::string native_func = WStrToPChar(_native_func);
+		NativeProc proc = GetNativeProc(fObj->modules[_lib.id], native_func.c_str());
 		if(proc == nullptr) {
 			error->PushData(LibNoSymbol);
 			return;
@@ -427,6 +426,10 @@ void _calln(FObject *fObj) {
 			fObj->obj_map.write(_to, ret);
 		}
 	}	
+}
+
+void _import(FObject *fObj) {
+
 }
 
 void _ret(FObject *fObj) {

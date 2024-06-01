@@ -1,5 +1,3 @@
-# disable the temp file
-
 # binary file (by cmake)
 /bin/
 
@@ -15,3 +13,8 @@
 *.a
 *.exe
 *.out
+
+# disable project file
+/.vs/
+/.idea/
+/out/

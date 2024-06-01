@@ -26,6 +26,7 @@
   This is an external library that contains all the export functions of the VM
 */
 #include <thread>
+#include "builtin.h"
 #include "stdrt.h"
 #include "opcodes.h"
 #include "macros.h"

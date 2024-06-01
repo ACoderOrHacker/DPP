@@ -47,11 +47,10 @@ RegType GetReg(uint8_t type) {
 }
 
 // this function only can get the standard types
-template<typename T, typename VAL_T> Dpp_Object *mkConst(uint8_t typeval, VAL_T val) {
+template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
 	Dpp_Object *ret = NewObject<T>();
 	SetObject<T, VAL_T>(ret, val);
 	ret->is_const = true;
-	ret->type_val = typeval;
 	ret->reg = GetReg(typeval);
 	return ret;
 }

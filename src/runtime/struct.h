@@ -51,19 +51,11 @@ class Dpp_Object;
 
 typedef struct _Object {
 public:
-	AUTO_BLOCK_ID auto_block_id = NO_AUTO; // will control the 'block_id'
-	uint32_t block_id = 0; // 0 is global block id
-	
-	/*
-	  This is the offset value for the largest parent layer that can be read and written
-	  only lambda function use it
-	*/
-	uint32_t block_backoffset = 0; // block can read and write parent objects
+	bool isInGlobal = true;
 	uint32_t id = 0;
 	
 	bool operator ==(_Object o) { return (this->id == o.id && 
-		                          this->block_backoffset == o.block_backoffset && 
-		                          this->block_id == o.block_id); }
+		                          this->isInGlobal == o.isInGlobal); }
 } Object;
 
 struct _Version {
@@ -143,9 +135,9 @@ class Dpp_Object {
 		bool move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
 	public:
-		bool is_const = false;
-		uint8_t type_val;
-		RegType reg;
+		std::string name;
+		char info; // see doc/object/info.md
+		RegType *reg;
 };
 
 class ObjectMapping {
@@ -153,49 +145,47 @@ public:
 	ObjectMapping() {
 		this->is_lambda.write(0, false); // global mapping
 	}
-	
+
 public:
+	uint32_t getLastCreateObjectID() {
+		Array<Dpp_Object *> mapping = mappings[mappings.size()];
+		return mapping.size() + 1;
+	}
+
 	uint32_t getLastCreateID() { return mappings.size() + 1; }
-	
+
 	Dpp_Object *get(Object o) {
 		Array<Dpp_Object *> func_mapping = this->getMapping(o);
 		return func_mapping[o.id];
 	}
-	
+
 	void write(Object o, Dpp_Object *obj) {
 		Array<Dpp_Object *> func_mapping = this->getMapping(o);
 		func_mapping.write(o.id, obj);
 	}
-	
+
 	void create_mapping(uint32_t mapping_id, bool is_lambda = false) {
 		Array<Dpp_Object *> *mapping = new Array<Dpp_Object *>;
 		this->mappings.write(mapping_id, *mapping);
 		this->is_lambda.write(mapping_id, is_lambda);
 	}
-	
+
 private:
 	Array<Array<Dpp_Object *>> mappings;
 	Array<bool> is_lambda;
-	
+
 	Array<Dpp_Object *> getMapping(Object &_o) {
-		Array<Dpp_Object *> func_mapping;
-		
-		Object o = _o;
-		if(o.auto_block_id == NOW_STATE_ID) o.block_id = this->mappings.size();
-		if(is_lambda[o.block_id]) {
-			// a lambda function
-			func_mapping = this->mappings[o.block_id - o.block_backoffset];
-		} else {
-			func_mapping = this->mappings[o.block_id];
+		if (_o.isInGlobal) {
+			return mappings[0];
 		}
-		return func_mapping;
+		return *mappings.end();
 	}
 };
 
 typedef struct _OpCode {
     rt_opcode opcode;
 	char flag;
-    std::deque<Object> params;
+    Heap<Object> params;
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
@@ -213,27 +203,22 @@ struct VMState {
 
 typedef struct FObject {
 	public:
-		FObject(){_theap = new Tmp_Heap; _error = new ErrorPool; sig = new Signal; nullobject = new Dpp_Object;}
+		FObject(){
+			_theap = new Tmp_Heap;
+			_error = new ErrorPool;
+			sig = new Signal;
+		}
 		~FObject() {}
 
 	public:
 		Tmp_Heap *_theap;
 		ErrorPool *_error;
 	public:
-		Dpp_Object *nullobject;
-		Array<RegType> types;
 		Array<Module> modules;
-		Array<Object> stderror;
 		ObjectMapping obj_map; // mapped object
-		Array<Object> error_accept;
-		Array<Object> signal_accept;
-		Array<ConvertFunction> ConvertList;
-	    Set<Dpp_Object *, Dpp_Object *> *conversion_set;
-		std::stack<Object> error_afsa; // Error accepting function staging area
 		std::stack<struct VMState> callstack;
 		Signal *sig;
 		struct VMState state;
-		Array<struct VMState> all_states;
 		char flags;
 		int exit_code = EXIT_SUCCESS;
 		

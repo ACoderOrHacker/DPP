@@ -45,6 +45,22 @@ struct StringObject {
 	OBJECT_HEAD
 	String val; // string value
 };
+
+struct ClassObject {
+	OBJECT_HEAD
+	Heap<Dpp_Object *> members;
+};
+
+struct ErrorObject {
+	OBJECT_HEAD
+};
+
+struct FunctionObject {
+	OBJECT_HEAD
+	struct VMState state;
+	Heap<Object> params;
+};
+
 /*
 struct BitObject {
 	OBJECT_HEAD
@@ -84,7 +100,7 @@ template<typename T, typename RTN_T> inline RTN_T GetObjectData(Dpp_Object *obj)
 }
 
 inline uint16_t GetObjectType(Dpp_Object *obj) {
-	return (obj->type_val);
+	return (obj->reg->type);
 }
 
 template<typename T, typename VAL_T> inline void SetObject(Dpp_Object *obj, VAL_T val) {

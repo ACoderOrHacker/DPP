@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Configuration the c standard
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
@@ -29,9 +29,9 @@ set(DXX_VERSION_MAJOR 0)
 set(DXX_VERSION_MINOR 1)
 
 include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
-                           ${CMAKE_CURRENT_SOURCE_DIR}/include/parserbase/
                            ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4-runtime/
-                           ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/)
+                           ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
+                           ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/)
 
 option(BUILD_TOOLS "-----Build The Tools-----" ON)
 option(BUILD_TESTS "-----Build The Tests-----" ON)
