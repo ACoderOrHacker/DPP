@@ -1,7 +1,7 @@
 #ifndef _COMPILETIME
 #define _COMPILETIME
 #include <stddef.h>
-#include "vm.h"
+#include "vm.hpp"
 /*
 class Convert {
 public:
@@ -15,7 +15,7 @@ public:
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 private:

@@ -1,4 +1,4 @@
-#include "runtime/vm.h"
+#include "runtime/vm.hpp"
 #include <iostream>
 
 int main() {

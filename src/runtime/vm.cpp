@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2023 ACoderOrHacker
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,11 +25,9 @@
 /*
   This is an external library that contains all the export functions of the VM
  */
-#include "vm.h"
+#include "vm.hpp"
 
 const OpcodeFunc opcode_list[256] = {
-	&_pushe,
-	&_pope,
 	&_add,
 	&_sub,
 	&_mul,
@@ -66,7 +64,7 @@ VM_API void VM_Run(FObject *fObj) {
 	while(fObj->state.vmopcodes.size() > 0) {
 		OpCode opcode;
 		opcode = fObj->state.vmopcodes.PopData(); // get opcode from state
-		
+
 		// execute the opcode and get the error code(isfail variable)
 		bool isfail = Exec(opcode, fObj);
 
@@ -76,7 +74,7 @@ VM_API void VM_Run(FObject *fObj) {
 				// has a unknown opcode
 				SetBit0(fObj->flags, NO_OPCODE);
 				return; // Skip this opcode
-			} else if(GetBit(fObj->flags, HAS_SIGNAL)) {
+			} /*else if (GetBit(fObj->flags, HAS_SIGNAL)) {
 				// has a signal to execute
 				SetBit0(fObj->flags, HAS_SIGNAL);
 				while(!fObj->sig->isEmpty()) {
@@ -84,13 +82,13 @@ VM_API void VM_Run(FObject *fObj) {
 					_call(fObj); // call the signal accept function
 				}
 				return;
-			}
-			
+			}*/
+            /*
 			// execute failed
 			while(!error->isEmpty()) {
 				theap->PushData(fObj->error_accept[error->PopData().id]);
 				_call(fObj); // call the error accept function
-			}
+			}*/
 		}
 	}
 
@@ -104,10 +102,10 @@ VM_API bool Exec(OpCode opcode, FObject *fObj) {
 	if(opcode.flag != NO_FLAG) {
 		fObj->flags = opcode.flag; // set the flags
 	}
-	
-	WriteTHeap(theap, opcode.params); // write the params to the 'fObj->_theap' for the opcode
-	
-	if(opcode.opcode >= OPCODE_PUSHE && opcode.opcode <= OPCODE_EXIT) {
+
+	WriteTHeap(theap, &opcode.params); // write the params to the 'fObj->_theap' for the opcode
+
+	if(opcode.opcode >= OPCODE_START && opcode.opcode < OPCODE_END) {
 		opcode_list[opcode.opcode](fObj); // call opcode
 		if(error->size() == 0 && fObj->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed

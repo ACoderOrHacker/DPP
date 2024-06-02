@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2023 ACoderOrHacker
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,49 +22,41 @@
   SOFTWARE.
  */
 
-#include "opcodes.h"
+#include "opcodes.hpp"
 
 struct Version version; // Runtime Machine Version
 
 
 void _del(FObject *fObj) {
 	Object _obj = theap->PopData();
-	
+
 	Dpp_Object *obj = fObj->obj_map.get(_obj);
 	bool isFailed = DeleteObject(obj);
 
 	if(isFailed) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 	}
-}
-
-void _pushe(FObject *fObj) {
-	fObj->error_afsa.push(theap->PopData());
-}
-
-void _pope(FObject *fObj) {
-	fObj->error_afsa.pop();
 }
 
 void _add(FObject *fObj) {
-	
+
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj + robj;
-	
+
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -73,19 +65,19 @@ void _sub(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj - robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -97,19 +89,19 @@ void _mul(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj * robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -118,20 +110,20 @@ void _div(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
-	
+
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj / robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -140,20 +132,20 @@ void _mod(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
-	
+
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj % robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -161,11 +153,11 @@ void _mod(FObject *fObj) {
 void _bneg(FObject *fObj) {
 	Object _obj = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *obj = fObj->obj_map.get(_obj);
 	Dpp_Object *_c = ~(*obj);
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -174,21 +166,21 @@ void _band(FObject *fObj) {
 	Object _lnum = theap->PopData();
 	Object _rnum = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lnum = fObj->obj_map.get(_lnum);
 	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
-	
+
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = *lnum & rnum;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 		return;
 	}
-	
+
 	fObj->obj_map.write(to, _c);
 }
 
@@ -196,21 +188,21 @@ void _bor(FObject *fObj) {
 	Object _lnum = theap->PopData();
 	Object _rnum = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lnum = fObj->obj_map.get(_lnum);
 	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
-	
+
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = *lnum | rnum;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 		return;
 	}
-	
+
 	fObj->obj_map.write(to, _c);
 }
 
@@ -218,21 +210,21 @@ void _bxor(FObject *fObj) {
 	Object _lnum = theap->PopData();
 	Object _rnum = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lnum = fObj->obj_map.get(_lnum);
 	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
-	
+
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = *lnum ^ rnum;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 		return;
 	}
-	
+
 	fObj->obj_map.write(to, _c);
 }
 
@@ -240,21 +232,21 @@ void _shl(FObject *fObj) {
 	Object _num = theap->PopData();
 	Object _shl_count = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *num = fObj->obj_map.get(_num);
 	Dpp_Object *shl_count = fObj->obj_map.get(_shl_count);
-	
+
 	if(num == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = *num << shl_count;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 		return;
 	}
-	
+
 	fObj->obj_map.write(to, _c);
 }
 
@@ -262,32 +254,32 @@ void _shr(FObject *fObj) {
 	Object _num = theap->PopData();
 	Object _shr_count = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *num = fObj->obj_map.get(_num);
 	Dpp_Object *shr_count = fObj->obj_map.get(_shr_count);
-	
+
 	if(num == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = *num >> shr_count;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 		return;
 	}
-	
+
 	fObj->obj_map.write(to, _c);
 }
 
 void _not(FObject *fObj) {
 	Object _obj = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *obj = fObj->obj_map.get(_obj);
 	Dpp_Object *_c = !(*obj);
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -296,20 +288,20 @@ void _eq(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
-	
+
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj == robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -318,20 +310,20 @@ void _bigger(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
-	
+
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj > robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -340,20 +332,20 @@ void _smaller(FObject *fObj) {
 	Object _lval = theap->PopData();
 	Object _rval = theap->PopData();
 	Object to = theap->PopData();
-	
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lval);
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
-	
-	
+
+
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(DataNullPointer);
+		error->PushData(Dpp_NullPointerError);
 		return;
 	}
-	
+
 	Dpp_Object *_c = nullptr;
 	_c = *lobj < robj;
 	if(_c == nullptr) {
-		error->PushData(DataCantOperator);
+		error->PushData(Dpp_DataCantOperatorError);
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -361,11 +353,11 @@ void _smaller(FObject *fObj) {
 void _and(FObject *fObj) {
 	Object _lobj = theap->PopData();
 	Object _robj = theap->PopData();
-	Object to = theap->PopData(); 
-	
+	Object to = theap->PopData();
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lobj);
 	Dpp_Object *robj = fObj->obj_map.get(_robj);
-	
+
 	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) && isTrue(robj));
 	fObj->obj_map.write(to, _c);
 }
@@ -373,33 +365,32 @@ void _and(FObject *fObj) {
 void _or(FObject *fObj) {
 	Object _lobj = theap->PopData();
 	Object _robj = theap->PopData();
-	Object to = theap->PopData(); 
-	
+	Object to = theap->PopData();
+
 	Dpp_Object *lobj = fObj->obj_map.get(_lobj);
 	Dpp_Object *robj = fObj->obj_map.get(_robj);
-	
+
 	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) || isTrue(robj));
 	fObj->obj_map.write(to, _c);
 }
 
 void _jmp(FObject *fObj) {
 	Object _jmpto = theap->PopData();
-	
-	fObj->state = fObj->all_states[_jmpto.id];
+
+	fObj->state.runat = _jmpto.id;
 }
 
 void _call(FObject *fObj) {
 	Object _func = *theap->begin();
-	
-	// Function Object is same as the object id,
-	// If function's id is not, compiler will move it to same
-	struct VMState jmp_state = fObj->all_states[_func.id];
+
+    FunctionObject *func = (FunctionObject *)fObj->obj_map.get(_func);
+	struct VMState jmp_state = func->state;
 	fObj->obj_map.create_mapping(fObj->obj_map.getLastCreateID(), jmp_state.isLambda);
-	
+
 	// Save the last state
 	struct VMState state = fObj->state;
 	fObj->callstack.push(state);
-	
+
 	_jmp(fObj);
 }
 
@@ -407,16 +398,16 @@ void _calln(FObject *fObj) {
 	// call native function
 	Object _lib = theap->PopData();
 	Object _func = theap->PopData();
-	
+
 	Dpp_Object *call_func = fObj->obj_map.get(_func);
-	
+
 	if(IS_TYPE_EQUAL(GetObjectType(call_func), STRING_TYPE)) {
 		String _native_func = GetObjectData<StringObject, String>(call_func);
-		
+
 		std::string native_func = WStrToPChar(_native_func);
 		NativeProc proc = GetNativeProc(fObj->modules[_lib.id], native_func.c_str());
 		if(proc == nullptr) {
-			error->PushData(LibNoSymbol);
+			error->PushData(Dpp_LibNoSymbolError);
 			return;
 		}
 		NATIVE_FUNC func = (NATIVE_FUNC)proc;
@@ -425,7 +416,7 @@ void _calln(FObject *fObj) {
 			Object _to = theap->PopData();
 			fObj->obj_map.write(_to, ret);
 		}
-	}	
+	}
 }
 
 void _import(FObject *fObj) {
@@ -436,6 +427,10 @@ void _ret(FObject *fObj) {
 	fObj->state = fObj->callstack.top();
 }
 
+void _sign(FObject *fObj) {
+
+}
+/*
 void _sign(FObject *fObj) {
 	Object _signal = theap->PopData();
 #ifdef __TEST
@@ -453,7 +448,7 @@ void _sign(FObject *fObj) {
 	} else {
 		// signal bit
 		if(GetBit(fObj->flags, 1) == 1) {
-			
+
 			// set signal function
 			fObj->signal_accept.write(_signal.id, theap->PopData());
 		} else {
@@ -462,19 +457,21 @@ void _sign(FObject *fObj) {
 		}
 	}
 }
-
+*/
 void _new(FObject *fObj) {
 	Object _type = theap->PopData();
 	Object _to = theap->PopData();
-	
+
+    Dpp_Object *type = fObj->obj_map.get(_type);
+
 	Dpp_Object *obj = nullptr;
 	try {
-		obj = NewObject(fObj->types[_type.id].size + sizeof(Dpp_Object));
+		obj = NewObject(type->reg->size + sizeof(Dpp_Object));
 	} catch(std::bad_alloc) {
-		error->PushData(NoMemory);
+		error->PushData(Dpp_NoMemoryError);
 		return;
 	} catch(TypeNotRightError) {
-		error->PushData(TypeNotRight);
+		error->PushData(Dpp_TypeNotRightError);
 		return;
 	}
 
@@ -491,13 +488,13 @@ void _mov(FObject *fObj) {
 	bool status = src->move(to);
 	if(!status) {
 		// failed
-		error->PushData(TypeNotRight);
+		error->PushData(Dpp_TypeNotRightError);
 	}
 }
 
 void _exit(FObject *fObj) {
 	Object _exitcode = theap->PopData();
-	
+
 	fObj->exit_code = _exitcode.id;
 	fObj->sig->PushData(EXIT);
 }
@@ -508,9 +505,9 @@ void _exit(FObject *fObj) {
   Object convert_id = theap->PopData(); // convert_id is the 'pConvertList' id
   Object _obj = theap->PopData();
   Object to = theap->PopData();
-  
+
   Dpp_Object *obj = fObj->obj_map.get(_obj);
-  
+
   Dpp_Object *rtn = fObj->pConvertList[convert_id.id](error, obj);
   fObj->obj_map.write(to.id, rtn);
   }

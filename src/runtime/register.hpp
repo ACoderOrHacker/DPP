@@ -26,37 +26,30 @@ SOFTWARE.
 #define REGISTER
 
 #include <iostream>
-#include "struct.h"
-#include "objects.h"
+#include <typeinfo>
+#include "struct.hpp"
+#include "objects.hpp"
+#include "builtin.hpp"
 
 #define IS_TYPE_EQUAL(type1, type2) (type1 == type2)
-enum TYPES {
-	INT_TYPE = 0,
-	FLOAT_TYPE,
-	STRING_TYPE,
-	OBJECT_TYPE,
-	BUILTIN_TYPE_END
-};
-
-uint32_t TYPE_END = BUILTIN_TYPE_END;
 
 // This file is used to register the function with type
 
-#define ADD_MACRO(add_lval, ret_object, ret_type, ret_id, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
+#define ADD_MACRO(add_lval, ret_object, ret_type, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
                                                                                 ret_type val = add_lval + _rval;                            \
-                                                                                rtn = mkConst<ret_object, ret_type>(ret_id, val);
-#define SUB_MACRO(sub_lval, ret_object, ret_type, ret_id, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
+                                                                                rtn = mkConst<ret_object, ret_type>(val);
+#define SUB_MACRO(sub_lval, ret_object, ret_type, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
                                                                                 ret_type val = sub_lval - _rval;                            \
-                                                                                rtn = mkConst<ret_object, ret_type>(ret_id, val);
-#define MUL_MACRO(mul_lval, ret_object, ret_type, ret_id, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
+                                                                                rtn = mkConst<ret_object, ret_type>(val);
+#define MUL_MACRO(mul_lval, ret_object, ret_type, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
                                                                                 ret_type val = mul_lval * _rval;                            \
-                                                                                rtn = mkConst<ret_object, ret_type>(ret_id, val);
-#define DIV_MACRO(div_lval, ret_object, ret_type, ret_id, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
+                                                                                rtn = mkConst<ret_object, ret_type>(val);
+#define DIV_MACRO(div_lval, ret_object, ret_type, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
                                                                                 ret_type val = div_lval / _rval;                            \
-                                                                                rtn = mkConst<ret_object, ret_type>(ret_id, val);
-#define MOD_MACRO(mod_lval, ret_object, ret_type, ret_id, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
+                                                                                rtn = mkConst<ret_object, ret_type>(val);
+#define MOD_MACRO(mod_lval, ret_object, ret_type, rvaltype, rvalobject) rvaltype _rval = GetObjectData<rvalobject, rvaltype>(rval); \
                                                                                 ret_type val = mod_lval % _rval;                            \
-                                                                                rtn = mkConst<ret_object, ret_type>(ret_id, val);
+                                                                                rtn = mkConst<ret_object, ret_type>(val);
 
 struct _LinkType;
 

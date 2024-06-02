@@ -12,14 +12,14 @@ endif()
 add_custom_target(BUILD_GRAMMAR
                   COMMAND antlr4 -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o antlr4/)
 
-file(GLOB COMPILER_FILES compiler/*.cpp)
-add_library(compiler SHARED ${COMPILER_FILES})
-find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
-target_link_libraries(compiler ${COMPILER_LIB})
+#file(GLOB COMPILER_FILES compiler/*.cpp)
+#add_library(compiler SHARED ${COMPILER_FILES})
+#find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
+#target_link_libraries(compiler ${COMPILER_LIB})
 
 # Make shared library
 file(GLOB VM_FILES runtime/*.cpp)
-add_library(vm SHARED ${VM_FILES})
+add_library(vm SHARED ${VM_FILES} "runtime/builtin.cpp" "runtime/builtins.symbols.h")
 
-add_executable(dpp dpp.cpp)
+add_executable(dpp dpp.cpp "runtime/builtin.cpp" "runtime/builtins.symbols.h")
 target_link_libraries(dpp vm)

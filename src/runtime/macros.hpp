@@ -15,9 +15,5 @@
 #define GetBit(x, bit) ((x & (1 << bit)) >> bit)
 #define SetBit1(x, bit) ((x) |= (1 << (bit)))
 #define SetBit0(x, bit) ((x) &= ~ (1 << (bit)))
-#define DataCantOperator (fObj->stderror[DATA_CANT_OPERATOR_ID])
-#define DataNullPointer (fObj->stderror[DATA_NULLP_ID])
-#define LibNoSymbol (fObj->stderror[LIB_NO_SYMBOL_ID])
-#define NoMemory (fObj->stderror[NO_MEM_ID])
-#define TypeNotRight (fObj->stderror[TYPE_NOT_RIGHT_ID])
+
 #endif // !_DPP_MACROS

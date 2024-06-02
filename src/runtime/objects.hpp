@@ -25,7 +25,7 @@ SOFTWARE.
 #ifndef DPPDEF_OBJECTS
 #define DPPDEF_OBJECTS
 
-#include "struct.h"
+#include "struct.hpp"
 #define OBJECT_HEAD Dpp_Object head;
 
 class TypeNotRightError{};
@@ -46,13 +46,14 @@ struct StringObject {
 	String val; // string value
 };
 
+#define CLASS_OBJECT OBJECT_HEAD Heap<Dpp_Object *> members;
 struct ClassObject {
-	OBJECT_HEAD
-	Heap<Dpp_Object *> members;
+    CLASS_OBJECT
 };
 
 struct ErrorObject {
-	OBJECT_HEAD
+    CLASS_OBJECT
+    std::stack<Dpp_Object *> handles;
 };
 
 struct FunctionObject {

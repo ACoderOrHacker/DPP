@@ -1,5 +1,5 @@
 
-#include "compiler.h"
+#include "compiler.hpp"
 
 bool compile(std::string code) {
 	antlr4::ANTLRInputStream input(code);

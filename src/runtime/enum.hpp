@@ -11,8 +11,7 @@ enum AUTO_BLOCK_ID {
 };
 
 enum rt_opcode : unsigned char {
-	OPCODE_PUSHE,
-	OPCODE_POPE,
+    OPCODE_START,
 	OPCODE_ADD,
 	OPCODE_SUB,
 	OPCODE_MUL,
@@ -37,6 +36,7 @@ enum rt_opcode : unsigned char {
 	OPCODE_SIGN,
 	OPCODE_NEW,
 	OPCODE_MOV,
-	OPCODE_EXIT
+	OPCODE_EXIT,
+    OPCODE_END
 };
 #endif // !_ENUM_H

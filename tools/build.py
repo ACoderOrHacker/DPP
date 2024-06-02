@@ -5,6 +5,7 @@ import os
 import sys
 
 AUTO: int = 0
+NOT_AUTO: int = 1
 build_type: int = AUTO
 
 def mkdir(parent: str, folder: str):
@@ -37,7 +38,11 @@ def get_makefile_generator():
     else:
         return "nmake"
 
-def build():
+def build() -> None:
+    """
+
+    :rtype: None
+    """
     path: str = "../"
     build_dir: str = "build/"
     cmake: str = "cmake ../ -G\"{}\" ".format(get_makefile_type())
@@ -61,16 +66,29 @@ def build():
         exit(0)
 
 
-def main():
+def main() -> None:
     global build_type
 
-    if len(sys.argv) == 0:
+    if "--msvc" in sys.argv:
         # Auto build
         build_type = AUTO
+        build()
+    elif len(sys.argv) == 1 or "-h" in sys.argv or "--help" in sys.argv:
+        print("Usage:"
+              "\n"
+              "   build [options]"
+              "\n"
+              "Options:"
+              "\n"
+              "   --help, -h             = Get the help of usage\n"
+              "   --msvc                 = Compile by MSVC\n"
+              "   --other-compiler       = Compile by other C/C++ compiler\n"
+              "\n"
+              "You can get all the supported makefile types and corresponding make tools from the cmake.org or use cmake --help")
 
-    elif "-h" in sys.argv or "--help" in sys.argv:
-        os.system("cmake --help")
-    else:
+        # os.system("cmake --help")
+    elif "--other-compiler" in sys.argv:
+        build_type = NOT_AUTO
         build()
 
 if __name__ == "__main__":

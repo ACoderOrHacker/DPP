@@ -1,18 +1,18 @@
 /*
   MIT License
-  
+
   Copyright (c) 2023 ACoderOrHacker
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,12 +35,12 @@
 #endif // _MSC_VER
 
 #include "acdpp.h"
-#include "macros.h"
+#include "macros.hpp"
 #include "array.hpp"
 #include "heap.hpp"
 #include "set.hpp"
-#include "enum.h"
-#include "native.h"
+#include "enum.hpp"
+#include "native.hpp"
 
 typedef long long Interger;
 typedef double FloatNum;
@@ -53,8 +53,8 @@ typedef struct _Object {
 public:
 	bool isInGlobal = true;
 	uint32_t id = 0;
-	
-	bool operator ==(_Object o) { return (this->id == o.id && 
+
+	bool operator ==(_Object o) { return (this->id == o.id &&
 		                          this->isInGlobal == o.isInGlobal); }
 } Object;
 
@@ -86,7 +86,7 @@ struct RegType {
 
 	uint8_t type;
 	size_t size;
-	
+
 	// for number
 	// number function if is nullptr value, call interpter no function of this operator
 	nb_func nb_add = nullptr;
@@ -100,14 +100,14 @@ struct RegType {
 	nb_func nb_bor = nullptr;
 	nb_func nb_bxor = nullptr;
 	nb_func1 nb_bneg = nullptr;
-	
+
 	logic_func bigger = nullptr;
 	logic_func smaller = nullptr;
 	logic_func equal = nullptr;
 	logic_func1 notval = nullptr;
-	
+
 	print_func print = nullptr;
-	
+
 	mem_free_func mem_free = nullptr; // free the data
 	mem_alloc_func mem_alloc = nullptr; // alloc and init the data
 };
@@ -136,8 +136,8 @@ class Dpp_Object {
 		bool moveref(Dpp_Object *obj); // move the ref to the object
 	public:
 		std::string name;
-		char info; // see doc/object/info.md
-		RegType *reg;
+		char info = 0; // see doc/object/info.md
+		RegType *reg = nullptr;
 };
 
 class ObjectMapping {
@@ -189,7 +189,7 @@ typedef struct _OpCode {
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
-typedef Heap<Object> ErrorPool;
+typedef Heap<Dpp_Object *> ErrorPool;
 typedef Heap<Object> WarningPool;
 typedef Heap<SIGNAL> Signal;
 
@@ -197,7 +197,7 @@ typedef Dpp_Object *(*ConvertFunction)(ErrorPool *, Dpp_Object *);
 
 struct VMState {
 	Heap<OpCode> vmopcodes;
-	uint32_t runat;
+	uint32_t runat = 0;
 	bool isLambda = false;
 };
 
@@ -207,6 +207,7 @@ typedef struct FObject {
 			_theap = new Tmp_Heap;
 			_error = new ErrorPool;
 			sig = new Signal;
+
 		}
 		~FObject() {}
 
@@ -219,9 +220,9 @@ typedef struct FObject {
 		std::stack<struct VMState> callstack;
 		Signal *sig;
 		struct VMState state;
-		char flags;
+		char flags = NO_FLAG;
 		int exit_code = EXIT_SUCCESS;
-		
+
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);

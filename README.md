@@ -25,3 +25,15 @@ Refer to their respective `README.md` for more in-depth information.
 | [docs](doc/compiler/index.md)            | man pages and internal documentation             |
 | [compiler/samples](src/compiler/samples) | Various code examples                            |
 | [runtime](src/runtime/)                  | root of runtime                                  |
+
+### How To Build
+
+#### Windows(MSVC)
+```
+python tools/build.py
+```
+
+#### Linux
+```
+python tools/build.py
+```
