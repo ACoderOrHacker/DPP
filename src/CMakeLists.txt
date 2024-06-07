@@ -19,7 +19,7 @@ add_custom_target(BUILD_GRAMMAR
 
 # Make shared library
 file(GLOB VM_FILES runtime/*.cpp)
-add_library(vm SHARED ${VM_FILES} "runtime/builtin.cpp" "runtime/builtins.symbols.h")
+add_library(vm SHARED ${VM_FILES})
 
-add_executable(dpp dpp.cpp "runtime/builtin.cpp" "runtime/builtins.symbols.h")
+add_executable(dpp dpp.cpp)
 target_link_libraries(dpp vm)

@@ -26,7 +26,7 @@
   This is an external library that contains all the export functions of the VM
 */
 #include <thread>
-#include "builtins.symbols.h"
+#include "builtin.symbols.hpp"
 #include "builtin.hpp"
 #include "stdrt.hpp"
 #include "opcodes.hpp"

@@ -4,18 +4,28 @@
 import shutil
 
 
-def main():
-    # delete the folders
+def clean() -> None:
+	"""
 
-    try:
-        shutil.rmtree("../build/")
-        shutil.rmtree("../out/")
-    except FileNotFoundError:
-        # Not found the folders
-        pass
+	:rtype: object
+	"""
+	# delete the folders
 
+	try:
+		shutil.rmtree("../build/")
+		shutil.rmtree("../out/")
+	except FileNotFoundError:
+		# Not found the folders
+		pass
+
+def main() -> None:
+	"""
+
+	:rtype: None
+	"""
+	clean()
 
 if __name__ == "__main__":
-    main()
+	main()
 
-    print("Done.")
+	print("Done.")

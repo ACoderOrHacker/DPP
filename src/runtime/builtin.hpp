@@ -5,7 +5,7 @@
 
 #include "struct.hpp"
 #include "objects.hpp"
-#include "builtins.symbols.h"
+#include "builtin.symbols.hpp"
 
 enum BUILTIN : unsigned char {
     BUILTIN_NULL = 0,
