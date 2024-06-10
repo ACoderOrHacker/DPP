@@ -51,15 +51,15 @@ struct ClassObject {
     CLASS_OBJECT
 };
 
-struct ErrorObject {
-    CLASS_OBJECT
-    std::stack<Dpp_Object *> handles;
+struct FunctionObject {
+    OBJECT_HEAD
+        struct VMState state;
+    Heap<Object> params;
 };
 
-struct FunctionObject {
-	OBJECT_HEAD
-	struct VMState state;
-	Heap<Object> params;
+struct ErrorObject {
+    CLASS_OBJECT
+    std::stack<FunctionObject *> handles;
 };
 
 /*

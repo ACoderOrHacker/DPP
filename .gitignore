@@ -18,3 +18,9 @@
 /.vs/
 /.idea/
 /out/
+
+# Python Cache Folder
+__pycache__
+
+# My Workspace
+/workspace/

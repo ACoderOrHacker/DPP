@@ -38,7 +38,7 @@ option(BUILD_TESTS "-----Build The Tests-----" ON)
 
 if(BUILD_TOOLS)
     # build the tools
-    add_subdirectory(scripts/)
+    
 endif()
 
 if(BUILD_TESTS)

@@ -26,6 +26,7 @@
   This is an external library that contains all the export functions of the VM
 */
 #include <thread>
+#include "acoder/acassert.h"
 #include "builtin.symbols.hpp"
 #include "builtin.hpp"
 #include "stdrt.hpp"

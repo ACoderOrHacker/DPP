@@ -107,7 +107,7 @@ VM_API bool Exec(OpCode opcode, FObject *fObj) {
 
 	if(opcode.opcode >= OPCODE_START && opcode.opcode < OPCODE_END) {
 		opcode_list[opcode.opcode](fObj); // call opcode
-		if(error->size() == 0 && fObj->sig->size() == 0) return EXEC_SUCCESS;
+		if(error == nullptr && fObj->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
 	} else {
 		SetBit1(fObj->flags, NO_OPCODE);

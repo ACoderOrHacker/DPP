@@ -26,6 +26,7 @@
 #define _STDRT_H
 #include <iostream>
 #include <stdint.h>
+#include <cstdarg>
 #include "objects.hpp"
 #include "register.hpp"
 #include "heap.hpp"
@@ -34,5 +35,9 @@
 bool isTrue(Dpp_Object *obj);
 void WriteTHeap(Tmp_Heap *__theap, Tmp_Heap *src);
 void EnvClean(FObject *fObj);
+bool CallFunction(FObject *fObj,
+    FunctionObject *func,
+    uint32_t paramnum,
+    ...);
 
 #endif // !_STDRT_H

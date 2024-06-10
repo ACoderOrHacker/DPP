@@ -26,6 +26,7 @@
 #define _DXX_RUNTIME_
 #include <iostream>
 #include <string>
+#include "error/error.h"
 #include "struct.hpp"
 #include "stdrt.hpp"
 

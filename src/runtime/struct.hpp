@@ -31,7 +31,7 @@
 #include <stack>
 
 #ifdef _MSC_VER
-#include "compilers/msvc.h"
+#pragma warning(disable : 4267)
 #endif // _MSC_VER
 
 #include "acdpp.h"
@@ -182,6 +182,11 @@ private:
 	}
 };
 
+typedef struct _VMError {
+    Dpp_Object *err = nullptr;
+    String msg;
+} VMError;
+
 typedef struct _OpCode {
     rt_opcode opcode;
 	char flag;
@@ -205,7 +210,6 @@ typedef struct FObject {
 	public:
 		FObject(){
 			_theap = new Tmp_Heap;
-			_error = new ErrorPool;
 			sig = new Signal;
 
 		}
@@ -213,7 +217,7 @@ typedef struct FObject {
 
 	public:
 		Tmp_Heap *_theap;
-		ErrorPool *_error;
+        VMError *_error = nullptr;
 	public:
 		Array<Module> modules;
 		ObjectMapping obj_map; // mapped object

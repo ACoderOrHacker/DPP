@@ -34,7 +34,7 @@ void _del(FObject *fObj) {
 	bool isFailed = DeleteObject(obj);
 
 	if(isFailed) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 	}
 }
 
@@ -48,7 +48,7 @@ void _add(FObject *fObj) {
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
@@ -56,7 +56,7 @@ void _add(FObject *fObj) {
 	_c = *lobj + robj;
 
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -70,14 +70,14 @@ void _sub(FObject *fObj) {
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj - robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -94,14 +94,14 @@ void _mul(FObject *fObj) {
 	Dpp_Object *robj = fObj->obj_map.get(_rval);
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj * robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -116,14 +116,14 @@ void _div(FObject *fObj) {
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj / robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -138,14 +138,14 @@ void _mod(FObject *fObj) {
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj % robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -157,7 +157,7 @@ void _bneg(FObject *fObj) {
 	Dpp_Object *obj = fObj->obj_map.get(_obj);
 	Dpp_Object *_c = ~(*obj);
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -171,13 +171,13 @@ void _band(FObject *fObj) {
 	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
 
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = *lnum & rnum;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 		return;
 	}
 
@@ -193,13 +193,13 @@ void _bor(FObject *fObj) {
 	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
 
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = *lnum | rnum;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 		return;
 	}
 
@@ -215,13 +215,13 @@ void _bxor(FObject *fObj) {
 	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
 
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = *lnum ^ rnum;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 		return;
 	}
 
@@ -237,13 +237,13 @@ void _shl(FObject *fObj) {
 	Dpp_Object *shl_count = fObj->obj_map.get(_shl_count);
 
 	if(num == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = *num << shl_count;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 		return;
 	}
 
@@ -259,13 +259,13 @@ void _shr(FObject *fObj) {
 	Dpp_Object *shr_count = fObj->obj_map.get(_shr_count);
 
 	if(num == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = *num >> shr_count;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 		return;
 	}
 
@@ -279,7 +279,7 @@ void _not(FObject *fObj) {
 	Dpp_Object *obj = fObj->obj_map.get(_obj);
 	Dpp_Object *_c = !(*obj);
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -294,14 +294,14 @@ void _eq(FObject *fObj) {
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj == robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -316,14 +316,14 @@ void _bigger(FObject *fObj) {
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj > robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -338,14 +338,14 @@ void _smaller(FObject *fObj) {
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		error->PushData(Dpp_NullPointerError);
+		SetError(fObj, Dpp_NullPointerError, L"");
 		return;
 	}
 
 	Dpp_Object *_c = nullptr;
 	_c = *lobj < robj;
 	if(_c == nullptr) {
-		error->PushData(Dpp_DataCantOperatorError);
+		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
 	fObj->obj_map.write(to, _c);
 }
@@ -384,14 +384,8 @@ void _call(FObject *fObj) {
 	Object _func = *theap->begin();
 
     FunctionObject *func = (FunctionObject *)fObj->obj_map.get(_func);
-	struct VMState jmp_state = func->state;
-	fObj->obj_map.create_mapping(fObj->obj_map.getLastCreateID(), jmp_state.isLambda);
 
-	// Save the last state
-	struct VMState state = fObj->state;
-	fObj->callstack.push(state);
-
-	_jmp(fObj);
+    std::cout << "not finish!!!";
 }
 
 void _calln(FObject *fObj) {
@@ -407,7 +401,7 @@ void _calln(FObject *fObj) {
 		std::string native_func = WStrToPChar(_native_func);
 		NativeProc proc = GetNativeProc(fObj->modules[_lib.id], native_func.c_str());
 		if(proc == nullptr) {
-			error->PushData(Dpp_LibNoSymbolError);
+            SetError(fObj, Dpp_LibNoSymbolError, L"");
 			return;
 		}
 		NATIVE_FUNC func = (NATIVE_FUNC)proc;
@@ -468,10 +462,10 @@ void _new(FObject *fObj) {
 	try {
 		obj = NewObject(type->reg->size + sizeof(Dpp_Object));
 	} catch(std::bad_alloc) {
-		error->PushData(Dpp_NoMemoryError);
+        SetError(fObj, Dpp_NoMemoryError, L"");
 		return;
 	} catch(TypeNotRightError) {
-		error->PushData(Dpp_TypeNotRightError);
+        SetError(fObj, Dpp_TypeNotRightError, L"");
 		return;
 	}
 
@@ -488,7 +482,7 @@ void _mov(FObject *fObj) {
 	bool status = src->move(to);
 	if(!status) {
 		// failed
-		error->PushData(Dpp_TypeNotRightError);
+        SetError(fObj, Dpp_TypeNotRightError, L"");
 	}
 }
 

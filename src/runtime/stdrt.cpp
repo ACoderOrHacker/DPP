@@ -55,3 +55,30 @@ void EnvClean(FObject *fObj) {
 	delete fObj;
 	fObj = nullptr;
 }
+
+bool CallFunction(FObject *fObj,
+    FunctionObject *func,
+    uint32_t _paramnum,
+    ...) {
+    va_list l;
+    va_start(l, _paramnum);
+    uint32_t paramnum = _paramnum;
+
+    uint32_t create_frame = fObj->obj_map.getLastCreateID();
+    struct VMState jmp_state = func->state;
+    fObj->obj_map.create_mapping(create_frame, jmp_state.isLambda);
+
+    // Save the last state
+    struct VMState state = fObj->state;
+    fObj->callstack.push(state);
+    fObj->state = jmp_state;
+    fObj->state.runat = 0;
+
+    while (_paramnum > 0) {
+        fObj->obj_map.write({false, paramnum - _paramnum}, va_arg(l, Dpp_Object *));
+
+        --paramnum;
+    }
+
+    return true;
+}
