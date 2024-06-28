@@ -1,9 +1,0 @@
-/*
-	library.h
-*/
-#include<fstream>
-#include<iostream>
-#include<deque>
-#include<time.h>
-#include<regex>
-#include<string>

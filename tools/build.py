@@ -9,6 +9,8 @@ import clean
 AUTO: int = 0
 NOT_AUTO: int = 1
 build_type: int = AUTO
+is_debug: bool = True
+
 
 def mkdir(parent: str, folder: str):
 	old_parent: str = os.getcwd()
@@ -22,9 +24,11 @@ def mkdir(parent: str, folder: str):
 
 	os.chdir(old_parent)
 
+
 def bad_build():
 	print("Cannot build DPP project")
 	exit(1)
+
 
 def get_makefile_type():
 	if build_type != AUTO:
@@ -33,12 +37,14 @@ def get_makefile_type():
 	else:
 		return "NMake Makefiles"
 
+
 def get_makefile_generator():
 	if build_type != AUTO:
 		gen: str = input("Please input the generator: ")
 		return gen
 	else:
 		return "nmake"
+
 
 def build() -> None:
 	"""
@@ -52,6 +58,11 @@ def build() -> None:
 
 	for arg in sys.argv:
 		cmake_build_args.join("-D" + arg)
+
+	if is_debug:
+		cmake_build_args.join("-DCMAKE_BUILD_TYPE=Debug")
+	else:
+		cmake_build_args.join("-DCMAKE_BUILD_TYPE=Release")
 
 	mkdir(path, build_dir)
 	os.chdir(path + build_dir)
@@ -87,16 +98,21 @@ def main() -> None:
 			  "   --msvc                 = Compile by MSVC\n"
 			  "   --other-compiler       = Compile by other C/C++ compiler\n"
 			  "   --no-clean             = Do not clean all the files\n"
+			  "   --release              = Build a release package\n"
+			  "   --debug                = Build a debug package\n"
 			  "\n"
 			  "You can get all the supported makefile types and corresponding make tools from the cmake.org or use cmake --help")
 
-		# os.system("cmake --help")
+	# os.system("cmake --help")
 	elif "--other-compiler" in sys.argv:
 		build_type = NOT_AUTO
 		build()
 
 	if "--no-clean" in sys.argv:
 		return
+
+	if "--release" in sys.argv:
+		is_debug = False
 	clean.clean()
 
 	exit(0)

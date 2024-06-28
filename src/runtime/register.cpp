@@ -36,7 +36,7 @@ struct _LinkType {
 	RegType reg;
 };
 
-RegType GetReg(const type_info &type) {
+RegType GetReg(const std::type_info &type) {
 
     if (type == typeid(Interger)) {
         return IntType;
@@ -47,23 +47,6 @@ RegType GetReg(const type_info &type) {
     } else {
         throw NoType();
     }
-}
-
-// this function only can get the standard types
-template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
-	Dpp_Object *ret = NewObject<T>();
-	SetObject<T, VAL_T>(ret, val);
-	ret->reg = &GetReg(typeid(VAL_T));
-	return ret;
-}
-
-template<typename T, typename VAL_T> Dpp_Object *mkConstEx(FObject *fObj, uint8_t typeval, VAL_T val) {
-    RegType *type = fObj->obj_map.get({ 0, typeval })->reg;
-	Dpp_Object *ret = NewObject(type.size);
-	SetObject<T, VAL_T>(ret, val);
-	ret->reg->type = typeval;
-	ret->reg = type;
-	return ret;
 }
 
 Dpp_Object *IntAdd(Dpp_Object *lval, Dpp_Object *rval) {
@@ -329,6 +312,13 @@ void RegInit(FObject *fObj) {
     __classtype->reg = &ClassType;
     __errortype->reg = &ErrorType;
     __functiontype->reg = &FunctionType;
+
+    __inttype->isTypeObject = true;
+    __floattype->isTypeObject = true;
+    __stringtype->isTypeObject = true;
+    __classtype->isTypeObject = true;
+    __errortype->isTypeObject = true;
+    __functiontype->isTypeObject = true;
 
 	fObj->obj_map.write({false, INT_TYPE}, __inttype);
 	fObj->obj_map.write({false, FLOAT_TYPE}, __floattype);

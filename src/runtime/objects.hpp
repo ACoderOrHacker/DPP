@@ -87,8 +87,8 @@ bool DeleteObject(Dpp_Object *obj);
 
 template<typename T> Dpp_Object *NewObject() {
 	void *ptr = malloc(sizeof(T));
-	T *obj = (T *)ptr;
-	return &obj->head;
+
+	return (Dpp_Object *)ptr;
 }
 
 template<typename T> void DeleteObject(Dpp_Object *obj) {

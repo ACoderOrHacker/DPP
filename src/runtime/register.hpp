@@ -53,8 +53,26 @@ SOFTWARE.
 
 struct _LinkType;
 
-RegType GetReg(uint8_t type);
-template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val);
+RegType GetReg(const std::type_info &type);
+
+// this function only can get the standard types
+template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
+    Dpp_Object *ret = NewObject<T>();
+    SetObject<T, VAL_T>(ret, val);
+    auto reg = GetReg(typeid(VAL_T));
+
+    ret->reg = &reg;
+    return ret;
+}
+
+template<typename T, typename VAL_T> Dpp_Object *mkConstEx(FObject *fObj, uint8_t typeval, VAL_T val) {
+    RegType *type = fObj->obj_map.get({ 0, typeval })->reg;
+    Dpp_Object *ret = NewObject(type->size);
+    SetObject<T, VAL_T>(ret, val);
+    ret->reg->type = typeval;
+    ret->reg = type;
+    return ret;
+}
 
 // for interger
 Dpp_Object *IntAdd(Dpp_Object *lval, Dpp_Object *rval);
@@ -82,7 +100,7 @@ Dpp_Object *StringAdd(Dpp_Object *lval, Dpp_Object *rval);
 bool StringPrint(Dpp_Object *print_obj);
 
 void RegInit(FObject *fObj);
-inline void RegSet(Dpp_Object *obj, RegType reg);
+inline void RegSet(Dpp_Object *obj, RegType *reg);
 
 Dpp_Object *StdBigger(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *StdSmaller(Dpp_Object *lval, Dpp_Object *rval);

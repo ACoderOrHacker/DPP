@@ -4,6 +4,9 @@
 #define NO_OPCODE 8
 #define HAS_SIGNAL 7
 
+#define JMP_TRUE 6
+#define JMP_FALSE 5
+
 #define NO_FLAG 0b00000000
 
 #define DATA_CANT_OPERATOR_ID 0

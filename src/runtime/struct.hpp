@@ -138,6 +138,7 @@ class Dpp_Object {
 		std::string name;
 		char info = 0; // see doc/object/info.md
 		RegType *reg = nullptr;
+        bool isTypeObject = false;
 };
 
 class ObjectMapping {

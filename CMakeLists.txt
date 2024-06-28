@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.10)
 
 project(D++ VERSION 0.1 LANGUAGES CXX)
 
+set(BOOST_ROOT D:/boost)
+find_package(Boost REQUIRED)
+
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 endif()
@@ -31,7 +34,8 @@ set(DXX_VERSION_MINOR 1)
 include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
                            ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4-runtime/
                            ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
-                           ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/)
+                           ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
+                           ${Boost_INCLUDE_DIRS})
 
 option(BUILD_TOOLS "-----Build The Tools-----" ON)
 option(BUILD_TESTS "-----Build The Tests-----" ON)

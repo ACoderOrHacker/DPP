@@ -57,6 +57,7 @@ const OpcodeFunc opcode_list[256] = {
 
 VM_API FObject *MakeVM() {
 	FObject *fObj = new FObject;
+    RegInit(fObj);
 	return fObj;
 }
 
@@ -74,7 +75,10 @@ VM_API void VM_Run(FObject *fObj) {
 				// has a unknown opcode
 				SetBit0(fObj->flags, NO_OPCODE);
 				return; // Skip this opcode
-			} /*else if (GetBit(fObj->flags, HAS_SIGNAL)) {
+			}
+
+            CatchError(fObj);
+            /*else if (GetBit(fObj->flags, HAS_SIGNAL)) {
 				// has a signal to execute
 				SetBit0(fObj->flags, HAS_SIGNAL);
 				while(!fObj->sig->isEmpty()) {
@@ -105,7 +109,7 @@ VM_API bool Exec(OpCode opcode, FObject *fObj) {
 
 	WriteTHeap(theap, &opcode.params); // write the params to the 'fObj->_theap' for the opcode
 
-	if(opcode.opcode >= OPCODE_START && opcode.opcode < OPCODE_END) {
+	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
 		opcode_list[opcode.opcode](fObj); // call opcode
 		if(error == nullptr && fObj->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
@@ -117,13 +121,12 @@ VM_API bool Exec(OpCode opcode, FObject *fObj) {
 
 #ifndef _WIN32
 void InitVMLibrary() __attribute__((constructor)) {
-	RegInit();
+
 }
 #else
 BOOL WINAPI DllMain(HINSTANCE,
 	DWORD,
 	LPVOID) {
-	return TRUE; // fuck
-	// this 'return TRUE' make me find much time.fuck
+	return TRUE;
 }
 #endif

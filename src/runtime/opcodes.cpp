@@ -377,6 +377,15 @@ void _or(FObject *fObj) {
 void _jmp(FObject *fObj) {
 	Object _jmpto = theap->PopData();
 
+    if (GetBit(fObj->flags, JMP_TRUE) == 1) {
+        if (isTrue(fObj->obj_map.get(theap->PopData()))) {
+            fObj->state.runat = _jmpto.id;
+        }
+    } else if (GetBit(fObj->flags, JMP_FALSE) == 1) {
+        if (!isTrue(fObj->obj_map.get(theap->PopData()))) {
+            fObj->state.runat = _jmpto.id;
+        }
+    }
 	fObj->state.runat = _jmpto.id;
 }
 
