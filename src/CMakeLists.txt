@@ -18,8 +18,16 @@ add_custom_target(BUILD_GRAMMAR
 #target_link_libraries(compiler ${COMPILER_LIB})
 
 # Make shared library
+
 file(GLOB VM_FILES runtime/*.cpp)
-add_library(vm SHARED ${VM_FILES})
+if (BUILD_VM_SERIALIZATION)
+    message(STATUS "Build The Serialization")
+
+    file(GLOB SERIALIZATION_FILES serialization/*.cpp)
+    add_library(vm SHARED ${VM_FILES} ${SERIALIZATION_FILES})
+else ()
+    add_library(vm SHARED ${VM_FILES})
+endif ()
 
 add_executable(dpp dpp.cpp)
 target_link_libraries(dpp vm)

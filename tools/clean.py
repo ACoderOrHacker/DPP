@@ -14,9 +14,11 @@ def clean() -> None:
 	try:
 		shutil.rmtree("../build/")
 		shutil.rmtree("../out/")
+		shutil.rmtree("../bin/")
 	except FileNotFoundError:
 		# Not found the folders
 		pass
+
 
 def main() -> None:
 	"""
@@ -24,6 +26,7 @@ def main() -> None:
 	:rtype: None
 	"""
 	clean()
+
 
 if __name__ == "__main__":
 	main()

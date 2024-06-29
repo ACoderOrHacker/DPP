@@ -1,6 +1,13 @@
 #ifndef _DPP_MACROS
 #define _DPP_MACROS
 
+/*
+ * The Status Code
+ */
+typedef bool STATUS;
+#define STATUS_SUCCESS 1
+#define STATUS_FAILED 0
+
 #define NO_OPCODE 8
 #define HAS_SIGNAL 7
 

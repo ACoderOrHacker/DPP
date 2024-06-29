@@ -4,8 +4,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(D++ VERSION 0.1 LANGUAGES CXX)
 
-set(BOOST_ROOT D:/boost)
-find_package(Boost REQUIRED)
+set(BOOST_ROOT D:\\boost)
+find_package(Boost REQUIRED COMPONENTS serialization)
+message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
+
 
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
@@ -37,8 +40,11 @@ include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/
                            ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
                            ${Boost_INCLUDE_DIRS})
 
+link_directories(${Boost_LIBRARY_DIRS})
+
 option(BUILD_TOOLS "-----Build The Tools-----" ON)
 option(BUILD_TESTS "-----Build The Tests-----" ON)
+option(BUILD_VM_SERIALIZATION "-----Build The Serialization-----" ON)
 
 if(BUILD_TOOLS)
     # build the tools

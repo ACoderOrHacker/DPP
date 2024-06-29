@@ -57,16 +57,20 @@ def build() -> None:
 	cmake_build_args: str = ""
 
 	for arg in sys.argv:
-		cmake_build_args.join("-D" + arg)
+		if arg.startswith("-D"):
+			cmake_build_args += arg + " "
 
-	if is_debug:
-		cmake_build_args.join("-DCMAKE_BUILD_TYPE=Debug")
+	if not is_debug:
+		print("Mode: Release\n")
+		cmake_build_args += "-DCMAKE_BUILD_TYPE=Release"
 	else:
-		cmake_build_args.join("-DCMAKE_BUILD_TYPE=Release")
+		print("Mode: Debug\n")
+		cmake_build_args += "-DCMAKE_BUILD_TYPE=Debug"
+	# print(cmake_build_args)
 
 	mkdir(path, build_dir)
 	os.chdir(path + build_dir)
-	cmake_ret: int = os.system(cmake)
+	cmake_ret: int = os.system(cmake + cmake_build_args)
 
 	if cmake_ret != 0:
 		bad_build()
@@ -81,7 +85,10 @@ def build() -> None:
 
 
 def main() -> None:
-	global build_type
+	global build_type, is_debug
+
+	if "--release" in sys.argv:
+		is_debug = False
 
 	if "--msvc" in sys.argv:
 		# Auto build
@@ -111,8 +118,6 @@ def main() -> None:
 	if "--no-clean" in sys.argv:
 		return
 
-	if "--release" in sys.argv:
-		is_debug = False
 	clean.clean()
 
 	exit(0)

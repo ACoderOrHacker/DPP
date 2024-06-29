@@ -1,10 +1,12 @@
+#include <boost/archive/basic_archive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include "struct.hpp"
 
-int main()
-{
+namespace dpp {
+    namespace seralization {
+        template<typename T> T *load(std::istream);
 
-int aa
-return 0;
-
-
+        template<typename T> STATUS save(std::ostream &, T *);
+    }
 }
