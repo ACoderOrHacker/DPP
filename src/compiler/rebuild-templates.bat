@@ -1,1 +1,0 @@
-antlr4 -visitor -listener templates/DXXLexer.g4 templates/DXXParser.g4 -o antlr4/

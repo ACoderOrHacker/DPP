@@ -2,12 +2,17 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 project(D++ VERSION 0.1 LANGUAGES CXX)
 
-set(BOOST_ROOT D:\\boost)
+# You can use "-DBOOST_ROOT=(Your Boost Root Path)" to set the boost root
+set(Boost_ROOT D:\\boost)
+cmake_policy(SET CMP0074 NEW)
 find_package(Boost REQUIRED COMPONENTS serialization)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
+
 
 
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)

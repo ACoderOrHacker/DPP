@@ -22,5 +22,8 @@
 # Python Cache Folder
 __pycache__
 
+# Cppcheck Cache Folder
+/DPP-cppcheck-build-dir/
+
 # My Workspace
 /workspace/

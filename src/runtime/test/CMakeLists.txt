@@ -1,1 +1,1 @@
-message("Tests building...")
+message(STATUS "Tests building...")

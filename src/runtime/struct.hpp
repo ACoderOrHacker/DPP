@@ -29,6 +29,8 @@
 #include <cstring>
 #include <string>
 #include <stack>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4267)
@@ -208,26 +210,33 @@ struct VMState {
 };
 
 typedef struct FObject {
-	public:
-		FObject(){
-			_theap = new Tmp_Heap;
-			sig = new Signal;
+public:
+	FObject(){
+		_theap = new Tmp_Heap;
+		sig = new Signal;
 
-		}
-		~FObject() {}
+	}
+	~FObject() {}
 
-	public:
-		Tmp_Heap *_theap;
-        VMError *_error = nullptr;
-	public:
-		Array<Module> modules;
-		ObjectMapping obj_map; // mapped object
-		std::stack<struct VMState> callstack;
-		Signal *sig;
-		struct VMState state;
-		char flags = NO_FLAG;
-		int exit_code = EXIT_SUCCESS;
+public:
+	Tmp_Heap *_theap;
+    VMError *_error = nullptr;
+public:
+	Array<Module> modules;
+	ObjectMapping obj_map; // mapped object
+	std::stack<struct VMState> callstack;
+	Signal *sig;
+	struct VMState state;
+	char flags = NO_FLAG;
+	int exit_code = EXIT_SUCCESS;
 
+private:
+    friend class boost::serialization::access;
+    template<typename Archive> void serialization(Archive &ar, unsigned int version) {
+        ar & modules;
+        ar & obj_map;
+        ar & state;
+    }
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);
