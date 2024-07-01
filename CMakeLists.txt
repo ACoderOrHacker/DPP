@@ -14,7 +14,6 @@ message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
 
-
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 endif()
@@ -53,7 +52,7 @@ option(BUILD_VM_SERIALIZATION "-----Build The Serialization-----" ON)
 
 if(BUILD_TOOLS)
     # build the tools
-    
+
 endif()
 
 if(BUILD_TESTS)

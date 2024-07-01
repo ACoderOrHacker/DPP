@@ -4,7 +4,7 @@
 #include "struct.hpp"
 
 namespace dpp {
-    namespace seralization {
+    namespace serialization {
         template<typename T> T *load(std::istream);
 
         template<typename T> STATUS save(std::ostream &, T *);

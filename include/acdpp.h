@@ -22,6 +22,10 @@
 #define forceinline
 #endif
 
+/*
+ * If Returned 'NONE', then the grammer doesn't have object to return
+ */
+#define NONE nullptr
 #define cast(type, val) ((type)(val))
 #define anycast(type, val) (std::any_cast<type>(val)) // for std::any
 

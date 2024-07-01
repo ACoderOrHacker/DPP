@@ -1,14 +1,16 @@
 #include "Serialization.hpp"
 
-template<typename T> T *dpp::seralization::load(std::istream istream) {
+template<typename T>
+T *dpp::serialization::load(std::istream istream) {
     boost::archive::binary_iarchive archive(istream);
     T *object = new T;
     archive >> object;
 
-    return Object;
+    return object;
 }
 
-template<typename T> STATUS dpp::seralization::save(std::ostream &ifs, T *object) {
+template<typename T>
+STATUS dpp::serialization::save(std::ostream &ifs, T *object) {
     boost::archive::binary_oarchive archive(ofs);
 
     archive << object;

@@ -27,6 +27,7 @@
 #include <string>
 #include <fstream>
 #include <any>
+#include <cstdarg>
 
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
@@ -65,18 +66,17 @@ public:
 };
 */
 
-typedef struct _Dpp_DbgInfos {
+typedef struct _Dpp_CObject {
 	Object object;
-	std::string id;
+    std::wstring id;
+    Array<Dpp_CObject *> subs;
 	uint32_t infos;
 	void *metadata[8];
-} Dpp_DbgInfos;
+} Dpp_CObject;
 
 class Namespace {
 public:
-	uint32_t idIt = 0;
-public:
-	Array<Dpp_DbgInfos *> objects;
+    Array<Dpp_CObject *> objects;
 	Array<Namespace *> namespaces;
 };
 
@@ -100,8 +100,53 @@ Object newObject(FObject *fObj,
 
 }
 
+DXX_API OpCode
+MakeOpCode(rt_opcode
+op,
+char flags = NO_FLAG,
+int count,
+...
+) {
+OpCode _op;
+_op.
+opcode = op;
+_op.
+flag = flags;
+va_list l;
+va_start(l, count
+);
+
+for(
+int i = 0;
+i<count;
+++i) {
+_op.params.
+PushData(va_arg(l, Object)
+);
+}
+va_end(l);
+
+return
+_op;
+}
+
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
+    DXXVisitor(FObject *_fObj = nullptr) {
+        _fObj == nullptr ? fObj = new FObject : fObj = _fObj;
+    }
+
+    /*
+     * @return: NONE
+     * Create 'import' opcodes
+     */
+    std::any visitImportLib(DXXParser::ImportLibContext *ctx) override {
+        Dpp_CObject *library = anycast(MakeString(ctx->idEx()->toString()));
+
+        LoadOpcode(OPCODE_IMPORT, NO_FLAG, 1, library);
+        return NONE;
+    }
+
 	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) {
 		DXXParser::TheTypeContext *_type = ctx->theType();
 		std::vector<DXXParser::InfoContext *> infos = ctx->info();
@@ -128,18 +173,6 @@ public:
 		movVal(o, val);
 
 		return std::any(o);
-	}
-
-	std::any visitImportLib(DXXParser::ImportLibContext *ctx) override {
-		DXXParser::IdExContext *_lib = ctx->idEx();
-
-		std::string lib = anycast(std::string, visitIdEx(_lib));
-
-		Object libobj = Dpp_Null;
-
-		libobj = loadLibrary(lib);
-
-		return std::any(libobj);
 	}
 
 	std::any visitFunction(DXXParser::FunctionContext *ctx) override {
@@ -224,12 +257,62 @@ public:
 	}
 
 private:
-	Object allocMapping(bool isConst = false) {
-		if (isConst) return { true, ++this->globalNamespace->idIt };
-		else return { isInGlobal(), ++this->thisNamespace->idIt };
-	}
+    /*
+     * @return: bool
+     */
+    inline bool isInGlobal() { return globalNamespace == thisNamespace; }
 
-	inline bool isInGlobal() { return globalNamespace == thisNamespace; }
+    /*
+     * @return: Object
+     * Create a Object structure from the iterator
+     */
+    Object allocMapping(bool isConst = false) {
+        if (isConst) return {true, ++this->globalNamespace->idIt};
+        else return {isInGlobal(), ++this->thisNamespace->idIt};
+    }
+
+    /*
+     * @return: void
+     * Create a opcode and push it to main state(fObj->state)
+     */
+    void LoadOpcode(rt_opcode op,
+                    char flags = NO_FLAG,
+                    int count,
+                    ...) {
+        va_list l;
+
+        va_start(l, count);
+        fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, count, l));
+        va_end(l);
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md)
+     * And Push the constant to the object pool
+     */
+    Dpp_CObject *MakeConst(Object o, Dpp_Object *obj) {
+        Dpp_CObject *_co = new Dpp_CObject;
+        _co->object = o;
+
+        fObj->obj_map.write(o, obj);
+
+        return _co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of StringObject
+     * And Push the string constant to the object pool
+     */
+    Dpp_CObject *MakeString(std::string s) {
+        String wstr = stringToWstring(s);
+        Object o = allocMapping(true);
+        Dpp_Object *obj = mkConst<StringObject, String>(wstr);
+        Dpp_CObject *_const = MakeConst(o, obj);
+
+        return _const;
+    }
 
 	void writeDbgInfos(Dpp_DbgInfos *infos) {
 		thisNamespace->objects.write(thisNamespace->idIt, infos);
@@ -337,30 +420,10 @@ private:
 
 		fObj->state.vmopcodes.PushData(op);
 	}
-
-	Object loadLibrary(std::string _lib) {
-		OpCode op;
-		Heap<Object> params;
-		Object lib = allocMapping(true);
-		Object to = allocMapping();
-
-		fObj->obj_map.write(lib, mkConst<StringObject, String>(stringToWstring(_lib)));
-
-		op = {
-			OPCODE_IMPORT,
-			NO_FLAG,
-			params
-		};
-
-		op.params.PushData(lib);
-		op.params.PushData(to);
-
-		return to;
-	}
 private:
 	FObject *fObj;
-	Namespace *globalNamespace;
-	Namespace *thisNamespace;
+    Namespace *globalNamespace = new Namespace;
+    Namespace *thisNamespace = globalNamespace;
 };
 
 #endif // !_COMPILER_H
