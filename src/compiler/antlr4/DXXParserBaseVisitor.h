@@ -35,6 +35,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitEnumExpr(DXXParser::EnumExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitClassExpr(DXXParser::ClassExprContext *ctx) override {
     return visitChildren(ctx);
   }

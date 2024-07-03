@@ -29,6 +29,8 @@ public:
 
     virtual std::any visitVarDefineExpr(DXXParser::VarDefineExprContext *context) = 0;
 
+    virtual std::any visitEnumExpr(DXXParser::EnumExprContext *context) = 0;
+
     virtual std::any visitClassExpr(DXXParser::ClassExprContext *context) = 0;
 
     virtual std::any visitInterfaceExpr(DXXParser::InterfaceExprContext *context) = 0;

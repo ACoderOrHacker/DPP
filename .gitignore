@@ -4,7 +4,7 @@
 # build file (by cmake)
 /build/
 
-# all binary file
+# all the binary file
 *.obj
 *.o
 *.dll
@@ -14,7 +14,7 @@
 *.exe
 *.out
 
-# disable project file
+# disable the project file
 /.vs/
 /.idea/
 /out/
@@ -28,3 +28,6 @@ __pycache__
 
 # My Workspace
 /workspace/
+
+# The third-party libraries
+/thirdparty/

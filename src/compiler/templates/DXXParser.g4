@@ -16,7 +16,7 @@ gExpressions
    | function # functionExpr // Done
    | functionDefine # functionDefineExpr // Done
    | varDefine # varDefineExpr // Done
-//   | enum # enumExpr
+   | enum # enumExpr
    | class # classExpr
    | interface # interfaceExpr
    | semi # gSemiExpr // Done
@@ -188,11 +188,11 @@ gotoLabelDefine
    ;
 
 enum
-   : Enum enumSub LeftBrace (enumSub (Comma enumSub)*)? RightBrace
+   : Enum ID LeftBrace (enumSub (Comma enumSub)*)? RightBrace
    ;
 
 enumSub
-   : ID Assign (data | expressions)
+   : ID Assign IntegerData
    ;
 
 class

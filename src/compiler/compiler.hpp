@@ -32,37 +32,10 @@
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
 #include "vm.hpp"
+#include "metadata.h"
 
 bool compile(std::string code);
 bool compile(std::ifstream file);
-
-
-void underlineError(antlr4::Recognizer *recognizer,
-	                antlr4::Token *offendingSymbol,
-	                size_t line,
-	                size_t charPositionInLine);
-/*
-class ErrorListener : public antlr4::BaseErrorListener {
-public:
-	ErrorListener(){}
-	~ErrorListener(){}
-
-	void syntaxError(antlr4::Recognizer *recognizer, antlr4::Token *offendingSymbol, size_t line,
-		size_t charPositionInLine, const std::string &msg, std::exception_ptr e) {
-		std::cerr << "Syntax error at line " << line << ", column " << charPositionInLine << ": " << msg << std::endl;
-		//underlineError(recognizer, offendingSymbol, line, charPositionInLine);
-	}
-
-	void reportAmbiguity(antlr4::Parser *recognizer, const antlr4::dfa::DFA &dfa, size_t startIndex, size_t stopIndex, bool exact,
-		const antlrcpp::BitSet &ambigAlts, antlr4::atn::ATNConfigSet *configs){}
-
-	void reportAttemptingFullContext(antlr4::Parser *recognizer, const antlr4::dfa::DFA &dfa, size_t startIndex, size_t stopIndex,
-		const antlrcpp::BitSet &conflictingAlts, antlr4::atn::ATNConfigSet *configs){}
-
-	void reportContextSensitivity(antlr4::Parser *recognizer, const antlr4::dfa::DFA &dfa, size_t startIndex, size_t stopIndex,
-		size_t prediction, antlr4::atn::ATNConfigSet *configs){}
-};
-*/
 
 typedef struct _Dpp_CObject {
 	Object object;
@@ -121,6 +94,14 @@ public:
         _fObj == nullptr ? fObj = new FObject : fObj = _fObj;
     }
 
+    std::any visitBlock(DXXParser::BlockContext *ctx) override {
+        for (auto it : ctx->expressions()) {
+            visitChildren(it);
+        }
+
+        return NONE;
+    }
+
     /*
      * @return: NONE
      * Create 'import' opcodes
@@ -143,77 +124,84 @@ public:
         DXXParser::TheTypeContext *retType = ctx->theType();
         DXXParser::ThrowtableContext *throwTable = ctx->throwtable();
 
+        /*
+          TODO: visitParamList returns Heap<Dpp_Object *> *, visitThrowtable returns Heap<Dpp_Object *> *
+        */
         uint32_t infos = GetInfos(_infos);
         Heap<Dpp_Object *> *params = anycast(Heap<Dpp_Object *> *, visitParamList(_params));
         Dpp_Object *ret = anycast(Dpp_Object *, visitTheType(retType));
         Heap<Dpp_Object *> *throws = anycast(Heap<Dpp_Object *> *, visitThrowtable(throwTable));
 
-        FunctionObject func = ;
-        Dpp_CObject *co;
+        Dpp_Object *func = MakeFunctionObject(infos, id);
+        Dpp_CObject *co = MakeFunction(func, params, ret, throws);
 
-        o = mkFunctionConst(id);
-        dbgInfos = mkFunctionDbgInfos(infos, id, throws);
-        writeDbgInfos(dbgInfos);
-
-        return std::any(o);
+        return co;
     }
 
+    /*
+     * @return: Dpp_CObject *
+     * Create a full function object - has head and body
+     */
     std::any visitFunction(DXXParser::FunctionContext *ctx) override {
+        Dpp_CObject *co = anycast(Dpp_CObject *, visitFunctionHead(ctx->functionHead()));
+        Dpp_Object *func = getObject(co);
 
+        struct VMState state;
+        fObj->callstack.push(fObj->state);
+        fObj->state = state;
+
+        visitBlock(block);
+
+        ((FunctionObject *)func)->state = fObj->state;
+
+        fObj->state = fObj->callstack.top();
+        fObj->callstack.pop();
+
+        return co;
     }
 
-	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) {
+    /*
+     * @return: Dpp_CObject *
+     * Create a 'Compile-time Object' of function
+     */
+    std::any visitFunctionDefine(DXXParser::FunctionDefineContext *ctx) override {
+        return visitFunctionHead(ctx->functionHead());
+    }
+
+    /*
+     * @return: NONE
+     * Define a variable
+     */
+	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) override {
 		DXXParser::TheTypeContext *_type = ctx->theType();
 		std::vector<DXXParser::InfoContext *> infos = ctx->info();
 		DXXParser::DataContext *_data = ctx->data();
 
-		std::string id = ctx->ID()->toString();
-		Object type = anycast(Object, visitTheType(_type));
+		std::string &id = ctx->ID()->toString();
+		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
+		Dpp_CObject *data;
+        Object to = allocMapping();
 
-		Object data = Dpp_Null;
+        LoadOpcode(OPCODE_NEW, NO_FLAG, 2, type->object, to);
+        if (_data != nullptr) {
+            data = anycast(Dpp_CObject *, visitChildren(_data));
+            LoadOpcode(OPCODE_MOV, NO_FLAG, 2, data->object, to);
+        }
 
-		if (_data != nullptr) {
-			data = anycast(Object, visitChildren(_data));
-		}
-
-		Object omapping = newObject(type, data);
-
-		return std::any(omapping);
+		return NONE;
 	}
 
+    /*
+     * @return: NONE
+     * Move the value to the variable
+     */
 	std::any visitVarSet(DXXParser::VarSetContext *ctx) override {
-		Object o = anycast(Object, visitIdEx(ctx->idEx()));
-		Object val = anycast(Object, visitChildren(ctx->data()));
+		Dpp_CObject o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
+		Dpp_CObject *val = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
-		movVal(o, val);
+		LoadOpcode(OPCODE_MOV, NO_FLAG, 2, val->object, o->object);
 
-		return std::any(o);
-	}
-
-	std::any visitFunction(DXXParser::FunctionContext *ctx) override {
-		// 1.Create a function head (visitFunctionHead)
-		// 2.Write opcodes into function (visitBlock)
-		// pop the function state, make function object
-
-
-        DXXParser::FunctionHeadContext *head = ctx->functionHead();
-		DXXParser::BlockContext *block = ctx->block();
-
-		struct VMState state;
-		fObj->callstack.push(fObj->state);
-		fObj->state = state;
-
-		Dpp_Object *func = anycast(Dpp_Object *, visitFunctionHead(head));
-		visitBlock(block);
-
-		((FunctionObject *)func)->state = fObj->state;
-
-		fObj->state = fObj->callstack.top();
-		fObj->callstack.pop();
-	}
-
-	std::any visitFunctionDefine(DXXParser::FunctionDefineContext *ctx) override {
-		return visitFunctionHead(ctx->functionHead());
+		return NONE;
 	}
 	/*
 	std::any visitTypedef(DXXParser::TypedefContext *ctx) override {
@@ -225,6 +213,18 @@ public:
 
 	}*/
 
+    /*
+     * @return: NONE
+     * Linking the constant to the enum variable
+     */
+    std::any visitEnum(DXXParser::EnumContext *ctx) override {
+
+    }
+
+    std::any visitEnumSub(DXXParser::EnumSubContext *ctx) override {
+
+    }
+
 	std::any visitNew(DXXParser::NewContext *ctx) override {
 		Object type = anycast(Object, visitTheType(ctx->theType()));
 
@@ -232,18 +232,11 @@ public:
 	}
 
 	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
-		Object data = anycast(Object, visitChildren(ctx->data()));
+		Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
-		deleteData(data);
-		return nullptr;
-	}
+        LoadOpcode(OPCODE_DELETE, NO_FLAG, 1, data->object);
 
-	std::any visitBlock(DXXParser::BlockContext *ctx) override {
-		for (auto it : ctx->expressions()) {
-			visitChildren(it);
-		}
-
-		return nullptr;
+		return NONE;
 	}
 
 private:
@@ -303,14 +296,31 @@ private:
         return MakeConst(o, obj);
     }
 
+    Dpp_CObject *MakeInteger(Interger idata) {
+        Object o = allocMapping(true);
+        Dpp_Object *obj = mkConst<IntObject, Interger>(idata);
+
+        return MakeConst(o, obj);
+    }
+
     /*
      * @return: Dpp_CObject *
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of FunctionObject
      * And Push the function object to the object pool
      */
-    Dpp_CObject *MakeFunction() {
+    Dpp_CObject *MakeFunction(Dpp_Object *func,
+                              uint32_t infos,
+                              Heap<Dpp_Object *> *params,
+                              Dpp_Object *ret,
+                              Heap<Dpp_Object *> *throws) {
+        Object o = allocMapping(true);
+        Dpp_CObject *co = MakeConst(o, func);
+        co->infos = infos;
+        co->metadata[function::PARAMS] = params;
+        co->metadata[function::RETURN_TYPE] = ret;
+        co->metadata[function::THROW_TABLE] = throws;
 
-        return MakeConst(o, obj);
+        return co;
     }
 
     /*
@@ -324,115 +334,18 @@ private:
         o->name = id;
         o->isTypeObject = false;
         o->reg = FunctionType;
-        // TODO: NOT SUCCESS
-        //o->info
+
+        return o;
     }
 
-	void writeDbgInfos(Dpp_DbgInfos *infos) {
-		thisNamespace->objects.write(thisNamespace->idIt, infos);
-		++this->thisNamespace;
-	}
-
-	uint32_t getInfos(std::vector<DXXParser::InfoContext *> *_infos) {
+	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
 		uint32_t infos;
 
 		for (auto it : *_infos) {
-			infos &= anycast(uint32_t, visitInfo(it));
-		}
-	}
-
-	Dpp_Object *mkFunctionConst(std::string id) {
-		Dpp_Object *o = NewObject<FunctionObject>();
-		newObject(o, id);
-
-		return o;
-	}
-
-	Dpp_DbgInfos *mkFunctionDbgInfos(uint32_t infos,
-		std::string id,
-		Heap<Dpp_Object *> *throws) {
-		Dpp_DbgInfos *ret = new Dpp_DbgInfos;
-
-		ret->infos = infos;
-		ret->id = id;
-		ret->metadata[0] = throws; // see doc/compiler/metadata.md
-	}
-
-	void newObject(Dpp_Object *o,
-		std::string id) {
-		o->name = id;
-	}
-
-	Object newType(Object type) {
-		Object to = allocMapping();
-		OpCode op;
-		Heap<Object> params;
-
-		op = {
-			OPCODE_NEW,
-			NO_FLAG,
-			params
-		};
-
-		op.params.PushData(type);
-		op.params.PushData(to);
-
-		fObj->state.vmopcodes.PushData(op);
-	}
-
-	void deleteData(Object data) {
-		OpCode op;
-		Heap<Object> params;
-
-		op = {
-			OPCODE_DELETE,
-			NO_FLAG.
-			params
-		};
-
-		op.params.PushData(data);
-
-		fObj->state.vmopcodes.PushData(op);
-	}
-
-	Object newObject(Object type,
-		Object val = Dpp_Null) {
-		Heap<Object> params; // opcode paramters
-		OpCode op;
-		Object to = allocMapping();
-
-		op = {
-			OPCODE_NEW,
-			NO_FLAG,
-			params
-		};
-
-		op.params.PushData(type);
-		op.params.PushData(to);
-
-		fObj->state.vmopcodes.PushData(op);
-		if (!(val == Dpp_Null)) {
-			movVal(to, val);
+			infos |= anycast(uint32_t, visitInfo(it));
 		}
 
-		return to;
-	}
-
-	void movVal(Object src,
-		Object val) {
-		OpCode op;
-		Heap<Object> params;
-
-		op = {
-			OPCODE_MOV,
-			NO_FLAG,
-			params
-		};
-
-		op.params.PushData(src);
-		op.params.PushData(val);
-
-		fObj->state.vmopcodes.PushData(op);
+        return infos;
 	}
 private:
 	FObject *fObj;
