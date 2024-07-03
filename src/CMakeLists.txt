@@ -12,14 +12,13 @@ endif()
 add_custom_target(BUILD_GRAMMAR
                   COMMAND antlr4 -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o antlr4/)
 
-#file(GLOB COMPILER_FILES compiler/*.cpp)
-#add_library(compiler SHARED ${COMPILER_FILES})
-#find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
-#target_link_libraries(compiler ${COMPILER_LIB})
+file(GLOB COMPILER_FILES compiler/*.cpp compiler/*.hpp compiler/*.h)
+add_library(compiler SHARED ${COMPILER_FILES})
+find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
+target_link_libraries(compiler ${COMPILER_LIB})
 
 # Make shared library
-
-file(GLOB VM_FILES runtime/*.cpp)
+file(GLOB VM_FILES runtime/*.cpp runtime/*.hpp runtime/*.h)
 if (BUILD_VM_SERIALIZATION)
     message(STATUS "Build The Serialization")
 

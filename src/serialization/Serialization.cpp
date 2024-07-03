@@ -11,7 +11,7 @@ T *dpp::serialization::load(std::istream istream) {
 
 template<typename T>
 STATUS dpp::serialization::save(std::ostream &ifs, T *object) {
-    boost::archive::binary_oarchive archive(ofs);
+    boost::archive::binary_oarchive archive(ifs);
 
     archive << object;
 

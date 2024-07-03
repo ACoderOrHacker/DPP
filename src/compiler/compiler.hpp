@@ -31,10 +31,8 @@
 
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
-
-#include "acdpp.h"
-#include "compiletime.h"
 #include "vm.hpp"
+
 bool compile(std::string code);
 bool compile(std::ifstream file);
 
@@ -69,8 +67,8 @@ public:
 typedef struct _Dpp_CObject {
 	Object object;
     std::wstring id;
-    Array<Dpp_CObject *> subs;
-	uint32_t infos;
+    uint32_t infos;
+    Array<_Dpp_CObject *> subs;
 	void *metadata[8];
 } Dpp_CObject;
 
@@ -100,34 +98,21 @@ Object newObject(FObject *fObj,
 
 }
 
-DXX_API OpCode
-MakeOpCode(rt_opcode
-op,
-char flags = NO_FLAG,
-int count,
-...
-) {
-OpCode _op;
-_op.
-opcode = op;
-_op.
-flag = flags;
-va_list l;
-va_start(l, count
-);
+DXX_API OpCode MakeOpCode(rt_opcode op,
+    char flags = NO_FLAG,
+    int count = 0,
+    ...) {
+    OpCode _op;
+    _op.opcode = op;
+    _op.flag = flags;
+    va_list l;
+    va_start(l, count);
+    for(int i = 0; i<count; ++i) {
+        _op.params.PushData(va_arg(l, Object));
+    }
+    va_end(l);
 
-for(
-int i = 0;
-i<count;
-++i) {
-_op.params.
-PushData(va_arg(l, Object)
-);
-}
-va_end(l);
-
-return
-_op;
+    return _op;
 }
 
 class DXXVisitor : public DXXParserBaseVisitor {
@@ -141,10 +126,40 @@ public:
      * Create 'import' opcodes
      */
     std::any visitImportLib(DXXParser::ImportLibContext *ctx) override {
-        Dpp_CObject *library = anycast(MakeString(ctx->idEx()->toString()));
+        Dpp_CObject *library = MakeString(ctx->idEx()->toString());
 
         LoadOpcode(OPCODE_IMPORT, NO_FLAG, 1, library);
         return NONE;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Create a 'Compile-time Object' of function
+     */
+    std::any visitFunctionHead(DXXParser::FunctionHeadContext *ctx) override {
+        std::vector<DXXParser::InfoContext *> &_infos = ctx->info();
+        std::string &id = ctx->ID()->toString();
+        DXXParser::ParamListContext *_params = ctx->paramList();
+        DXXParser::TheTypeContext *retType = ctx->theType();
+        DXXParser::ThrowtableContext *throwTable = ctx->throwtable();
+
+        uint32_t infos = GetInfos(_infos);
+        Heap<Dpp_Object *> *params = anycast(Heap<Dpp_Object *> *, visitParamList(_params));
+        Dpp_Object *ret = anycast(Dpp_Object *, visitTheType(retType));
+        Heap<Dpp_Object *> *throws = anycast(Heap<Dpp_Object *> *, visitThrowtable(throwTable));
+
+        FunctionObject func = ;
+        Dpp_CObject *co;
+
+        o = mkFunctionConst(id);
+        dbgInfos = mkFunctionDbgInfos(infos, id, throws);
+        writeDbgInfos(dbgInfos);
+
+        return std::any(o);
+    }
+
+    std::any visitFunction(DXXParser::FunctionContext *ctx) override {
+
     }
 
 	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) {
@@ -195,31 +210,6 @@ public:
 
 		fObj->state = fObj->callstack.top();
 		fObj->callstack.pop();
-	}
-
-	/*
-	 * @return: Dpp_Object *
-	 */
-	std::any visitFunctionHead(DXXParser::FunctionHeadContext *ctx) override {
-		Dpp_Object *o;
-		Dpp_DbgInfos *dbgInfos;
-
-		std::vector<DXXParser::InfoContext *> *_infos = &ctx->info();
-		std::string id = ctx->ID()->toString();
-		DXXParser::ParamListContext *_params = ctx->paramList();
-		DXXParser::TheTypeContext *retType = ctx->theType();
-		DXXParser::ThrowtableContext *throwTable = ctx->throwtable();
-
-		uint32_t infos = getInfos(_infos);
-		Heap<Dpp_Object *> *params = anycast(Heap<Dpp_Object *> *, visitParamList(_params));
-		Dpp_Object *ret = anycast(Dpp_Object *, visitTheType(retType));
-		Heap<Dpp_Object *> *throws = anycast(Heap<Dpp_Object *> *, visitThrowtable(throwTable));
-
-		o = mkFunctionConst(id);
-		dbgInfos = mkFunctionDbgInfos(infos, id, throws);
-		writeDbgInfos(dbgInfos);
-
-		return std::any(o);
 	}
 
 	std::any visitFunctionDefine(DXXParser::FunctionDefineContext *ctx) override {
@@ -277,7 +267,7 @@ private:
      */
     void LoadOpcode(rt_opcode op,
                     char flags = NO_FLAG,
-                    int count,
+                    int count = 0,
                     ...) {
         va_list l;
 
@@ -309,9 +299,33 @@ private:
         String wstr = stringToWstring(s);
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<StringObject, String>(wstr);
-        Dpp_CObject *_const = MakeConst(o, obj);
 
-        return _const;
+        return MakeConst(o, obj);
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of FunctionObject
+     * And Push the function object to the object pool
+     */
+    Dpp_CObject *MakeFunction() {
+
+        return MakeConst(o, obj);
+    }
+
+    /*
+     * @return: Dpp_Object *
+     * Make a function object(run-time)
+     */
+    Dpp_Object *MakeFunctionObject(std::string id) {
+        FunctionObject *func = NewObject<FunctionObject>();
+        Dpp_Object *o = cast(Dpp_Object *, func);
+
+        o->name = id;
+        o->isTypeObject = false;
+        o->reg = FunctionType;
+        // TODO: NOT SUCCESS
+        //o->info
     }
 
 	void writeDbgInfos(Dpp_DbgInfos *infos) {

@@ -209,14 +209,14 @@ struct VMState {
 	bool isLambda = false;
 };
 
-typedef struct FObject {
+typedef struct _FObject {
 public:
-	FObject(){
+	_FObject(){
 		_theap = new Tmp_Heap;
 		sig = new Signal;
 
 	}
-	~FObject() {}
+	~_FObject() {}
 
 public:
 	Tmp_Heap *_theap;

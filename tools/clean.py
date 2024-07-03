@@ -13,6 +13,7 @@ def clean() -> None:
 
 	try:
 		shutil.rmtree("../build/")
+		shutil.rmtree("../cmake-build-debug/")
 		shutil.rmtree("../out/")
 		shutil.rmtree("../bin/")
 	except FileNotFoundError:
