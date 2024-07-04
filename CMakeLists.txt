@@ -38,9 +38,9 @@ cmake_policy(SET CMP0074 NEW)
 
 # I don't know why, the if statement can make my CLion not working
 # TODO: WHEN PUSH IT TO SERVER, PLEASE CLEAR THE '#'
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
+#if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
     cmake_policy(SET CMP0144 NEW)
-endif()
+#endif()
 
 find_package(Boost REQUIRED COMPONENTS serialization)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")

@@ -65,6 +65,8 @@ template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
     return ret;
 }
 
+Dpp_Object *mkFunction(std::string id);
+
 template<typename T, typename VAL_T> Dpp_Object *mkConstEx(FObject *fObj, uint8_t typeval, VAL_T val) {
     RegType *type = fObj->obj_map.get({ 0, typeval })->reg;
     Dpp_Object *ret = NewObject(type->size);

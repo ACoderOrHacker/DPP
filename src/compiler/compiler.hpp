@@ -27,11 +27,13 @@
 #include <string>
 #include <fstream>
 #include <any>
+#include <stack>
 #include <cstdarg>
 
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
 #include "vm.hpp"
+#include "builtin.hpp"
 #include "metadata.h"
 
 bool compile(std::string code);
@@ -51,18 +53,53 @@ public:
 	Array<Namespace *> namespaces;
 };
 
+class IDIterator {
+public:
+    IDIterator() {
+        global = BUILTIN_END;
+        idIt.push(global);
+    }
+    ~IDIterator() {}
+
+    void IncIterator() noexcept {
+        ++idIt.top();
+    }
+
+    void IncGlobalIterator() noexcept {
+        ++global;
+    }
+
+    void DecIterator() noexcept {
+        --idIt.top();
+    }
+
+    void DecGlobalIterator() noexcept {
+        --global;
+    }
+
+    void PushIterator() noexcept {
+        idIt.push(0);
+    }
+
+    void PopIterator() noexcept {
+        idIt.pop();
+    }
+
+    uint32_t GetTopIterator() noexcept {
+        return idIt.top();
+    }
+
+    uint32_t GetGlobalIterator() noexcept {
+        return global;
+    }
+private:
+    std::stack<uint32_t> idIt;
+    uint32_t global;
+
+};
+
 void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
-}
-
-void writeType(FObject *fObj, Dpp_Object *o, Object type) {
-	if (type.isInGlobal && type.id < TYPE_END) {
-		// the type is registered type
-		o->reg = fObj->obj_map.get(type)->reg;
-		return;
-	}
-
-	o->reg = nullptr; // the object type is unknown or the object is a class
 }
 
 Object newObject(FObject *fObj,
@@ -118,8 +155,8 @@ public:
      * Create a 'Compile-time Object' of function
      */
     std::any visitFunctionHead(DXXParser::FunctionHeadContext *ctx) override {
-        std::vector<DXXParser::InfoContext *> &_infos = ctx->info();
-        std::string &id = ctx->ID()->toString();
+        std::vector<DXXParser::InfoContext *> _infos = ctx->info();
+        std::string id = ctx->ID()->toString();
         DXXParser::ParamListContext *_params = ctx->paramList();
         DXXParser::TheTypeContext *retType = ctx->theType();
         DXXParser::ThrowtableContext *throwTable = ctx->throwtable();
@@ -127,13 +164,13 @@ public:
         /*
           TODO: visitParamList returns Heap<Dpp_Object *> *, visitThrowtable returns Heap<Dpp_Object *> *
         */
-        uint32_t infos = GetInfos(_infos);
+        uint32_t infos = GetInfos(&_infos);
         Heap<Dpp_Object *> *params = anycast(Heap<Dpp_Object *> *, visitParamList(_params));
         Dpp_Object *ret = anycast(Dpp_Object *, visitTheType(retType));
         Heap<Dpp_Object *> *throws = anycast(Heap<Dpp_Object *> *, visitThrowtable(throwTable));
 
-        Dpp_Object *func = MakeFunctionObject(infos, id);
-        Dpp_CObject *co = MakeFunction(func, params, ret, throws);
+        Dpp_Object *func = MakeFunctionObject(id);
+        Dpp_CObject *co = MakeFunction(func, infos, params, ret, throws);
 
         return co;
     }
@@ -144,8 +181,10 @@ public:
      */
     std::any visitFunction(DXXParser::FunctionContext *ctx) override {
         Dpp_CObject *co = anycast(Dpp_CObject *, visitFunctionHead(ctx->functionHead()));
-        Dpp_Object *func = getObject(co);
+        DXXParser::BlockContext *block = ctx->block();
+        Dpp_Object *func = GetObject(co);
 
+        idIt.PushIterator();
         struct VMState state;
         fObj->callstack.push(fObj->state);
         fObj->state = state;
@@ -156,6 +195,7 @@ public:
 
         fObj->state = fObj->callstack.top();
         fObj->callstack.pop();
+        idIt.PopIterator();
 
         return co;
     }
@@ -177,7 +217,7 @@ public:
 		std::vector<DXXParser::InfoContext *> infos = ctx->info();
 		DXXParser::DataContext *_data = ctx->data();
 
-		std::string &id = ctx->ID()->toString();
+		std::string id = ctx->ID()->toString();
 		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
 		Dpp_CObject *data;
         Object to = allocMapping();
@@ -196,7 +236,7 @@ public:
      * Move the value to the variable
      */
 	std::any visitVarSet(DXXParser::VarSetContext *ctx) override {
-		Dpp_CObject o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
+		Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
 		Dpp_CObject *val = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
 		LoadOpcode(OPCODE_MOV, NO_FLAG, 2, val->object, o->object);
@@ -225,16 +265,22 @@ public:
 
     }
 
+    /*
+     * @return: Object
+     * make 'new' opcode and returns the value of object
+     */
 	std::any visitNew(DXXParser::NewContext *ctx) override {
 		Object type = anycast(Object, visitTheType(ctx->theType()));
+        Object to = allocMapping();
 
-		return std::any(newType(type));
+        LoadOpcode(OPCODE_NEW, NO_FLAG, 2, type, to);
+		return to;
 	}
 
 	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
 		Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
-        LoadOpcode(OPCODE_DELETE, NO_FLAG, 1, data->object);
+        LoadOpcode(OPCODE_DEL, NO_FLAG, 1, data->object);
 
 		return NONE;
 	}
@@ -250,8 +296,18 @@ private:
      * Create a Object structure from the iterator
      */
     Object allocMapping(bool isConst = false) {
-        if (isConst) return {true, ++this->globalNamespace->idIt};
-        else return {isInGlobal(), ++this->thisNamespace->idIt};
+
+
+        if (isConst) {
+            idIt.IncGlobalIterator();
+            uint32_t it = idIt.GetGlobalIterator();
+            return {true, it};
+        } else {
+            idIt.IncIterator();
+            uint32_t it = idIt.GetTopIterator();
+            return {isInGlobal(), it};
+        }
+
     }
 
     /*
@@ -328,14 +384,7 @@ private:
      * Make a function object(run-time)
      */
     Dpp_Object *MakeFunctionObject(std::string id) {
-        FunctionObject *func = NewObject<FunctionObject>();
-        Dpp_Object *o = cast(Dpp_Object *, func);
-
-        o->name = id;
-        o->isTypeObject = false;
-        o->reg = FunctionType;
-
-        return o;
+        return mkFunction(id);
     }
 
 	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
@@ -351,6 +400,11 @@ private:
 	FObject *fObj;
     Namespace *globalNamespace = new Namespace;
     Namespace *thisNamespace = globalNamespace;
+
+    /*
+     * See doc/compiler/idIt.md
+     */
+    IDIterator idIt;
 };
 
 #endif // !_COMPILER_H

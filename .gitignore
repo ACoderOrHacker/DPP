@@ -17,6 +17,7 @@
 # disable the project file
 /.vs/
 /.idea/
+/.cache/
 /out/
 /cmake-build-debug/
 

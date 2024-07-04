@@ -49,6 +49,17 @@ RegType GetReg(const std::type_info &type) {
     }
 }
 
+Dpp_Object *mkFunction(std::string id) {
+    FunctionObject *func = NewObject<FunctionObject>();
+    Dpp_Object *o = cast(Dpp_Object *, func);
+
+    o->name = id;
+    o->isTypeObject = false;
+    o->reg = FunctionType;
+
+    return o;
+}
+
 Dpp_Object *IntAdd(Dpp_Object *lval, Dpp_Object *rval) {
 
 	Dpp_Object *rtn = nullptr;
