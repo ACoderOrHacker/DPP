@@ -41,7 +41,7 @@ bool compile(std::ifstream file);
 
 typedef struct _Dpp_CObject {
 	Object object;
-    std::wstring id;
+    std::string id;
     uint32_t infos;
     Array<_Dpp_CObject *> subs;
 	void *metadata[8];
@@ -131,11 +131,17 @@ public:
         _fObj == nullptr ? fObj = new FObject : fObj = _fObj;
     }
 
+    /*
+     * @return: NONE
+     * Create a block at fObj->state
+     */
     std::any visitBlock(DXXParser::BlockContext *ctx) override {
+
         for (auto it : ctx->expressions()) {
             visitChildren(it);
         }
 
+        block_end = fObj->state.vmopcodes.size() - 1;
         return NONE;
     }
 
@@ -182,7 +188,7 @@ public:
     std::any visitFunction(DXXParser::FunctionContext *ctx) override {
         Dpp_CObject *co = anycast(Dpp_CObject *, visitFunctionHead(ctx->functionHead()));
         DXXParser::BlockContext *block = ctx->block();
-        Dpp_Object *func = GetObject(co);
+        Dpp_Object *func = GetConstFromCObject(co);
 
         idIt.PushIterator();
         struct VMState state;
@@ -258,10 +264,53 @@ public:
      * Linking the constant to the enum variable
      */
     std::any visitEnum(DXXParser::EnumContext *ctx) override {
+        Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString());
 
+        for(auto it: ctx->enumSub()) {
+            std::string id = it->ID()->toString();
+            Dpp_CObject *idata = MakeInteger(std::stoll(it->IntegerData()->toString()));
+
+            Dpp_CObject *sub = LinkObject(id, idata);
+            enum_object->subs.write(sub);
+        }
     }
 
-    std::any visitEnumSub(DXXParser::EnumSubContext *ctx) override {
+    /*
+     * @return: NONE
+     * The if statement opcodes
+     */
+    std::any visitWithIf(DXXParser::WithIfContext *ctx) override {
+        char flag;
+        SetBit1(flag, JMP_FALSE);
+        uint32_t jmp_pos = fObj->state.vmopcodes.size();
+        Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
+
+        Object jmp_to = {true, block_end};
+        visitBlock(ctx->block());
+        LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, 2, jmp_to, data->object);
+
+        return NONE;
+    }
+
+    /*
+     * @return: NONE
+     * The if statement opcodes
+     */
+    std::any visitWithIfExtends(DXXParser::WithIfExtendsContext *ctx) override {
+        char flag;
+        SetBit1(flag, JMP_FALSE);
+
+        for(auto it: ctx->withIfExtendsSub()) {
+            uint32_t jmp_pos = fObj->state.vmopcodes.size();
+            Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(it->data()));
+
+            Object jmp_to = {true, block_end};
+            visitBlock(it->block());
+            LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, 2, jmp_to, data->object);
+        }
+    }
+
+    std::any visitWithSwitchStatement(DXXParser::WithSwitchStatementContext *ctx) override {
 
     }
 
@@ -326,6 +375,22 @@ private:
     }
 
     /*
+     * @return: void
+     * Create a opcode and push it to main state(fObj->state)
+     */
+    void LoadAndInsertOpcode(uint32_t pos,
+                    rt_opcode op,
+                    char flags = NO_FLAG,
+                    int count = 0,
+                    ...) {
+        va_list l;
+
+        va_start(l, count);
+        fObj->state.vmopcodes.SetData(pos, MakeOpCode(op, flags, count, l));
+        va_end(l);
+    }
+
+    /*
      * @return: Dpp_CObject *
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md)
      * And Push the constant to the object pool
@@ -335,6 +400,7 @@ private:
         _co->object = o;
 
         fObj->obj_map.write(o, obj);
+        // TODO: Write to the constant pool, it was not success
 
         return _co;
     }
@@ -387,6 +453,33 @@ private:
         return mkFunction(id);
     }
 
+    /*
+     * @return: Dpp_CObject *
+     * Make a normal object
+     */
+    Dpp_CObject *MakeObject(std::string id) {
+        Dpp_CObject *co = new Dpp_CObject;
+        co->id = id;
+        co->object = allocMapping();
+        thisNamespace->objects.write(co);
+
+        return co;
+    }
+
+    Dpp_CObject *LinkObject(std::string id,
+                            Dpp_CObject *src) {
+        Dpp_CObject *co = MakeObject(id);
+        co->object = src->object;
+
+        return co;
+    }
+
+    Dpp_Object *GetConstFromCObject(Dpp_CObject *co) {
+        if(!co->object.isInGlobal) return nullptr;
+
+        return fObj->obj_map.get(co->object);
+    }
+
 	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
 		uint32_t infos;
 
@@ -405,6 +498,8 @@ private:
      * See doc/compiler/idIt.md
      */
     IDIterator idIt;
+
+    uint32_t block_end; // for jump statements
 };
 
 #endif // !_COMPILER_H

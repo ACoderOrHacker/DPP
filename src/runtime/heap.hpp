@@ -16,12 +16,12 @@
 template<typename T, typename container = std::deque<T>> class Heap {
 	public:
 		Heap() {
-			
+
 		}
 		Heap(container &c) {
 			Data = c;
 		}
-	
+
     public:
         container Data; // Data for heap
         typename container::iterator it;
@@ -34,6 +34,9 @@ template<typename T, typename container = std::deque<T>> class Heap {
         }
         void PushEnd(T data) {
             Data.push_back(data);
+        }
+        void ResetData(uint32_t index, T data) {
+            Data.begin() + index = data;
         }
         void SetData(uint32_t index, T data) {
         	Data.insert(to_iterator(Data, index), data);
@@ -101,7 +104,7 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		container getContainer() {
 			return Data;
 		}
-	
+
 		bool operator ==(Heap<T> data) {
 			return (this->Data == data.Data);
 		}

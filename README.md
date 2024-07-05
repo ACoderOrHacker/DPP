@@ -26,14 +26,17 @@ Refer to their respective `README.md` for more in-depth information.
 | [compiler/samples](src/compiler/samples) | Various code examples                            |
 | [runtime](src/runtime/)                  | root of runtime                                  |
 
-### How To Build
+### Build
 
 #### Windows(MSVC)
 ```
-python tools/build.py
+python tools/build.py --msvc
 ```
 
 #### Linux
 ```
 python tools/build.py
 ```
+
+### IDES
+

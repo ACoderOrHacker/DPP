@@ -6,6 +6,7 @@
 #define DPP_METADATA_H
 
 namespace function {
+
     enum FUNCTION_METADATA {
         PARAMS = 1,
         RETURN_TYPE = 2,

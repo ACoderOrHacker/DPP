@@ -62,9 +62,9 @@ VM_API FObject *MakeVM() {
 }
 
 VM_API void VM_Run(FObject *fObj) {
-	while(fObj->state.vmopcodes.size() > 0) {
+	while(fObj->state.vmopcodes.size() > fObj->state.runat) {
 		OpCode opcode;
-		opcode = fObj->state.vmopcodes.PopData(); // get opcode from state
+		opcode = fObj->state.vmopcodes.GetData(fObj->state.runat); // get opcode from state
 
 		// execute the opcode and get the error code(isfail variable)
 		bool isfail = Exec(opcode, fObj);
@@ -94,6 +94,8 @@ VM_API void VM_Run(FObject *fObj) {
 				_call(fObj); // call the error accept function
 			}*/
 		}
+
+        ++fObj->state.runat;
 	}
 
 	// exit

@@ -23,6 +23,11 @@ template<typename T> class Array {
 			}
 			array->insert(array->begin() + n, data);
 		}
+        void write(T data) {
+            array->resize(array->size());
+
+            array->insert(array->end(), data);
+        }
 		size_t size() {
 			return array->size();
 		}

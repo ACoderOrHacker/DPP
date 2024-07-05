@@ -31,26 +31,28 @@ set(LIBRARY_OUTPUT_PATH DXX_BINARY_DIR)
 set(DXX_VERSION_MAJOR 0)
 set(DXX_VERSION_MINOR 1)
 
-# You can use "-DBOOST_ROOT=(Your Boost Root Path)" to set the boost root
-set(BOOST_ROOT D:/boost)
-set(ANTLR4_JAR D:/Antlr4/antlr4.13.1-complete.jar)
-cmake_policy(SET CMP0074 NEW)
+# This policy must need because the CLion is need that
+# I don't why
+cmake_policy(SET CMP6666 NEW)
 
-# I don't know why, the if statement can make my CLion not working
-# TODO: WHEN PUSH IT TO SERVER, PLEASE CLEAR THE '#'
-#if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
+# You can set the env variable 'Boost_ROOT' to help cmake find boost
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{Boost_ROOT})
+set(ANTLR4_JAR D:/Antlr4/antlr4.13.1-complete.jar)
+
+cmake_policy(SET CMP0074 NEW)
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
     cmake_policy(SET CMP0144 NEW)
-#endif()
+endif()
 
 find_package(Boost REQUIRED COMPONENTS serialization)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
-             ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/antlr4-runtime/
-             ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
-             ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
-             ${Boost_INCLUDE_DIRS})
+        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/antlr4-runtime/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
+        ${Boost_INCLUDE_DIRS})
 
 include_directories(PUBLIC ${INC_DIRS})
 

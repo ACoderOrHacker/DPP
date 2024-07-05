@@ -26,4 +26,5 @@ typedef bool STATUS;
 #define SetBit1(x, bit) ((x) |= (1 << (bit)))
 #define SetBit0(x, bit) ((x) &= ~ (1 << (bit)))
 
+
 #endif // !_DPP_MACROS
