@@ -26,18 +26,6 @@
 
 struct Version version; // Runtime Machine Version
 
-
-void _del(FObject *fObj) {
-	Object _obj = theap->PopData();
-
-	Dpp_Object *obj = fObj->obj_map.get(_obj);
-	bool isFailed = DeleteObject(obj);
-
-	if(isFailed) {
-		SetError(fObj, Dpp_NullPointerError, L"");
-	}
-}
-
 void _add(FObject *fObj) {
 
 	Object _lval = theap->PopData();
@@ -479,6 +467,18 @@ void _new(FObject *fObj) {
 	}
 
 	fObj->obj_map.write(_to, obj);
+}
+
+void _del(FObject *fObj) {
+    Object _obj = theap->PopData();
+
+    Dpp_Object *obj = fObj->obj_map.get(_obj);
+
+    STATUS status = DeleteObject(obj);
+
+    if(status == STATUS_FAILED) {
+        SetError(fObj, Dpp_NullPointerError, L"");
+    }
 }
 
 void _mov(FObject *fObj) {

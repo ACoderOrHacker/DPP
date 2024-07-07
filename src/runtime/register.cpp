@@ -36,7 +36,7 @@ struct _LinkType {
 	RegType reg;
 };
 
-RegType GetReg(const std::type_info &type) {
+DXX_API RegType GetReg(const std::type_info &type) {
 
     if (type == typeid(Interger)) {
         return IntType;
@@ -49,13 +49,13 @@ RegType GetReg(const std::type_info &type) {
     }
 }
 
-Dpp_Object *mkFunction(std::string id) {
-    FunctionObject *func = NewObject<FunctionObject>();
-    Dpp_Object *o = cast(Dpp_Object *, func);
+DXX_API Dpp_Object *mkFunction(std::string id) {
+    Dpp_Object *o = NewObject<FunctionObject>();
+    FunctionObject *func = (FunctionObject *)o;
 
     o->name = id;
     o->isTypeObject = false;
-    o->reg = FunctionType;
+    o->reg = &FunctionType;
 
     return o;
 }

@@ -33,9 +33,7 @@
 #define theap (fObj->_theap)
 #define error (fObj->_error)
 
-void _del(FObject *fObj);
-void _pushe(FObject *fObj);
-void _pope(FObject *fObj);
+void _import(FObject *fObj);
 void _add(FObject *fObj);
 void _sub(FObject *fObj);
 void _mul(FObject *fObj);
@@ -59,6 +57,7 @@ void _calln(FObject *fObj);
 void _ret(FObject *fObj);
 void _sign(FObject *fObj);
 void _new(FObject *fObj);
+void _del(FObject *fObj);
 void _mov(FObject *fObj);
 void _exit(FObject *fObj);
 

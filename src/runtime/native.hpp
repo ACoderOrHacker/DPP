@@ -7,7 +7,7 @@
 #endif // _MSC_VER
 
 #include <string>
-
+#include "acdpp.h"
 #ifdef _WIN32
 #include <windows.h>
 typedef HMODULE Module;
@@ -19,6 +19,6 @@ typedef FARPROC NativeProc;
 Module OpenNativeLib(const char *libname);
 NativeProc GetNativeProc(Module m, const char *procname);
 void FreeNativeLib(Module m);
-std::string WStrToPChar(std::wstring wstr);
-std::wstring stringToWstring(std::string str);
+DXX_API std::string WStrToPChar(std::wstring wstr);
+DXX_API std::wstring stringToWstring(std::string str);
 #endif // !_NATIVE_LIB

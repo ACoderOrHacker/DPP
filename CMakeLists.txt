@@ -32,8 +32,11 @@ set(DXX_VERSION_MAJOR 0)
 set(DXX_VERSION_MINOR 1)
 
 # This policy must need because the CLion is need that
-# I don't why
-cmake_policy(SET CMP6666 NEW)
+# I don't know why
+
+if(CLION_IDE)
+    cmake_policy(SET CMP6666 NEW)
+endif()
 
 # You can set the env variable 'Boost_ROOT' to help cmake find boost
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{Boost_ROOT})
@@ -48,11 +51,16 @@ find_package(Boost REQUIRED COMPONENTS serialization)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
+set(FMT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/fmt/)
+message(STATUS "{fmt}: ${FMT_DIR}")
+add_subdirectory(${FMT_DIR} EXCLUDE_FROM_ALL)
+
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/antlr4-runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
-        ${Boost_INCLUDE_DIRS})
+        ${Boost_INCLUDE_DIRS}
+        ${FMT_DIR}/include/)
 
 include_directories(PUBLIC ${INC_DIRS})
 

@@ -36,7 +36,11 @@ template<typename T, typename container = std::deque<T>> class Heap {
             Data.push_back(data);
         }
         void ResetData(uint32_t index, T data) {
-            Data.begin() + index = data;
+            it = to_iterator(Data, index);
+            Remove();
+
+            ItSetData(it, data);
+            it = Data.begin();
         }
         void SetData(uint32_t index, T data) {
         	Data.insert(to_iterator(Data, index), data);
@@ -86,6 +90,9 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		    Data.erase(it);
 		    delete (*it);
 		}
+        void Remove() {
+            Data.erase(it);
+        }
 		void Delete(T data) {
 		    auto it = find(Data.begin(), Data.end(), data);
 		    if(it != Data.end()) {

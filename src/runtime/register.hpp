@@ -53,7 +53,7 @@ SOFTWARE.
 
 struct _LinkType;
 
-RegType GetReg(const std::type_info &type);
+DXX_API RegType GetReg(const std::type_info &type);
 
 // this function only can get the standard types
 template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
@@ -65,7 +65,7 @@ template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
     return ret;
 }
 
-Dpp_Object *mkFunction(std::string id);
+DXX_API Dpp_Object *mkFunction(std::string id);
 
 template<typename T, typename VAL_T> Dpp_Object *mkConstEx(FObject *fObj, uint8_t typeval, VAL_T val) {
     RegType *type = fObj->obj_map.get({ 0, typeval })->reg;

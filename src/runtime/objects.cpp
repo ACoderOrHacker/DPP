@@ -32,15 +32,15 @@ Dpp_Object *NewObject(size_t size) {
 	return (Dpp_Object *)malloc(size);
 }
 
-bool DeleteObject(Dpp_Object *obj) {
+STATUS DeleteObject(Dpp_Object *obj) {
 	if(obj != nullptr) {
 		if(obj->reg->mem_free != nullptr) {
 			obj->reg->mem_free(obj);
 		}
-		delete obj; // clean the object head
+		free(obj);
 
-		return false; // success
+		return STATUS_SUCCESS; // success
 	}
 
-	return true; // failed to delete
+	return STATUS_FAILED; // failed to delete
 }

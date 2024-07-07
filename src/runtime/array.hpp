@@ -31,6 +31,9 @@ template<typename T> class Array {
 		size_t size() {
 			return array->size();
 		}
+        auto begin() {
+            return array->begin();
+        }
 		auto end() {
 			return array->end();
 		}

@@ -184,7 +184,7 @@ goto
    ;
 
 gotoLabelDefine
-   : ID Colon block
+   : ID Colon
    ;
 
 enum

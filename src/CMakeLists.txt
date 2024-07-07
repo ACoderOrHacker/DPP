@@ -9,18 +9,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # disable warning C4275: <derived>: '<base>' : dependent name is not a type
 endif()
 
-set(GRAMMAR_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/)
-message(STATUS "Starting build grammar, Working directory: ${GRAMMAR_WORKING_DIR}")
-add_custom_target(BUILD_GRAMMAR
-                  COMMAND java -jar ${ANTLR4_JAR} %* -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o /antlr4/
-                  WORKING_DIRECTORY ${GRAMMAR_WORKING_DIR})
-message(STATUS "Ending build grammar")
-
-file(GLOB COMPILER_FILES compiler/*.cpp compiler/*.hpp compiler/*.h)
-add_library(compiler SHARED ${COMPILER_FILES})
-find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
-target_link_libraries(compiler ${COMPILER_LIB})
-
 # Make shared library
 file(GLOB VM_FILES runtime/*.cpp runtime/*.hpp runtime/*.h)
 if (BUILD_VM_SERIALIZATION)
@@ -32,5 +20,25 @@ else ()
     add_library(vm SHARED ${VM_FILES})
 endif ()
 
+set(GRAMMAR_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/)
+message(STATUS "Starting build grammar, Working directory: ${GRAMMAR_WORKING_DIR}")
+add_custom_target(BUILD_GRAMMAR
+                  COMMAND java -jar ${ANTLR4_JAR} %* -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o /antlr4/
+                  WORKING_DIRECTORY ${GRAMMAR_WORKING_DIR})
+message(STATUS "Ending build grammar")
+
+file(GLOB COMPILER_FILES compiler/*.cpp
+        compiler/*.hpp
+        compiler/*.h
+        compiler/antlr4/*.cpp
+        compiler/antlr4/*.hpp
+        compiler/antlr4/*.h)
+add_library(compiler SHARED ${COMPILER_FILES})
+find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
+target_link_libraries(compiler ${COMPILER_LIB} vm)
+
 add_executable(dpp main/dpp.cpp)
 target_link_libraries(dpp vm)
+
+add_executable(debug main/debug.cpp)
+target_link_libraries(debug vm fmt-header-only)

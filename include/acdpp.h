@@ -4,6 +4,8 @@
 #ifndef _DXX_CONFIG_H
 #define _DXX_CONFIG_H
 
+#define DXX_VERSION "0.1"
+
 #ifdef _WIN32
 #ifdef _DXX_API
 #define DXX_API __declspec(dllimport)

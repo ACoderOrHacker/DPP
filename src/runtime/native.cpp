@@ -52,10 +52,10 @@ void FreeNativeLib(Module m) {
 #endif // _WIN32
 }
 
-std::string WStrToPChar(std::wstring wstr) {
+DXX_API std::string WStrToPChar(std::wstring wstr) {
 	return std::string(wstr.begin(), wstr.end());
 }
 
-std::wstring stringToWstring(std::string str) {
+DXX_API std::wstring stringToWstring(std::string str) {
 	return std::wstring(str.begin(), str.end());
 }

@@ -51,6 +51,17 @@ class Namespace {
 public:
     Array<Dpp_CObject *> objects;
 	Array<Namespace *> namespaces;
+    Array<Namespace *> parents;
+
+public:
+    Namespace *NewNamespace() {
+        Namespace *ns = new Namespace;
+
+        ns->parents.write(this);
+        namespaces.write(ns);
+
+        return ns;
+    }
 };
 
 class IDIterator {
@@ -102,12 +113,6 @@ void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
 }
 
-Object newObject(FObject *fObj,
-	Object type,
-	Object val = Dpp_Null) {
-
-}
-
 DXX_API OpCode MakeOpCode(rt_opcode op,
     char flags = NO_FLAG,
     int count = 0,
@@ -136,12 +141,16 @@ public:
      * Create a block at fObj->state
      */
     std::any visitBlock(DXXParser::BlockContext *ctx) override {
+        namespaces.push(thisNamespace);
+        thisNamespace = thisNamespace->NewNamespace();
 
         for (auto it : ctx->expressions()) {
             visitChildren(it);
         }
 
-        block_end = fObj->state.vmopcodes.size() - 1;
+        block_end = fObj->state.vmopcodes.size();
+        thisNamespace = namespaces.top();
+        namespaces.pop();
         return NONE;
     }
 
@@ -273,6 +282,8 @@ public:
             Dpp_CObject *sub = LinkObject(id, idata);
             enum_object->subs.write(sub);
         }
+
+        return NONE;
     }
 
     /*
@@ -299,19 +310,61 @@ public:
     std::any visitWithIfExtends(DXXParser::WithIfExtendsContext *ctx) override {
         char flag;
         SetBit1(flag, JMP_FALSE);
+        Heap<uint32_t> block_ends;
+        Heap<uint32_t> jmp_poses;
+        Heap<Dpp_CObject *> datas;
 
         for(auto it: ctx->withIfExtendsSub()) {
-            uint32_t jmp_pos = fObj->state.vmopcodes.size();
-            Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(it->data()));
-
-            Object jmp_to = {true, block_end};
-            visitBlock(it->block());
-            LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, 2, jmp_to, data->object);
+            datas.PushData(anycast(Dpp_CObject *, visitChildren(it->data())));
+            LoadOpcode(OPCODE_JMP, flag, 2, placeholder, placeholder);
+            jmp_poses.PushData(fObj->state.vmopcodes.size() - 1);
         }
+
+        for(auto it: ctx->withIfExtendsSub()) {
+            visitBlock(it->block());
+            block_ends.PushData(block_end);
+        }
+
+        Object end = {true, (uint32_t)(fObj->state.vmopcodes.size() + block_ends.size())};
+        for(auto jmp_pos: jmp_poses) {
+            ResetOpcode(jmp_pos, OPCODE_JMP, flag, 2, datas.PopData(), end);
+        }
+
+        for(auto block_end: block_ends) {
+            LoadAndInsertOpcode(block_end, OPCODE_JMP, NO_FLAG, 1, end);
+        }
+
+        return NONE;
     }
 
+    /*
+     * @return: NONE
+     * Make 'switch' opcode
+     */
     std::any visitWithSwitchStatement(DXXParser::WithSwitchStatementContext *ctx) override {
+        // TODO: Not success
+        return NONE;
+    }
 
+    /*
+     * @return: NONE
+     * Make the 'goto' opcode
+     */
+    std::any visitGoto(DXXParser::GotoContext *ctx) override {
+        std::string id = ctx->ID()->toString();
+        Dpp_CObject *label = FindObject(id, true);
+
+        LoadOpcode(OPCODE_JMP, NO_FLAG, 1, label->object);
+
+        return NONE;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Define a label of runtime opcode id
+     */
+    std::any visitGotoLabelDefine(DXXParser::GotoLabelDefineContext *ctx) override {
+        return MakeLabel(ctx->ID()->toString(), fObj->state.vmopcodes.size());
     }
 
     /*
@@ -326,6 +379,10 @@ public:
 		return to;
 	}
 
+    /*
+     * @return: NONE
+     * Make 'delete' opcode
+     */
 	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
 		Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
@@ -345,8 +402,6 @@ private:
      * Create a Object structure from the iterator
      */
     Object allocMapping(bool isConst = false) {
-
-
         if (isConst) {
             idIt.IncGlobalIterator();
             uint32_t it = idIt.GetGlobalIterator();
@@ -391,6 +446,22 @@ private:
     }
 
     /*
+     * @return: void
+     * Reset the opcode in the state
+     */
+    void ResetOpcode(uint32_t pos,
+                     rt_opcode op,
+                     char flags = NO_FLAG,
+                     int count = 0,
+                     ...) {
+        va_list l;
+
+        va_start(l, count);
+        fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, flags, count, l));
+        va_end(l);
+    }
+
+    /*
      * @return: Dpp_CObject *
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md)
      * And Push the constant to the object pool
@@ -418,6 +489,11 @@ private:
         return MakeConst(o, obj);
     }
 
+    /*
+     * @return: Dpp_CObject *
+     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of IntegerObject
+     * And Push the string constant to the object pool
+     */
     Dpp_CObject *MakeInteger(Interger idata) {
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<IntObject, Interger>(idata);
@@ -446,6 +522,19 @@ private:
     }
 
     /*
+     * @return: Dpp_CObject *
+     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of label
+     * And Push the string constant to the object pool
+     */
+    Dpp_CObject *MakeLabel(std::string _label,
+                                 uint32_t pos) {
+        Dpp_CObject *co = MakeInteger(pos);
+        Dpp_CObject *label = LinkObject(_label, co);
+
+        return label;
+    }
+
+    /*
      * @return: Dpp_Object *
      * Make a function object(run-time)
      */
@@ -466,6 +555,10 @@ private:
         return co;
     }
 
+    /*
+     * @return: Dpp_CObject *
+     * link the source object and a object
+     */
     Dpp_CObject *LinkObject(std::string id,
                             Dpp_CObject *src) {
         Dpp_CObject *co = MakeObject(id);
@@ -474,10 +567,47 @@ private:
         return co;
     }
 
+    /*
+     * @return: Dpp_Object *
+     * Get a run-time object(constant) from compile-time object
+     */
     Dpp_Object *GetConstFromCObject(Dpp_CObject *co) {
         if(!co->object.isInGlobal) return nullptr;
 
         return fObj->obj_map.get(co->object);
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Find a compile-time object from namespaces
+     */
+    Dpp_CObject *FindObject(std::string id, bool onlyGlobal = false) {
+        Dpp_CObject *co = FindObject(globalNamespace, id);
+
+        if(onlyGlobal || co != nullptr) {
+            return co;
+        }
+
+        return FindObject(thisNamespace, id);
+    }
+
+    Dpp_CObject *FindObject(Namespace *ns, std::string id) {
+
+        for(auto it: ns->objects) {
+            if(it->id == id) {
+                return it;
+            }
+        }
+
+        for(auto it: ns->parents) {
+            for(auto it: ns->objects) {
+                if(it->id == id) {
+                    return it;
+                }
+            }
+        }
+
+        return nullptr;
     }
 
 	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
@@ -493,6 +623,7 @@ private:
 	FObject *fObj;
     Namespace *globalNamespace = new Namespace;
     Namespace *thisNamespace = globalNamespace;
+    std::stack<Namespace *> namespaces;
 
     /*
      * See doc/compiler/idIt.md
@@ -500,6 +631,8 @@ private:
     IDIterator idIt;
 
     uint32_t block_end; // for jump statements
+
+    Object placeholder = {true, UINT_MAX};
 };
 
 #endif // !_COMPILER_H

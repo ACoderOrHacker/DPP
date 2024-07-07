@@ -26,6 +26,7 @@ SOFTWARE.
 #define DPPDEF_OBJECTS
 
 #include "struct.hpp"
+#include "macros.hpp"
 #define OBJECT_HEAD Dpp_Object head;
 
 class TypeNotRightError{};
@@ -83,7 +84,7 @@ template<typename MODEL> struct ModelObject {
 // create a object and return the object head
 
 Dpp_Object *NewObject(size_t size);
-bool DeleteObject(Dpp_Object *obj);
+STATUS DeleteObject(Dpp_Object *obj);
 
 template<typename T> Dpp_Object *NewObject() {
 	void *ptr = malloc(sizeof(T));

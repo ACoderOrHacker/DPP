@@ -28,6 +28,7 @@
 #include "vm.hpp"
 
 const OpcodeFunc opcode_list[256] = {
+    &_import,
 	&_add,
 	&_sub,
 	&_mul,
@@ -51,6 +52,7 @@ const OpcodeFunc opcode_list[256] = {
 	&_ret,
 	&_sign,
 	&_new,
+    &_del,
 	&_mov,
 	&_exit
 };

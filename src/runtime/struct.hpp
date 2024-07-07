@@ -173,6 +173,10 @@ public:
 		this->is_lambda.write(mapping_id, is_lambda);
 	}
 
+    Array<Dpp_Object *> getGlobalMapping() {
+        return mappings[0];
+    }
+
 private:
 	Array<Array<Dpp_Object *>> mappings;
 	Array<bool> is_lambda;
@@ -229,14 +233,6 @@ public:
 	struct VMState state;
 	char flags = NO_FLAG;
 	int exit_code = EXIT_SUCCESS;
-
-private:
-    friend class boost::serialization::access;
-    template<typename Archive> void serialization(Archive &ar, unsigned int version) {
-        ar & modules;
-        ar & obj_map;
-        ar & state;
-    }
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);
