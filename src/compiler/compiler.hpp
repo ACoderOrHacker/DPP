@@ -23,7 +23,7 @@
  */
 
 #ifndef _COMPILER_H
-
+#define TEST
 #include <string>
 #include <fstream>
 #include <any>
@@ -32,12 +32,13 @@
 
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
+#include "acdpp.h"
 #include "vm.hpp"
 #include "builtin.hpp"
 #include "metadata.h"
 
-bool compile(std::string code);
-bool compile(std::ifstream file);
+DXX_API FObject *compile(std::string code);
+DXX_API bool compile(std::ifstream file);
 
 typedef struct _Dpp_CObject {
 	Object object;
@@ -134,6 +135,12 @@ class DXXVisitor : public DXXParserBaseVisitor {
 public:
     DXXVisitor(FObject *_fObj = nullptr) {
         _fObj == nullptr ? fObj = new FObject : fObj = _fObj;
+    }
+
+    std::any visit(antlr4::tree::ParseTree *tree) {
+        visitChildren(tree);
+
+        return fObj;
     }
 
     /*

@@ -72,6 +72,14 @@ struct Version {
 	};
 }; // D++ Version structure
 
+forceinline Version getVersion() {
+    Version ver;
+    ver.ver.high = VERSION_HIGH;
+    ver.ver.low = VERSION_LOW;
+
+    return ver;
+}
+
 typedef Dpp_Object *(* nb_func)(Dpp_Object *, Dpp_Object *);
 typedef Dpp_Object *(* nb_func1)(Dpp_Object *); // only 1 param
 typedef bool(*print_func)(Dpp_Object *);
@@ -196,7 +204,7 @@ typedef struct _VMError {
 
 typedef struct _OpCode {
     rt_opcode opcode;
-	char flag;
+	char flag = NO_FLAG;
     Heap<Object> params;
 } OpCode;
 
@@ -219,6 +227,11 @@ public:
 		_theap = new Tmp_Heap;
 		sig = new Signal;
 
+        uint32_t i = 0;
+        for(auto it: modules) {
+            NativeModules.write(i, OpenNativeLib(it.c_str()));
+            ++i;
+        }
 	}
 	~_FObject() {}
 
@@ -226,7 +239,8 @@ public:
 	Tmp_Heap *_theap;
     VMError *_error = nullptr;
 public:
-	Array<Module> modules;
+    Array<Module> NativeModules;
+	Array<std::string> modules;
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
 	Signal *sig;

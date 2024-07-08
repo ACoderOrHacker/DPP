@@ -16,9 +16,9 @@ typedef FARPROC NativeProc;
 #include <dlfcn.h>
 #endif
 
-Module OpenNativeLib(const char *libname);
-NativeProc GetNativeProc(Module m, const char *procname);
-void FreeNativeLib(Module m);
+DXX_API Module OpenNativeLib(const char *libname);
+DXX_API NativeProc GetNativeProc(Module m, const char *procname);
+DXX_API void FreeNativeLib(Module m);
 DXX_API std::string WStrToPChar(std::wstring wstr);
 DXX_API std::wstring stringToWstring(std::string str);
 #endif // !_NATIVE_LIB

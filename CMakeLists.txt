@@ -11,6 +11,11 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message(STATUS "Found MSVC Compiler, add compile option: /utf-8")
+    add_compile_options(/utf-8)
+endif()
+
 # configure the c++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -59,6 +64,10 @@ set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/antlr4-runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/
         ${Boost_INCLUDE_DIRS}
         ${FMT_DIR}/include/)
 

@@ -24,7 +24,7 @@
 
 #include "native.hpp"
 
-Module OpenNativeLib(const char *libname) {
+DXX_API Module OpenNativeLib(const char *libname) {
 	static Module module;
 #ifdef _WIN32
 	module = LoadLibrary(libname);
@@ -35,7 +35,7 @@ Module OpenNativeLib(const char *libname) {
 	return module;
 }
 
-NativeProc GetNativeProc(Module m, const char *procname) {
+DXX_API NativeProc GetNativeProc(Module m, const char *procname) {
 	NativeProc proc;
 #ifdef _WIN32
 	proc = GetProcAddress(m, TEXT(procname));
@@ -46,7 +46,7 @@ NativeProc GetNativeProc(Module m, const char *procname) {
 	return proc;
 }
 
-void FreeNativeLib(Module m) {
+DXX_API void FreeNativeLib(Module m) {
 #ifdef _WIN32
 	FreeLibrary(m);
 #endif // _WIN32

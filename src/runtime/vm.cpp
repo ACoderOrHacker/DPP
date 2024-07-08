@@ -57,6 +57,55 @@ const OpcodeFunc opcode_list[256] = {
 	&_exit
 };
 
+const char *opcode_name_list[256] = {
+    "import",
+    "add",
+    "sub",
+    "mul",
+    "div",
+    "mod",
+    "bneg",
+    "band",
+    "bor",
+    "bxor",
+    "shl",
+    "shr",
+    "not",
+    "eq",
+    "bigger",
+    "smaller",
+    "and",
+    "or",
+    "jmp",
+    "call",
+    "calln",
+    "ret",
+    "sign",
+    "new",
+    "del",
+    "mov",
+    "exit"
+};
+
+const char *flag_name_list[8] = {
+    "null",
+    "null",
+    "null",
+    "JMP_FALSE",
+    "JMP_TRUE",
+    "null",
+    "null",
+    "null"
+};
+
+forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id) {
+    return opcode_name_list[opcode_id - 1];
+}
+
+forceinline VM_API const char *GetFlagName(uint8_t i) {
+    return flag_name_list[i + 1];
+}
+
 VM_API FObject *MakeVM() {
 	FObject *fObj = new FObject;
     RegInit(fObj);

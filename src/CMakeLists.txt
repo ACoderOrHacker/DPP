@@ -38,7 +38,7 @@ find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
 target_link_libraries(compiler ${COMPILER_LIB} vm)
 
 add_executable(dpp main/dpp.cpp)
-target_link_libraries(dpp vm)
+target_link_libraries(dpp vm compiler fmt-header-only)
 
-add_executable(debug main/debug.cpp)
+add_executable(debug main/debug.cpp main/modules.h)
 target_link_libraries(debug vm fmt-header-only)

@@ -4,6 +4,8 @@
 #ifndef _DXX_CONFIG_H
 #define _DXX_CONFIG_H
 
+#define VERSION_HIGH 0
+#define VERSION_LOW 1
 #define DXX_VERSION "0.1"
 
 #ifdef _WIN32

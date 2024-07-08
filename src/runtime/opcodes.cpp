@@ -396,7 +396,7 @@ void _calln(FObject *fObj) {
 		String _native_func = GetObjectData<StringObject, String>(call_func);
 
 		std::string native_func = WStrToPChar(_native_func);
-		NativeProc proc = GetNativeProc(fObj->modules[_lib.id], native_func.c_str());
+		NativeProc proc = GetNativeProc(fObj->NativeModules[_lib.id], native_func.c_str());
 		if(proc == nullptr) {
             SetError(fObj, Dpp_LibNoSymbolError, L"");
 			return;

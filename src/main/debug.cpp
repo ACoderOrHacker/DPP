@@ -3,24 +3,15 @@
 #include "vm.hpp"
 #include "serialization/Serialization.hpp"
 
-
-void OutputS_FObject(S_FObject *s_fObj) {
-    OutputInformation();
-
-    /*
-     * Output the file header
-     */
-    fmt::print("\n");
-
-    for(auto it: s_fObj->)
-}
-
-void OutputFObject(FObject *fObj) {
-    OutputS_FObject(GetS_FObject(fObj));
-}
-
 int main() {
-    OutputFObject(nullptr);
+    S_FObject *fobj = new S_FObject;
+    OpCode op;
+    op.opcode = OPCODE_MOV;
+    Object o = {true, 0};
+    op.params.PushData(o);op.flag = JMP_FALSE;
+    fobj->state.vmopcodes.PushData(op);
+    OutputS_FObject(fobj);
+    delete fobj;
 
     return 0;
 }
