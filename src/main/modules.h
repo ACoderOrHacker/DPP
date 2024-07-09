@@ -92,9 +92,8 @@ std::string GetFlagsName(char flag) {
 
 
 void OutputS_FObject(S_FObject *s_fObj) {
-    OutputInformation();
     fmt::print("\n");
-    fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved\n");
+    fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
 
     OutputFileHeader(s_fObj->header);
 
@@ -122,9 +121,9 @@ void OutputS_FObject(S_FObject *s_fObj) {
     }
 
     fmt::print("\n");
-    fmt::print("Global Object Mapping");
-    for(auto it: s_fObj->global_mapping) {
-
+    fmt::print("Global Object Mapping:\n");
+    for(uint32_t index = BUILTIN_END + 1; index < s_fObj->global_mapping.size(); ++index) {
+        fmt::print("    [{}]: {}\n", i, (s_fObj->global_mapping[index])->toString());
     }
 }
 

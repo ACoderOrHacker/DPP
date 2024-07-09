@@ -82,7 +82,8 @@ forceinline Version getVersion() {
 
 typedef Dpp_Object *(* nb_func)(Dpp_Object *, Dpp_Object *);
 typedef Dpp_Object *(* nb_func1)(Dpp_Object *); // only 1 param
-typedef bool(*print_func)(Dpp_Object *);
+typedef bool(* print_func)(Dpp_Object *);
+typedef std::string(* to_string_func)(Dpp_Object *);
 typedef Dpp_Object *(* logic_func)(Dpp_Object *, Dpp_Object *);
 typedef Dpp_Object *(* logic_func1)(Dpp_Object *);
 typedef void (* mem_free_func)(Dpp_Object *);
@@ -93,7 +94,7 @@ Dpp_Object *StdSmaller(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdEqual(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdNot(Dpp_Object *);
 struct RegType {
-
+    const char *name = "none";
 	uint8_t type;
 	size_t size;
 
@@ -117,6 +118,7 @@ struct RegType {
 	logic_func1 notval = nullptr;
 
 	print_func print = nullptr;
+    to_string_func to_string = nullptr;
 
 	mem_free_func mem_free = nullptr; // free the data
 	mem_alloc_func mem_alloc = nullptr; // alloc and init the data
@@ -144,6 +146,7 @@ class Dpp_Object {
 		bool print();
 		bool move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
+        DXX_API std::string toString();
 	public:
 		std::string name;
 		char info = 0; // see doc/object/info.md
@@ -154,6 +157,8 @@ class Dpp_Object {
 class ObjectMapping {
 public:
 	ObjectMapping() {
+        Array<Dpp_Object *> *global = new Array<Dpp_Object *>;
+        this->mappings.write(*global);
 		this->is_lambda.write(0, false); // global mapping
 	}
 

@@ -2,20 +2,21 @@
 
 #include <signal.h>
 #include <fmt/core.h>
+#include <fmt/color.h>
 
 #include "compiler.hpp"
 #include "vm.hpp"
 #include "modules.h"
 
-void ssignal(int s) {
-    std::cout << "segfault";
+void segfault(int s) {
+    fmt::print(fg(fmt::color::red), "Segfault");
 }
 
 int main() {
-    signal(SIGSEGV, &ssignal);
+    signal(SIGSEGV, &segfault);
     OutputInformation();
 
-    FObject *fObj = compile("enum x{A=1,B=2}");
+    FObject *fObj = compile("enum x{A=1,B=2,C=3}");
     OutputFObject(fObj);
     return 0;
 }

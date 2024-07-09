@@ -15,7 +15,7 @@
 class  DXXParserBaseVisitor : public DXXParserVisitor {
 public:
 
-  virtual std::any visitStat(DXXParser::StatContext *ctx) override {
+  virtual std::any visitMain(DXXParser::MainContext *ctx) override {
     return visitChildren(ctx);
   }
 

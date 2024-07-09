@@ -2,19 +2,18 @@
 #include "compiler.hpp"
 
 DXX_API FObject *compile(std::string code) {
-	antlr4::ANTLRInputStream input(code);
-	DXXLexer lexer(&input);
-	antlr4::CommonTokenStream tokens(&lexer);
-	DXXParser parser(&tokens);
-	DXXVisitor visitor;
-	antlr4::tree::ParseTree *tree = parser.stat();
+    antlr4::ANTLRInputStream input(code);
+    DXXLexer lexer(&input);
+    antlr4::CommonTokenStream tokens(&lexer);
+    DXXParser parser(&tokens);
+    DXXParser::MainContext *main = parser.main();
 
-	FObject *fObj = anycast(FObject *, visitor.visit(tree));
 
-    std::cout << "Ending visit";
+    // std::cout << "Starting Visit";
+    DXXVisitor visitor;
+    FObject *fObj = anycast(FObject *, visitor.visit(main));
 
-    return nullptr;
-	//return fObj;
+    return fObj;
 }
 
 DXX_API bool compile(std::ifstream file) {
@@ -22,6 +21,6 @@ DXX_API bool compile(std::ifstream file) {
 	DXXLexer lexer(&input);
 	antlr4::CommonTokenStream tokens(&lexer);
 	DXXParser parser(&tokens);
-	std::cout << parser.stat()->toStringTree();
+	std::cout << parser.main()->toStringTree();
 	return true;
 }

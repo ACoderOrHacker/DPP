@@ -19,7 +19,7 @@ public:
   /**
    * Visit parse trees produced by DXXParser.
    */
-    virtual std::any visitStat(DXXParser::StatContext *context) = 0;
+    virtual std::any visitMain(DXXParser::MainContext *context) = 0;
 
     virtual std::any visitImportExpr(DXXParser::ImportExprContext *context) = 0;
 

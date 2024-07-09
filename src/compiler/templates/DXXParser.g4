@@ -5,8 +5,8 @@ options {
     tokenVocab = DXXLexer;
 }
 
-// stat: the parser tree root
-stat
+// main: the parser tree root
+main
    : gExpressions* EOF
    ;
 

@@ -199,6 +199,10 @@ Dpp_Object *IntBneg(Dpp_Object *val) {
 
 }
 
+std::string IntToString(Dpp_Object *val) {
+    return std::to_string(GetObjectData<IntObject, Interger>(val));
+}
+
 bool IntPrint(Dpp_Object *print_obj) {
 	if(IS_TYPE_EQUAL(GetObjectType(print_obj), INT_TYPE)) {
 		std::cout << GetObjectData<IntObject, Interger>(print_obj);
@@ -264,6 +268,10 @@ Dpp_Object *FloatDiv(Dpp_Object *lval, Dpp_Object *rval) {
 	return rtn;
 }
 
+std::string FloatToString(Dpp_Object *val) {
+    return std::to_string(GetObjectData<FloatObject, FloatNum>(val));
+}
+
 bool FloatPrint(Dpp_Object *print_obj) {
 	if(IS_TYPE_EQUAL(GetObjectType(print_obj), FLOAT_TYPE)) {
 		std::cout << GetObjectData<FloatObject, FloatNum>(print_obj);
@@ -288,6 +296,10 @@ Dpp_Object *StringAdd(Dpp_Object *lval, Dpp_Object *rval) {
 	return rtn; // error at string add
 }
 
+std::string StringToString(Dpp_Object *val) {
+    return WStrToPChar(GetObjectData<StringObject, String>(val));
+}
+
 bool StringPrint(Dpp_Object *print_obj) {
 	if(IS_TYPE_EQUAL(GetObjectType(print_obj), STRING_TYPE)) {
 		std::wcout << GetObjectData<StringObject, String>(print_obj);
@@ -300,15 +312,18 @@ bool StringPrint(Dpp_Object *print_obj) {
 // register the based types
 void RegInit(FObject *fObj) {
 	// init the types
-	IntType = {INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, nullptr, nullptr};
-	FloatType = {FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, nullptr, nullptr};
-	StringType = {STRING_TYPE, sizeof(String), &StringAdd, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &StringPrint, nullptr, nullptr};
+	IntType = {"int", INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, &IntToString, nullptr, nullptr};
+	FloatType = {"float", FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, &FloatToString, nullptr, nullptr};
+	StringType = {"string", STRING_TYPE, sizeof(String), &StringAdd, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &StringPrint, &StringToString, nullptr, nullptr};
     ClassType.type = CLASS_TYPE;
     ErrorType.type = ERROR_TYPE;
     FunctionType.type = FUNCTION_TYPE;
     ClassType.size = sizeof(ClassObject);
     ErrorType.size = sizeof(ErrorObject);
     FunctionType.size = sizeof(FunctionObject);
+    ClassType.name = "class";
+    FunctionType.name = "function";
+    ErrorType.name = "error";
 
     Dpp_Object *__inttype = NewObject<ObjectObject>();
     Dpp_Object *__floattype = NewObject<ObjectObject>();

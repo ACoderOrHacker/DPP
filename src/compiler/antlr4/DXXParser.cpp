@@ -52,7 +52,7 @@ void dxxparserParserInitialize() {
 #endif
   auto staticData = std::make_unique<DXXParserStaticData>(
     std::vector<std::string>{
-      "stat", "gExpressions", "expressions", "constant", "data", "boolean", 
+      "main", "gExpressions", "expressions", "constant", "data", "boolean", 
       "negative", "semi", "importLib", "new", "delete", "typedef", "functionDefine", 
       "function", "return", "lambdaFunction", "functionHead", "functionCall", 
       "paramList", "callParamList", "throwtable", "varDefine", "varDefineNoSet", 
@@ -100,7 +100,7 @@ void dxxparserParserInitialize() {
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,109,580,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,109,579,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
   	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
   	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
@@ -129,43 +129,43 @@ void dxxparserParserInitialize() {
   	12,28,358,9,28,1,28,3,28,361,8,28,1,28,1,28,1,29,1,29,1,29,1,29,1,30,
   	1,30,1,30,1,30,1,31,1,31,1,31,1,31,1,31,3,31,378,8,31,1,32,1,32,1,32,
   	1,32,1,32,1,32,1,33,1,33,1,33,1,33,3,33,390,8,33,1,33,1,33,1,33,1,33,
-  	3,33,396,8,33,1,34,1,34,1,34,1,35,1,35,1,35,1,35,1,36,1,36,1,36,1,36,
-  	1,36,1,36,5,36,411,8,36,10,36,12,36,414,9,36,3,36,416,8,36,1,36,1,36,
-  	1,37,1,37,1,37,1,37,1,38,1,38,1,38,1,38,1,38,1,38,1,38,3,38,431,8,38,
-  	3,38,433,8,38,1,38,1,38,1,38,1,38,1,38,3,38,440,8,38,3,38,442,8,38,1,
-  	38,1,38,5,38,446,8,38,10,38,12,38,449,9,38,1,38,1,38,1,39,1,39,1,39,1,
-  	39,1,39,1,39,5,39,459,8,39,10,39,12,39,462,9,39,1,39,3,39,465,8,39,3,
-  	39,467,8,39,1,39,1,39,5,39,471,8,39,10,39,12,39,474,9,39,1,39,1,39,1,
-  	40,1,40,1,40,1,40,1,40,1,40,3,40,484,8,40,1,41,1,41,1,41,1,41,3,41,490,
-  	8,41,1,42,1,42,1,42,1,42,3,42,496,8,42,1,42,1,42,1,42,1,42,3,42,502,8,
-  	42,1,43,1,43,5,43,506,8,43,10,43,12,43,509,9,43,1,43,1,43,1,44,1,44,1,
-  	44,1,44,1,44,1,44,3,44,519,8,44,1,44,1,44,5,44,523,8,44,10,44,12,44,526,
-  	9,44,1,44,1,44,3,44,530,8,44,1,45,1,45,1,45,3,45,535,8,45,1,46,5,46,538,
-  	8,46,10,46,12,46,541,9,46,1,46,1,46,1,47,1,47,1,48,1,48,5,48,549,8,48,
-  	10,48,12,48,552,9,48,1,48,1,48,1,49,1,49,1,49,1,49,1,49,1,49,1,49,1,49,
-  	1,49,1,49,1,49,3,49,567,8,49,1,50,1,50,1,50,1,50,1,50,1,50,1,50,1,51,
-  	1,51,1,52,1,52,1,52,0,1,8,53,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,
-  	30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,
-  	76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,0,10,2,0,69,70,91,92,
-  	1,0,85,86,1,0,63,65,1,0,61,62,1,0,98,99,2,0,73,74,87,88,2,0,15,15,46,
-  	46,8,0,2,2,18,18,24,24,31,31,40,40,48,48,51,51,100,100,2,0,71,72,75,84,
-  	4,0,60,92,94,94,96,96,98,99,631,0,109,1,0,0,0,2,122,1,0,0,0,4,141,1,0,
-  	0,0,6,148,1,0,0,0,8,164,1,0,0,0,10,201,1,0,0,0,12,203,1,0,0,0,14,206,
-  	1,0,0,0,16,208,1,0,0,0,18,211,1,0,0,0,20,214,1,0,0,0,22,217,1,0,0,0,24,
-  	222,1,0,0,0,26,224,1,0,0,0,28,227,1,0,0,0,30,230,1,0,0,0,32,242,1,0,0,
-  	0,34,256,1,0,0,0,36,263,1,0,0,0,38,275,1,0,0,0,40,283,1,0,0,0,42,295,
-  	1,0,0,0,44,308,1,0,0,0,46,317,1,0,0,0,48,324,1,0,0,0,50,326,1,0,0,0,52,
-  	333,1,0,0,0,54,344,1,0,0,0,56,348,1,0,0,0,58,364,1,0,0,0,60,368,1,0,0,
-  	0,62,372,1,0,0,0,64,379,1,0,0,0,66,385,1,0,0,0,68,397,1,0,0,0,70,400,
-  	1,0,0,0,72,404,1,0,0,0,74,419,1,0,0,0,76,423,1,0,0,0,78,452,1,0,0,0,80,
-  	483,1,0,0,0,82,489,1,0,0,0,84,491,1,0,0,0,86,503,1,0,0,0,88,512,1,0,0,
-  	0,90,531,1,0,0,0,92,539,1,0,0,0,94,544,1,0,0,0,96,550,1,0,0,0,98,566,
-  	1,0,0,0,100,568,1,0,0,0,102,575,1,0,0,0,104,577,1,0,0,0,106,108,3,2,1,
-  	0,107,106,1,0,0,0,108,111,1,0,0,0,109,107,1,0,0,0,109,110,1,0,0,0,110,
-  	112,1,0,0,0,111,109,1,0,0,0,112,113,5,0,0,1,113,1,1,0,0,0,114,123,3,16,
-  	8,0,115,123,3,26,13,0,116,123,3,24,12,0,117,123,3,42,21,0,118,123,3,72,
-  	36,0,119,123,3,76,38,0,120,123,3,78,39,0,121,123,3,14,7,0,122,114,1,0,
-  	0,0,122,115,1,0,0,0,122,116,1,0,0,0,122,117,1,0,0,0,122,118,1,0,0,0,122,
+  	3,33,396,8,33,1,34,1,34,1,34,1,35,1,35,1,35,1,36,1,36,1,36,1,36,1,36,
+  	1,36,5,36,410,8,36,10,36,12,36,413,9,36,3,36,415,8,36,1,36,1,36,1,37,
+  	1,37,1,37,1,37,1,38,1,38,1,38,1,38,1,38,1,38,1,38,3,38,430,8,38,3,38,
+  	432,8,38,1,38,1,38,1,38,1,38,1,38,3,38,439,8,38,3,38,441,8,38,1,38,1,
+  	38,5,38,445,8,38,10,38,12,38,448,9,38,1,38,1,38,1,39,1,39,1,39,1,39,1,
+  	39,1,39,5,39,458,8,39,10,39,12,39,461,9,39,1,39,3,39,464,8,39,3,39,466,
+  	8,39,1,39,1,39,5,39,470,8,39,10,39,12,39,473,9,39,1,39,1,39,1,40,1,40,
+  	1,40,1,40,1,40,1,40,3,40,483,8,40,1,41,1,41,1,41,1,41,3,41,489,8,41,1,
+  	42,1,42,1,42,1,42,3,42,495,8,42,1,42,1,42,1,42,1,42,3,42,501,8,42,1,43,
+  	1,43,5,43,505,8,43,10,43,12,43,508,9,43,1,43,1,43,1,44,1,44,1,44,1,44,
+  	1,44,1,44,3,44,518,8,44,1,44,1,44,5,44,522,8,44,10,44,12,44,525,9,44,
+  	1,44,1,44,3,44,529,8,44,1,45,1,45,1,45,3,45,534,8,45,1,46,5,46,537,8,
+  	46,10,46,12,46,540,9,46,1,46,1,46,1,47,1,47,1,48,1,48,5,48,548,8,48,10,
+  	48,12,48,551,9,48,1,48,1,48,1,49,1,49,1,49,1,49,1,49,1,49,1,49,1,49,1,
+  	49,1,49,1,49,3,49,566,8,49,1,50,1,50,1,50,1,50,1,50,1,50,1,50,1,51,1,
+  	51,1,52,1,52,1,52,0,1,8,53,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
+  	32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,
+  	78,80,82,84,86,88,90,92,94,96,98,100,102,104,0,10,2,0,69,70,91,92,1,0,
+  	85,86,1,0,63,65,1,0,61,62,1,0,98,99,2,0,73,74,87,88,2,0,15,15,46,46,8,
+  	0,2,2,18,18,24,24,31,31,40,40,48,48,51,51,100,100,2,0,71,72,75,84,4,0,
+  	60,92,94,94,96,96,98,99,630,0,109,1,0,0,0,2,122,1,0,0,0,4,141,1,0,0,0,
+  	6,148,1,0,0,0,8,164,1,0,0,0,10,201,1,0,0,0,12,203,1,0,0,0,14,206,1,0,
+  	0,0,16,208,1,0,0,0,18,211,1,0,0,0,20,214,1,0,0,0,22,217,1,0,0,0,24,222,
+  	1,0,0,0,26,224,1,0,0,0,28,227,1,0,0,0,30,230,1,0,0,0,32,242,1,0,0,0,34,
+  	256,1,0,0,0,36,263,1,0,0,0,38,275,1,0,0,0,40,283,1,0,0,0,42,295,1,0,0,
+  	0,44,308,1,0,0,0,46,317,1,0,0,0,48,324,1,0,0,0,50,326,1,0,0,0,52,333,
+  	1,0,0,0,54,344,1,0,0,0,56,348,1,0,0,0,58,364,1,0,0,0,60,368,1,0,0,0,62,
+  	372,1,0,0,0,64,379,1,0,0,0,66,385,1,0,0,0,68,397,1,0,0,0,70,400,1,0,0,
+  	0,72,403,1,0,0,0,74,418,1,0,0,0,76,422,1,0,0,0,78,451,1,0,0,0,80,482,
+  	1,0,0,0,82,488,1,0,0,0,84,490,1,0,0,0,86,502,1,0,0,0,88,511,1,0,0,0,90,
+  	530,1,0,0,0,92,538,1,0,0,0,94,543,1,0,0,0,96,549,1,0,0,0,98,565,1,0,0,
+  	0,100,567,1,0,0,0,102,574,1,0,0,0,104,576,1,0,0,0,106,108,3,2,1,0,107,
+  	106,1,0,0,0,108,111,1,0,0,0,109,107,1,0,0,0,109,110,1,0,0,0,110,112,1,
+  	0,0,0,111,109,1,0,0,0,112,113,5,0,0,1,113,1,1,0,0,0,114,123,3,16,8,0,
+  	115,123,3,26,13,0,116,123,3,24,12,0,117,123,3,42,21,0,118,123,3,72,36,
+  	0,119,123,3,76,38,0,120,123,3,78,39,0,121,123,3,14,7,0,122,114,1,0,0,
+  	0,122,115,1,0,0,0,122,116,1,0,0,0,122,117,1,0,0,0,122,118,1,0,0,0,122,
   	119,1,0,0,0,122,120,1,0,0,0,122,121,1,0,0,0,123,3,1,0,0,0,124,142,3,18,
   	9,0,125,142,3,20,10,0,126,142,3,42,21,0,127,142,3,46,23,0,128,142,3,48,
   	24,0,129,142,3,62,31,0,130,142,3,64,32,0,131,142,3,66,33,0,132,142,3,
@@ -246,61 +246,60 @@ void dxxparserParserInitialize() {
   	1,0,0,0,389,388,1,0,0,0,390,391,1,0,0,0,391,392,5,94,0,0,392,393,3,4,
   	2,0,393,395,5,55,0,0,394,396,3,86,43,0,395,394,1,0,0,0,395,396,1,0,0,
   	0,396,67,1,0,0,0,397,398,5,20,0,0,398,399,5,100,0,0,399,69,1,0,0,0,400,
-  	401,5,100,0,0,401,402,5,94,0,0,402,403,3,86,43,0,403,71,1,0,0,0,404,405,
-  	5,13,0,0,405,406,5,100,0,0,406,415,5,58,0,0,407,412,3,74,37,0,408,409,
-  	5,93,0,0,409,411,3,74,37,0,410,408,1,0,0,0,411,414,1,0,0,0,412,410,1,
-  	0,0,0,412,413,1,0,0,0,413,416,1,0,0,0,414,412,1,0,0,0,415,407,1,0,0,0,
-  	415,416,1,0,0,0,416,417,1,0,0,0,417,418,5,59,0,0,418,73,1,0,0,0,419,420,
-  	5,100,0,0,420,421,5,71,0,0,421,422,5,107,0,0,422,75,1,0,0,0,423,424,5,
-  	7,0,0,424,432,5,100,0,0,425,430,5,14,0,0,426,427,3,96,48,0,427,428,5,
-  	93,0,0,428,429,3,96,48,0,429,431,1,0,0,0,430,426,1,0,0,0,430,431,1,0,
-  	0,0,431,433,1,0,0,0,432,425,1,0,0,0,432,433,1,0,0,0,433,441,1,0,0,0,434,
-  	439,5,25,0,0,435,436,3,96,48,0,436,437,5,93,0,0,437,438,3,96,48,0,438,
-  	440,1,0,0,0,439,435,1,0,0,0,439,440,1,0,0,0,440,442,1,0,0,0,441,434,1,
-  	0,0,0,441,442,1,0,0,0,442,443,1,0,0,0,443,447,5,58,0,0,444,446,3,80,40,
-  	0,445,444,1,0,0,0,446,449,1,0,0,0,447,445,1,0,0,0,447,448,1,0,0,0,448,
-  	450,1,0,0,0,449,447,1,0,0,0,450,451,5,59,0,0,451,77,1,0,0,0,452,453,5,
-  	26,0,0,453,466,5,100,0,0,454,460,5,25,0,0,455,456,3,96,48,0,456,457,5,
-  	93,0,0,457,459,1,0,0,0,458,455,1,0,0,0,459,462,1,0,0,0,460,458,1,0,0,
-  	0,460,461,1,0,0,0,461,464,1,0,0,0,462,460,1,0,0,0,463,465,3,96,48,0,464,
-  	463,1,0,0,0,464,465,1,0,0,0,465,467,1,0,0,0,466,454,1,0,0,0,466,467,1,
-  	0,0,0,467,468,1,0,0,0,468,472,5,58,0,0,469,471,3,82,41,0,470,469,1,0,
-  	0,0,471,474,1,0,0,0,472,470,1,0,0,0,472,473,1,0,0,0,473,475,1,0,0,0,474,
-  	472,1,0,0,0,475,476,5,59,0,0,476,79,1,0,0,0,477,484,3,76,38,0,478,484,
-  	3,78,39,0,479,484,3,26,13,0,480,484,3,24,12,0,481,484,3,42,21,0,482,484,
-  	3,14,7,0,483,477,1,0,0,0,483,478,1,0,0,0,483,479,1,0,0,0,483,480,1,0,
-  	0,0,483,481,1,0,0,0,483,482,1,0,0,0,484,81,1,0,0,0,485,490,3,24,12,0,
-  	486,490,3,44,22,0,487,490,3,78,39,0,488,490,3,14,7,0,489,485,1,0,0,0,
-  	489,486,1,0,0,0,489,487,1,0,0,0,489,488,1,0,0,0,490,83,1,0,0,0,491,492,
-  	5,32,0,0,492,493,3,104,52,0,493,495,5,54,0,0,494,496,3,36,18,0,495,494,
-  	1,0,0,0,495,496,1,0,0,0,496,497,1,0,0,0,497,498,5,55,0,0,498,499,5,60,
-  	0,0,499,501,3,92,46,0,500,502,3,86,43,0,501,500,1,0,0,0,501,502,1,0,0,
-  	0,502,85,1,0,0,0,503,507,5,58,0,0,504,506,3,4,2,0,505,504,1,0,0,0,506,
-  	509,1,0,0,0,507,505,1,0,0,0,507,508,1,0,0,0,508,510,1,0,0,0,509,507,1,
-  	0,0,0,510,511,5,59,0,0,511,87,1,0,0,0,512,513,5,47,0,0,513,524,3,86,43,
-  	0,514,515,5,5,0,0,515,518,5,54,0,0,516,519,3,42,21,0,517,519,5,97,0,0,
-  	518,516,1,0,0,0,518,517,1,0,0,0,519,520,1,0,0,0,520,521,5,55,0,0,521,
-  	523,3,86,43,0,522,514,1,0,0,0,523,526,1,0,0,0,524,522,1,0,0,0,524,525,
-  	1,0,0,0,525,529,1,0,0,0,526,524,1,0,0,0,527,528,5,17,0,0,528,530,3,86,
-  	43,0,529,527,1,0,0,0,529,530,1,0,0,0,530,89,1,0,0,0,531,534,5,45,0,0,
-  	532,535,3,96,48,0,533,535,3,34,17,0,534,532,1,0,0,0,534,533,1,0,0,0,535,
-  	91,1,0,0,0,536,538,3,98,49,0,537,536,1,0,0,0,538,541,1,0,0,0,539,537,
-  	1,0,0,0,539,540,1,0,0,0,540,542,1,0,0,0,541,539,1,0,0,0,542,543,3,94,
-  	47,0,543,93,1,0,0,0,544,545,7,7,0,0,545,95,1,0,0,0,546,547,5,100,0,0,
-  	547,549,5,96,0,0,548,546,1,0,0,0,549,552,1,0,0,0,550,548,1,0,0,0,550,
-  	551,1,0,0,0,551,553,1,0,0,0,552,550,1,0,0,0,553,554,5,100,0,0,554,97,
-  	1,0,0,0,555,567,5,8,0,0,556,567,5,16,0,0,557,567,5,33,0,0,558,567,5,23,
-  	0,0,559,567,5,39,0,0,560,567,5,36,0,0,561,567,5,35,0,0,562,567,5,34,0,
-  	0,563,567,5,101,0,0,564,567,5,102,0,0,565,567,3,100,50,0,566,555,1,0,
-  	0,0,566,556,1,0,0,0,566,557,1,0,0,0,566,558,1,0,0,0,566,559,1,0,0,0,566,
-  	560,1,0,0,0,566,561,1,0,0,0,566,562,1,0,0,0,566,563,1,0,0,0,566,564,1,
-  	0,0,0,566,565,1,0,0,0,567,99,1,0,0,0,568,569,5,28,0,0,569,570,5,54,0,
-  	0,570,571,5,109,0,0,571,572,5,93,0,0,572,573,5,109,0,0,573,574,5,55,0,
-  	0,574,101,1,0,0,0,575,576,7,8,0,0,576,103,1,0,0,0,577,578,7,9,0,0,578,
-  	105,1,0,0,0,51,109,122,141,148,156,164,196,198,234,242,248,254,259,268,
-  	273,280,289,293,299,306,312,324,339,356,360,377,389,395,412,415,430,432,
-  	439,441,447,460,464,466,472,483,489,495,501,507,518,524,529,534,539,550,
-  	566
+  	401,5,100,0,0,401,402,5,94,0,0,402,71,1,0,0,0,403,404,5,13,0,0,404,405,
+  	5,100,0,0,405,414,5,58,0,0,406,411,3,74,37,0,407,408,5,93,0,0,408,410,
+  	3,74,37,0,409,407,1,0,0,0,410,413,1,0,0,0,411,409,1,0,0,0,411,412,1,0,
+  	0,0,412,415,1,0,0,0,413,411,1,0,0,0,414,406,1,0,0,0,414,415,1,0,0,0,415,
+  	416,1,0,0,0,416,417,5,59,0,0,417,73,1,0,0,0,418,419,5,100,0,0,419,420,
+  	5,71,0,0,420,421,5,107,0,0,421,75,1,0,0,0,422,423,5,7,0,0,423,431,5,100,
+  	0,0,424,429,5,14,0,0,425,426,3,96,48,0,426,427,5,93,0,0,427,428,3,96,
+  	48,0,428,430,1,0,0,0,429,425,1,0,0,0,429,430,1,0,0,0,430,432,1,0,0,0,
+  	431,424,1,0,0,0,431,432,1,0,0,0,432,440,1,0,0,0,433,438,5,25,0,0,434,
+  	435,3,96,48,0,435,436,5,93,0,0,436,437,3,96,48,0,437,439,1,0,0,0,438,
+  	434,1,0,0,0,438,439,1,0,0,0,439,441,1,0,0,0,440,433,1,0,0,0,440,441,1,
+  	0,0,0,441,442,1,0,0,0,442,446,5,58,0,0,443,445,3,80,40,0,444,443,1,0,
+  	0,0,445,448,1,0,0,0,446,444,1,0,0,0,446,447,1,0,0,0,447,449,1,0,0,0,448,
+  	446,1,0,0,0,449,450,5,59,0,0,450,77,1,0,0,0,451,452,5,26,0,0,452,465,
+  	5,100,0,0,453,459,5,25,0,0,454,455,3,96,48,0,455,456,5,93,0,0,456,458,
+  	1,0,0,0,457,454,1,0,0,0,458,461,1,0,0,0,459,457,1,0,0,0,459,460,1,0,0,
+  	0,460,463,1,0,0,0,461,459,1,0,0,0,462,464,3,96,48,0,463,462,1,0,0,0,463,
+  	464,1,0,0,0,464,466,1,0,0,0,465,453,1,0,0,0,465,466,1,0,0,0,466,467,1,
+  	0,0,0,467,471,5,58,0,0,468,470,3,82,41,0,469,468,1,0,0,0,470,473,1,0,
+  	0,0,471,469,1,0,0,0,471,472,1,0,0,0,472,474,1,0,0,0,473,471,1,0,0,0,474,
+  	475,5,59,0,0,475,79,1,0,0,0,476,483,3,76,38,0,477,483,3,78,39,0,478,483,
+  	3,26,13,0,479,483,3,24,12,0,480,483,3,42,21,0,481,483,3,14,7,0,482,476,
+  	1,0,0,0,482,477,1,0,0,0,482,478,1,0,0,0,482,479,1,0,0,0,482,480,1,0,0,
+  	0,482,481,1,0,0,0,483,81,1,0,0,0,484,489,3,24,12,0,485,489,3,44,22,0,
+  	486,489,3,78,39,0,487,489,3,14,7,0,488,484,1,0,0,0,488,485,1,0,0,0,488,
+  	486,1,0,0,0,488,487,1,0,0,0,489,83,1,0,0,0,490,491,5,32,0,0,491,492,3,
+  	104,52,0,492,494,5,54,0,0,493,495,3,36,18,0,494,493,1,0,0,0,494,495,1,
+  	0,0,0,495,496,1,0,0,0,496,497,5,55,0,0,497,498,5,60,0,0,498,500,3,92,
+  	46,0,499,501,3,86,43,0,500,499,1,0,0,0,500,501,1,0,0,0,501,85,1,0,0,0,
+  	502,506,5,58,0,0,503,505,3,4,2,0,504,503,1,0,0,0,505,508,1,0,0,0,506,
+  	504,1,0,0,0,506,507,1,0,0,0,507,509,1,0,0,0,508,506,1,0,0,0,509,510,5,
+  	59,0,0,510,87,1,0,0,0,511,512,5,47,0,0,512,523,3,86,43,0,513,514,5,5,
+  	0,0,514,517,5,54,0,0,515,518,3,42,21,0,516,518,5,97,0,0,517,515,1,0,0,
+  	0,517,516,1,0,0,0,518,519,1,0,0,0,519,520,5,55,0,0,520,522,3,86,43,0,
+  	521,513,1,0,0,0,522,525,1,0,0,0,523,521,1,0,0,0,523,524,1,0,0,0,524,528,
+  	1,0,0,0,525,523,1,0,0,0,526,527,5,17,0,0,527,529,3,86,43,0,528,526,1,
+  	0,0,0,528,529,1,0,0,0,529,89,1,0,0,0,530,533,5,45,0,0,531,534,3,96,48,
+  	0,532,534,3,34,17,0,533,531,1,0,0,0,533,532,1,0,0,0,534,91,1,0,0,0,535,
+  	537,3,98,49,0,536,535,1,0,0,0,537,540,1,0,0,0,538,536,1,0,0,0,538,539,
+  	1,0,0,0,539,541,1,0,0,0,540,538,1,0,0,0,541,542,3,94,47,0,542,93,1,0,
+  	0,0,543,544,7,7,0,0,544,95,1,0,0,0,545,546,5,100,0,0,546,548,5,96,0,0,
+  	547,545,1,0,0,0,548,551,1,0,0,0,549,547,1,0,0,0,549,550,1,0,0,0,550,552,
+  	1,0,0,0,551,549,1,0,0,0,552,553,5,100,0,0,553,97,1,0,0,0,554,566,5,8,
+  	0,0,555,566,5,16,0,0,556,566,5,33,0,0,557,566,5,23,0,0,558,566,5,39,0,
+  	0,559,566,5,36,0,0,560,566,5,35,0,0,561,566,5,34,0,0,562,566,5,101,0,
+  	0,563,566,5,102,0,0,564,566,3,100,50,0,565,554,1,0,0,0,565,555,1,0,0,
+  	0,565,556,1,0,0,0,565,557,1,0,0,0,565,558,1,0,0,0,565,559,1,0,0,0,565,
+  	560,1,0,0,0,565,561,1,0,0,0,565,562,1,0,0,0,565,563,1,0,0,0,565,564,1,
+  	0,0,0,566,99,1,0,0,0,567,568,5,28,0,0,568,569,5,54,0,0,569,570,5,109,
+  	0,0,570,571,5,93,0,0,571,572,5,109,0,0,572,573,5,55,0,0,573,101,1,0,0,
+  	0,574,575,7,8,0,0,575,103,1,0,0,0,576,577,7,9,0,0,577,105,1,0,0,0,51,
+  	109,122,141,148,156,164,196,198,234,242,248,254,259,268,273,280,289,293,
+  	299,306,312,324,339,356,360,377,389,395,411,414,429,431,438,440,446,459,
+  	463,465,471,482,488,494,500,506,517,523,528,533,538,549,565
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -349,40 +348,40 @@ antlr4::atn::SerializedATNView DXXParser::getSerializedATN() const {
 }
 
 
-//----------------- StatContext ------------------------------------------------------------------
+//----------------- MainContext ------------------------------------------------------------------
 
-DXXParser::StatContext::StatContext(ParserRuleContext *parent, size_t invokingState)
+DXXParser::MainContext::MainContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* DXXParser::StatContext::EOF() {
+tree::TerminalNode* DXXParser::MainContext::EOF() {
   return getToken(DXXParser::EOF, 0);
 }
 
-std::vector<DXXParser::GExpressionsContext *> DXXParser::StatContext::gExpressions() {
+std::vector<DXXParser::GExpressionsContext *> DXXParser::MainContext::gExpressions() {
   return getRuleContexts<DXXParser::GExpressionsContext>();
 }
 
-DXXParser::GExpressionsContext* DXXParser::StatContext::gExpressions(size_t i) {
+DXXParser::GExpressionsContext* DXXParser::MainContext::gExpressions(size_t i) {
   return getRuleContext<DXXParser::GExpressionsContext>(i);
 }
 
 
-size_t DXXParser::StatContext::getRuleIndex() const {
-  return DXXParser::RuleStat;
+size_t DXXParser::MainContext::getRuleIndex() const {
+  return DXXParser::RuleMain;
 }
 
 
-std::any DXXParser::StatContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any DXXParser::MainContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<DXXParserVisitor*>(visitor))
-    return parserVisitor->visitStat(this);
+    return parserVisitor->visitMain(this);
   else
     return visitor->visitChildren(this);
 }
 
-DXXParser::StatContext* DXXParser::stat() {
-  StatContext *_localctx = _tracker.createInstance<StatContext>(_ctx, getState());
-  enterRule(_localctx, 0, DXXParser::RuleStat);
+DXXParser::MainContext* DXXParser::main() {
+  MainContext *_localctx = _tracker.createInstance<MainContext>(_ctx, getState());
+  enterRule(_localctx, 0, DXXParser::RuleMain);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -4214,10 +4213,6 @@ tree::TerminalNode* DXXParser::GotoLabelDefineContext::Colon() {
   return getToken(DXXParser::Colon, 0);
 }
 
-DXXParser::BlockContext* DXXParser::GotoLabelDefineContext::block() {
-  return getRuleContext<DXXParser::BlockContext>(0);
-}
-
 
 size_t DXXParser::GotoLabelDefineContext::getRuleIndex() const {
   return DXXParser::RuleGotoLabelDefine;
@@ -4248,8 +4243,6 @@ DXXParser::GotoLabelDefineContext* DXXParser::gotoLabelDefine() {
     match(DXXParser::ID);
     setState(401);
     match(DXXParser::Colon);
-    setState(402);
-    block();
    
   }
   catch (RecognitionException &e) {
@@ -4326,33 +4319,33 @@ DXXParser::EnumContext* DXXParser::enum_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(404);
+    setState(403);
     match(DXXParser::Enum);
-    setState(405);
+    setState(404);
     match(DXXParser::ID);
-    setState(406);
+    setState(405);
     match(DXXParser::LeftBrace);
-    setState(415);
+    setState(414);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DXXParser::ID) {
-      setState(407);
+      setState(406);
       enumSub();
-      setState(412);
+      setState(411);
       _errHandler->sync(this);
       _la = _input->LA(1);
       while (_la == DXXParser::Comma) {
-        setState(408);
+        setState(407);
         match(DXXParser::Comma);
-        setState(409);
+        setState(408);
         enumSub();
-        setState(414);
+        setState(413);
         _errHandler->sync(this);
         _la = _input->LA(1);
       }
     }
-    setState(417);
+    setState(416);
     match(DXXParser::RightBrace);
    
   }
@@ -4409,11 +4402,11 @@ DXXParser::EnumSubContext* DXXParser::enumSub() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(419);
+    setState(418);
     match(DXXParser::ID);
-    setState(420);
+    setState(419);
     match(DXXParser::Assign);
-    setState(421);
+    setState(420);
     match(DXXParser::IntegerData);
    
   }
@@ -4507,67 +4500,67 @@ DXXParser::ClassContext* DXXParser::class_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(423);
+    setState(422);
     match(DXXParser::Class);
-    setState(424);
+    setState(423);
     match(DXXParser::ID);
-    setState(432);
+    setState(431);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DXXParser::Extends) {
-      setState(425);
+      setState(424);
       match(DXXParser::Extends);
-      setState(430);
+      setState(429);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if (_la == DXXParser::ID) {
-        setState(426);
+        setState(425);
         idEx();
 
-        setState(427);
+        setState(426);
         match(DXXParser::Comma);
-        setState(428);
+        setState(427);
         idEx();
       }
     }
-    setState(441);
+    setState(440);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DXXParser::Implements) {
-      setState(434);
+      setState(433);
       match(DXXParser::Implements);
-      setState(439);
+      setState(438);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if (_la == DXXParser::ID) {
-        setState(435);
+        setState(434);
         idEx();
 
-        setState(436);
+        setState(435);
         match(DXXParser::Comma);
-        setState(437);
+        setState(436);
         idEx();
       }
     }
-    setState(443);
+    setState(442);
     match(DXXParser::LeftBrace);
-    setState(447);
+    setState(446);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 2535055415378308) != 0) || ((((_la - 95) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 95)) & 225) != 0)) {
-      setState(444);
+      setState(443);
       classMethods();
-      setState(449);
+      setState(448);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(450);
+    setState(449);
     match(DXXParser::RightBrace);
    
   }
@@ -4658,55 +4651,55 @@ DXXParser::InterfaceContext* DXXParser::interface() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(452);
+    setState(451);
     match(DXXParser::Interface);
-    setState(453);
+    setState(452);
     match(DXXParser::ID);
-    setState(466);
+    setState(465);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DXXParser::Implements) {
-      setState(454);
+      setState(453);
       match(DXXParser::Implements);
-      setState(460);
+      setState(459);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 35, _ctx);
       while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
         if (alt == 1) {
-          setState(455);
+          setState(454);
           idEx();
-          setState(456);
+          setState(455);
           match(DXXParser::Comma); 
         }
-        setState(462);
+        setState(461);
         _errHandler->sync(this);
         alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 35, _ctx);
       }
-      setState(464);
+      setState(463);
       _errHandler->sync(this);
 
       _la = _input->LA(1);
       if (_la == DXXParser::ID) {
-        setState(463);
+        setState(462);
         idEx();
       }
     }
-    setState(468);
+    setState(467);
     match(DXXParser::LeftBrace);
-    setState(472);
+    setState(471);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 2535055415378180) != 0) || ((((_la - 95) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 95)) & 225) != 0)) {
-      setState(469);
+      setState(468);
       interfaceMethods();
-      setState(474);
+      setState(473);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(475);
+    setState(474);
     match(DXXParser::RightBrace);
    
   }
@@ -4774,47 +4767,47 @@ DXXParser::ClassMethodsContext* DXXParser::classMethods() {
     exitRule();
   });
   try {
-    setState(483);
+    setState(482);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 39, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(477);
+      setState(476);
       class_();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(478);
+      setState(477);
       interface();
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(479);
+      setState(478);
       function();
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(480);
+      setState(479);
       functionDefine();
       break;
     }
 
     case 5: {
       enterOuterAlt(_localctx, 5);
-      setState(481);
+      setState(480);
       varDefine();
       break;
     }
 
     case 6: {
       enterOuterAlt(_localctx, 6);
-      setState(482);
+      setState(481);
       semi();
       break;
     }
@@ -4880,33 +4873,33 @@ DXXParser::InterfaceMethodsContext* DXXParser::interfaceMethods() {
     exitRule();
   });
   try {
-    setState(489);
+    setState(488);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 40, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(485);
+      setState(484);
       functionDefine();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(486);
+      setState(485);
       varDefineNoSet();
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(487);
+      setState(486);
       interface();
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(488);
+      setState(487);
       semi();
       break;
     }
@@ -4990,34 +4983,34 @@ DXXParser::OperatorDefineContext* DXXParser::operatorDefine() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(491);
+    setState(490);
     match(DXXParser::Operator);
-    setState(492);
+    setState(491);
     allOperators();
-    setState(493);
+    setState(492);
     match(DXXParser::LeftParen);
-    setState(495);
+    setState(494);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 2535055348269316) != 0) || ((((_la - 100) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 100)) & 7) != 0)) {
-      setState(494);
+      setState(493);
       paramList();
     }
-    setState(497);
+    setState(496);
     match(DXXParser::RightParen);
-    setState(498);
+    setState(497);
     match(DXXParser::Arrow);
-    setState(499);
+    setState(498);
     theType();
-    setState(501);
+    setState(500);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DXXParser::LeftBrace) {
-      setState(500);
+      setState(499);
       block();
     }
    
@@ -5080,21 +5073,21 @@ DXXParser::BlockContext* DXXParser::block() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(503);
+    setState(502);
     match(DXXParser::LeftBrace);
-    setState(507);
+    setState(506);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 16784864021646092) != 0) || ((((_la - 95) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 95)) & 225) != 0)) {
-      setState(504);
+      setState(503);
       expressions();
-      setState(509);
+      setState(508);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(510);
+    setState(509);
     match(DXXParser::RightBrace);
    
   }
@@ -5196,19 +5189,19 @@ DXXParser::TryContext* DXXParser::try_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(512);
+    setState(511);
     match(DXXParser::Try);
-    setState(513);
+    setState(512);
     block();
-    setState(524);
+    setState(523);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == DXXParser::Catch) {
-      setState(514);
+      setState(513);
       match(DXXParser::Catch);
-      setState(515);
+      setState(514);
       match(DXXParser::LeftParen);
-      setState(518);
+      setState(517);
       _errHandler->sync(this);
       switch (_input->LA(1)) {
         case DXXParser::Bool:
@@ -5230,13 +5223,13 @@ DXXParser::TryContext* DXXParser::try_() {
         case DXXParser::ID:
         case DXXParser::Constructor:
         case DXXParser::Destructor: {
-          setState(516);
+          setState(515);
           varDefine();
           break;
         }
 
         case DXXParser::Ellipsis: {
-          setState(517);
+          setState(516);
           match(DXXParser::Ellipsis);
           break;
         }
@@ -5244,22 +5237,22 @@ DXXParser::TryContext* DXXParser::try_() {
       default:
         throw NoViableAltException(this);
       }
-      setState(520);
+      setState(519);
       match(DXXParser::RightParen);
-      setState(521);
+      setState(520);
       block();
-      setState(526);
+      setState(525);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(529);
+    setState(528);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == DXXParser::Finally) {
-      setState(527);
+      setState(526);
       match(DXXParser::Finally);
-      setState(528);
+      setState(527);
       block();
     }
    
@@ -5317,19 +5310,19 @@ DXXParser::ThrowContext* DXXParser::throw_() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(531);
+    setState(530);
     match(DXXParser::Throw);
-    setState(534);
+    setState(533);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 47, _ctx)) {
     case 1: {
-      setState(532);
+      setState(531);
       idEx();
       break;
     }
 
     case 2: {
-      setState(533);
+      setState(532);
       functionCall();
       break;
     }
@@ -5393,20 +5386,20 @@ DXXParser::TheTypeContext* DXXParser::theType() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(539);
+    setState(538);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 678881722624) != 0) || _la == DXXParser::Constructor
 
     || _la == DXXParser::Destructor) {
-      setState(536);
+      setState(535);
       info();
-      setState(541);
+      setState(540);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-    setState(542);
+    setState(541);
     theTypeSub();
    
   }
@@ -5484,7 +5477,7 @@ DXXParser::TheTypeSubContext* DXXParser::theTypeSub() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(544);
+    setState(543);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 2534376466546692) != 0) || _la == DXXParser::ID)) {
@@ -5554,21 +5547,21 @@ DXXParser::IdExContext* DXXParser::idEx() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(550);
+    setState(549);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 49, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(546);
+        setState(545);
         match(DXXParser::ID);
-        setState(547);
+        setState(546);
         match(DXXParser::Dot); 
       }
-      setState(552);
+      setState(551);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 49, _ctx);
     }
-    setState(553);
+    setState(552);
     match(DXXParser::ID);
    
   }
@@ -5656,82 +5649,82 @@ DXXParser::InfoContext* DXXParser::info() {
     exitRule();
   });
   try {
-    setState(566);
+    setState(565);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case DXXParser::Compiletime: {
         enterOuterAlt(_localctx, 1);
-        setState(555);
+        setState(554);
         match(DXXParser::Compiletime);
         break;
       }
 
       case DXXParser::Final: {
         enterOuterAlt(_localctx, 2);
-        setState(556);
+        setState(555);
         match(DXXParser::Final);
         break;
       }
 
       case DXXParser::Override: {
         enterOuterAlt(_localctx, 3);
-        setState(557);
+        setState(556);
         match(DXXParser::Override);
         break;
       }
 
       case DXXParser::Inline: {
         enterOuterAlt(_localctx, 4);
-        setState(558);
+        setState(557);
         match(DXXParser::Inline);
         break;
       }
 
       case DXXParser::Static: {
         enterOuterAlt(_localctx, 5);
-        setState(559);
+        setState(558);
         match(DXXParser::Static);
         break;
       }
 
       case DXXParser::Public: {
         enterOuterAlt(_localctx, 6);
-        setState(560);
+        setState(559);
         match(DXXParser::Public);
         break;
       }
 
       case DXXParser::Protected: {
         enterOuterAlt(_localctx, 7);
-        setState(561);
+        setState(560);
         match(DXXParser::Protected);
         break;
       }
 
       case DXXParser::Private: {
         enterOuterAlt(_localctx, 8);
-        setState(562);
+        setState(561);
         match(DXXParser::Private);
         break;
       }
 
       case DXXParser::Constructor: {
         enterOuterAlt(_localctx, 9);
-        setState(563);
+        setState(562);
         match(DXXParser::Constructor);
         break;
       }
 
       case DXXParser::Destructor: {
         enterOuterAlt(_localctx, 10);
-        setState(564);
+        setState(563);
         match(DXXParser::Destructor);
         break;
       }
 
       case DXXParser::Native: {
         enterOuterAlt(_localctx, 11);
-        setState(565);
+        setState(564);
         native();
         break;
       }
@@ -5806,17 +5799,17 @@ DXXParser::NativeContext* DXXParser::native() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(568);
+    setState(567);
     match(DXXParser::Native);
-    setState(569);
+    setState(568);
     match(DXXParser::LeftParen);
+    setState(569);
+    match(DXXParser::StringData);
     setState(570);
-    match(DXXParser::StringData);
-    setState(571);
     match(DXXParser::Comma);
-    setState(572);
+    setState(571);
     match(DXXParser::StringData);
-    setState(573);
+    setState(572);
     match(DXXParser::RightParen);
    
   }
@@ -5910,7 +5903,7 @@ DXXParser::AssignsContext* DXXParser::assigns() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(575);
+    setState(574);
     _la = _input->LA(1);
     if (!(((((_la - 71) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 71)) & 16371) != 0))) {
@@ -6112,7 +6105,7 @@ DXXParser::AllOperatorsContext* DXXParser::allOperators() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(577);
+    setState(576);
     _la = _input->LA(1);
     if (!(((((_la - 60) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 60)) & 919123001343) != 0))) {

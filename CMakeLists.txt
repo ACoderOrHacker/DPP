@@ -46,6 +46,7 @@ endif()
 # You can set the env variable 'Boost_ROOT' to help cmake find boost
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{Boost_ROOT})
 set(ANTLR4_JAR D:/Antlr4/antlr4.13.1-complete.jar)
+set(Boost_ROOT D:/boost)
 
 cmake_policy(SET CMP0074 NEW)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)

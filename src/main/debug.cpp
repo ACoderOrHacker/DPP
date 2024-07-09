@@ -4,6 +4,8 @@
 #include "serialization/Serialization.hpp"
 
 int main() {
+    OutputInformation();
+
     S_FObject *fobj = new S_FObject;
     OpCode op;
     op.opcode = OPCODE_MOV;

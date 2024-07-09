@@ -35,7 +35,7 @@ public:
   };
 
   enum {
-    RuleStat = 0, RuleGExpressions = 1, RuleExpressions = 2, RuleConstant = 3, 
+    RuleMain = 0, RuleGExpressions = 1, RuleExpressions = 2, RuleConstant = 3, 
     RuleData = 4, RuleBoolean = 5, RuleNegative = 6, RuleSemi = 7, RuleImportLib = 8, 
     RuleNew = 9, RuleDelete = 10, RuleTypedef = 11, RuleFunctionDefine = 12, 
     RuleFunction = 13, RuleReturn = 14, RuleLambdaFunction = 15, RuleFunctionHead = 16, 
@@ -68,7 +68,7 @@ public:
   antlr4::atn::SerializedATNView getSerializedATN() const override;
 
 
-  class StatContext;
+  class MainContext;
   class GExpressionsContext;
   class ExpressionsContext;
   class ConstantContext;
@@ -122,9 +122,9 @@ public:
   class AssignsContext;
   class AllOperatorsContext; 
 
-  class  StatContext : public antlr4::ParserRuleContext {
+  class  MainContext : public antlr4::ParserRuleContext {
   public:
-    StatContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    MainContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *EOF();
     std::vector<GExpressionsContext *> gExpressions();
@@ -135,7 +135,7 @@ public:
    
   };
 
-  StatContext* stat();
+  MainContext* main();
 
   class  GExpressionsContext : public antlr4::ParserRuleContext {
   public:
@@ -1148,7 +1148,6 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *ID();
     antlr4::tree::TerminalNode *Colon();
-    BlockContext *block();
 
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
