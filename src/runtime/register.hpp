@@ -53,15 +53,15 @@ SOFTWARE.
 
 struct _LinkType;
 
-DXX_API RegType GetReg(const std::type_info &type);
+DXX_API RegType *GetReg(const std::type_info &type);
 
 // this function only can get the standard types
 template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
     Dpp_Object *ret = NewObject<T>();
     SetObject<T, VAL_T>(ret, val);
-    auto reg = GetReg(typeid(VAL_T));
+    RegType *reg = GetReg(typeid(VAL_T));
 
-    ret->reg = &reg;
+    ret->reg = reg;
     return ret;
 }
 
@@ -89,6 +89,7 @@ Dpp_Object *IntBor(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *IntBxor(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *IntBneg(Dpp_Object *val);
 bool IntPrint(Dpp_Object *print_obj);
+std::string IntToString(Dpp_Object *val);
 
 // for floating number
 Dpp_Object *FloatAdd(Dpp_Object *lval, Dpp_Object *rval);
@@ -96,12 +97,14 @@ Dpp_Object *FloatSub(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *FloatMul(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *FloatDiv(Dpp_Object *lval, Dpp_Object *rval);
 bool FloatPrint(Dpp_Object *print_obj);
+std::string FloatToString(Dpp_Object *val);
 
 // for string
 Dpp_Object *StringAdd(Dpp_Object *lval, Dpp_Object *rval);
 bool StringPrint(Dpp_Object *print_obj);
+std::string StringToString(Dpp_Object *val);
 
-void RegInit(FObject *fObj);
+DXX_API void RegInit(FObject *fObj);
 inline void RegSet(Dpp_Object *obj, RegType *reg);
 
 Dpp_Object *StdBigger(Dpp_Object *lval, Dpp_Object *rval);

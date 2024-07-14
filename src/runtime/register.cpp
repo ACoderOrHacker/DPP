@@ -24,7 +24,7 @@
 
 #include "register.hpp"
 
-struct RegType IntType;
+DXX_API struct RegType IntType;
 struct RegType FloatType;
 struct RegType StringType;
 struct RegType ClassType;
@@ -36,14 +36,14 @@ struct _LinkType {
 	RegType reg;
 };
 
-DXX_API RegType GetReg(const std::type_info &type) {
+DXX_API RegType *GetReg(const std::type_info &type) {
 
     if (type == typeid(Interger)) {
-        return IntType;
+        return &IntType;
     } else if (type == typeid(FloatNum)) {
-        return FloatType;
+        return &FloatType;
     } else if (type == typeid(String)) {
-        return StringType;
+        return &StringType;
     } else {
         throw NoType();
     }
@@ -310,7 +310,7 @@ bool StringPrint(Dpp_Object *print_obj) {
 }
 
 // register the based types
-void RegInit(FObject *fObj) {
+DXX_API void RegInit(FObject *fObj) {
 	// init the types
 	IntType = {"int", INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, &IntToString, nullptr, nullptr};
 	FloatType = {"float", FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, &FloatToString, nullptr, nullptr};
@@ -346,12 +346,12 @@ void RegInit(FObject *fObj) {
     __errortype->isTypeObject = true;
     __functiontype->isTypeObject = true;
 
-	fObj->obj_map.write({false, INT_TYPE}, __inttype);
-	fObj->obj_map.write({false, FLOAT_TYPE}, __floattype);
-    fObj->obj_map.write({false, STRING_TYPE}, __stringtype);
-    fObj->obj_map.write({false, CLASS_TYPE}, __classtype);
-    fObj->obj_map.write({false, ERROR_TYPE}, __errortype);
-    fObj->obj_map.write({false, FUNCTION_TYPE}, __functiontype);
+	fObj->obj_map.write({true, INT_TYPE}, __inttype);
+	fObj->obj_map.write({true, FLOAT_TYPE}, __floattype);
+    fObj->obj_map.write({true, STRING_TYPE}, __stringtype);
+    fObj->obj_map.write({true, CLASS_TYPE}, __classtype);
+    fObj->obj_map.write({true, ERROR_TYPE}, __errortype);
+    fObj->obj_map.write({true, FUNCTION_TYPE}, __functiontype);
 }
 
 inline void RegSet(Dpp_Object *obj, RegType *reg) {obj->reg = reg;}

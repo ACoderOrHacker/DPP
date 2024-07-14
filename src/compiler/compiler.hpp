@@ -23,7 +23,6 @@
  */
 
 #ifndef _COMPILER_H
-#define TEST
 #include <string>
 #include <fstream>
 #include <any>
@@ -37,15 +36,18 @@
 #include "builtin.hpp"
 #include "metadata.h"
 
-DXX_API FObject *compile(std::string code);
-DXX_API bool compile(std::ifstream file);
+DXX_API FObject *fObj = new FObject;
+
+DXX_API FObject *_compile(antlr4::ANTLRInputStream stream);
+DXX_API FObject *compile(std::string &code);
+DXX_API FObject *compile(std::ifstream &ifs);
 
 typedef struct _Dpp_CObject {
 	Object object;
     std::string id;
-    uint32_t infos;
+    uint32_t infos = 0;
     Array<_Dpp_CObject *> subs;
-	void *metadata[8];
+    void *metadata[8];
 } Dpp_CObject;
 
 class Namespace {
@@ -134,7 +136,10 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
     DXXVisitor(FObject *_fObj = nullptr) {
-        _fObj == nullptr ? fObj = new FObject : fObj = _fObj;
+        if (_fObj != nullptr) fObj = _fObj;
+        else RegInit(fObj);
+
+        block_end = 0;
     }
 
     std::any visit(antlr4::tree::ParseTree *tree) {
@@ -290,6 +295,7 @@ public:
             enum_object->subs.write(sub);
         }
 
+
         return NONE;
     }
 
@@ -298,7 +304,7 @@ public:
      * The if statement opcodes
      */
     std::any visitWithIf(DXXParser::WithIfContext *ctx) override {
-        char flag;
+        char flag = NO_FLAG;
         SetBit1(flag, JMP_FALSE);
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
         Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
@@ -315,7 +321,7 @@ public:
      * The if statement opcodes
      */
     std::any visitWithIfExtends(DXXParser::WithIfExtendsContext *ctx) override {
-        char flag;
+        char flag = NO_FLAG;
         SetBit1(flag, JMP_FALSE);
         Heap<uint32_t> block_ends;
         Heap<uint32_t> jmp_poses;
@@ -410,12 +416,14 @@ private:
      */
     Object allocMapping(bool isConst = false) {
         if (isConst) {
-            idIt.IncGlobalIterator();
             uint32_t it = idIt.GetGlobalIterator();
+            idIt.IncGlobalIterator();
+
             return {true, it};
         } else {
-            idIt.IncIterator();
             uint32_t it = idIt.GetTopIterator();
+            idIt.IncIterator();
+
             return {isInGlobal(), it};
         }
 
@@ -618,7 +626,7 @@ private:
     }
 
 	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
-		uint32_t infos;
+		uint32_t infos = 0;
 
 		for (auto it : *_infos) {
 			infos |= anycast(uint32_t, visitInfo(it));
@@ -627,7 +635,7 @@ private:
         return infos;
 	}
 private:
-	FObject *fObj;
+	//FObject *fObj;
     Namespace *globalNamespace = new Namespace;
     Namespace *thisNamespace = globalNamespace;
     std::stack<Namespace *> namespaces;

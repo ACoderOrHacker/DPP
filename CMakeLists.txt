@@ -16,6 +16,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(/utf-8)
 endif()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Debug Mode")
+    add_definitions(-D_COMPILE_TEST)
+else()
+    message(STATUS "Release Mode")
+endif()
+
 # configure the c++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -53,7 +60,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
     cmake_policy(SET CMP0144 NEW)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(Boost REQUIRED COMPONENTS serialization program_options)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
@@ -69,7 +76,7 @@ set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/
-        ${Boost_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS}/
         ${FMT_DIR}/include/)
 
 include_directories(PUBLIC ${INC_DIRS})

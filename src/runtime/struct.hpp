@@ -146,13 +146,15 @@ class Dpp_Object {
 		bool print();
 		bool move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
-        DXX_API std::string toString();
+        
 	public:
 		std::string name;
 		char info = 0; // see doc/object/info.md
 		RegType *reg = nullptr;
         bool isTypeObject = false;
 };
+
+DXX_API std::string to_string(Dpp_Object *obj);
 
 class ObjectMapping {
 public:
@@ -208,7 +210,7 @@ typedef struct _VMError {
 } VMError;
 
 typedef struct _OpCode {
-    rt_opcode opcode;
+    rt_opcode opcode = OPCODE_START;
 	char flag = NO_FLAG;
     Heap<Object> params;
 } OpCode;

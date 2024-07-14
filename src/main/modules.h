@@ -7,8 +7,10 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <iostream>
+#include <boost/filesystem.hpp>
 #include <fmt/core.h>
+#include <iostream>
+
 #include "vm.hpp"
 #include "serialization/Serialization.hpp"
 
@@ -90,7 +92,6 @@ std::string GetFlagsName(char flag) {
     return s;
 }
 
-
 void OutputS_FObject(S_FObject *s_fObj) {
     fmt::print("\n");
     fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
@@ -122,8 +123,9 @@ void OutputS_FObject(S_FObject *s_fObj) {
 
     fmt::print("\n");
     fmt::print("Global Object Mapping:\n");
-    for(uint32_t index = BUILTIN_END + 1; index < s_fObj->global_mapping.size(); ++index) {
-        fmt::print("    [{}]: {}\n", i, (s_fObj->global_mapping[index])->toString());
+    for(uint32_t index = BUILTIN_END; index < s_fObj->global_mapping.size(); ++index) {
+        Dpp_Object *obj = s_fObj->global_mapping[index];
+        fmt::print("    [{}] {}\n", index, to_string(obj));
     }
 }
 
@@ -131,5 +133,22 @@ void OutputFObject(FObject *fObj) {
     OutputS_FObject(GetS_FObject(fObj));
 }
 
+bool GetFiles(std::vector<boost::filesystem::path> &files, boost::filesystem::path path) {
+    try {
+        files.clear();
+        for (const auto &it : boost::filesystem::directory_iterator(path)) {
+            if (boost::filesystem::is_directory(it.path()))
+                continue;
+
+            boost::filesystem::path file = it.path();
+            files.push_back(file);
+        }
+        return true;
+    }
+    catch (const std::exception &e) {
+        std::cout << "error: " << e.what();
+    }
+    return false;
+}
 
 #endif //DPP_MODULES_H

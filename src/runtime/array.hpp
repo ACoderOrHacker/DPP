@@ -5,6 +5,7 @@
 #define _ARRAY_H
 #include <stdint.h>
 #include <vector>
+#include <algorithm>
 
 template<typename T> class Array {
 	public:
@@ -17,6 +18,9 @@ template<typename T> class Array {
 		T operator [](uint32_t n) {
 			return (array->at(n));
 		}
+        void operator =(Array<T> data) {
+            std::copy(data.begin(), data.end(), std::back_inserter(*array));
+        }
 		void write(uint32_t n, T data) {
 			if(array->size() < n) {
 				array->resize(n);
