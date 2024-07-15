@@ -133,11 +133,22 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
     return _op;
 }
 
+DXX_API OpCode MakeOpCode(rt_opcode op,
+    char flags,
+    Heap<Object> &params) {
+    OpCode _op;
+    _op.opcode = op;
+    _op.flag = flags;
+    _op.params = params;
+
+    return _op;
+}
+
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
     DXXVisitor(FObject *_fObj = nullptr) {
         if (_fObj != nullptr) fObj = _fObj;
-        else RegInit(fObj);
+        else fObj = new FObject, RegInit(fObj);
 
         block_end = 0;
     }
@@ -171,9 +182,14 @@ public:
      * Create 'import' opcodes
      */
     std::any visitImportLib(DXXParser::ImportLibContext *ctx) override {
-        Dpp_CObject *library = MakeString(ctx->idEx()->toString());
+        Heap<Object> params;
 
-        LoadOpcode(OPCODE_IMPORT, NO_FLAG, 1, library);
+        for (auto it : ctx->idEx()->ID()) {
+            Dpp_CObject *mod = MakeString(it->toString());
+            params.PushData(mod->object);
+        }
+
+        LoadOpcode(OPCODE_IMPORT, NO_FLAG, params);
         return NONE;
     }
 
@@ -442,6 +458,12 @@ private:
         va_start(l, count);
         fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, count, l));
         va_end(l);
+    }
+
+    void LoadOpcode(rt_opcode op,
+        char flags,
+        Heap<Object> &params) {
+        fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, params));
     }
 
     /*

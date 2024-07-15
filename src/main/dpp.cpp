@@ -46,11 +46,22 @@ int main(int argc, char *argv[] ) {
             std::vector<boost::filesystem::path> files;
             GetFiles(files, examples_path);
 
-            for (auto it : files) {
+            FObject *fObj;
+            uint32_t i = 1;
+            for (auto &it : files) {
+                fmt::print("[{}] {}", i, it.filename().string());
+
                 std::ifstream ifs;
                 ifs.open(it.string());
-                compile(ifs);
+                fObj = compile(ifs);
                 ifs.close();
+
+                OutputFObject(fObj, false);
+                delete fObj;
+                fObj = nullptr;
+
+                std::cout << "\n\n";
+                ++i;
             }
         }
 #endif

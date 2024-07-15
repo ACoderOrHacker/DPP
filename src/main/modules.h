@@ -92,9 +92,9 @@ std::string GetFlagsName(char flag) {
     return s;
 }
 
-void OutputS_FObject(S_FObject *s_fObj) {
+void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("\n");
-    fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
+    if (isOutputCopyright) fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
 
     OutputFileHeader(s_fObj->header);
 
@@ -111,11 +111,20 @@ void OutputS_FObject(S_FObject *s_fObj) {
         std::string s;
 
         s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));
-        for(auto param: it.params) {
+        while(it.params.size() > 0) {
+            Object param = it.params.PopData();
             s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
         }
         std::cout << s;
-        std::cout << std::string(35 - s.size(), ' ');
+        int space_num = 100 - s.size();
+        if (space_num > 0) {
+            std::cout << std::string(space_num, ' ');
+        }
+        else {
+            // space_num <= 0
+            // std::length_error: string too long
+            std::cout << std::string(s.size() + 10, ' ');
+        }
         fmt::print("flag: {}", GetFlagsName(it.flag));
 
         ++i;
@@ -129,8 +138,8 @@ void OutputS_FObject(S_FObject *s_fObj) {
     }
 }
 
-void OutputFObject(FObject *fObj) {
-    OutputS_FObject(GetS_FObject(fObj));
+void OutputFObject(FObject *fObj, bool isOutputCopyright = true) {
+    OutputS_FObject(GetS_FObject(fObj), isOutputCopyright);
 }
 
 bool GetFiles(std::vector<boost::filesystem::path> &files, boost::filesystem::path path) {

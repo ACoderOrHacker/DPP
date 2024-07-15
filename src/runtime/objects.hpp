@@ -39,12 +39,12 @@ struct IntObject {
 
 struct FloatObject {
 	OBJECT_HEAD
-	FloatNum val; // floating number value
+	FloatNum val = 0.0; // floating number value
 };
 
 struct StringObject {
 	OBJECT_HEAD
-	String val; // string value
+	String val = L""; // string value
 };
 
 #define CLASS_OBJECT OBJECT_HEAD Heap<Dpp_Object *> members;
@@ -54,7 +54,7 @@ struct ClassObject {
 
 struct FunctionObject {
     OBJECT_HEAD
-        struct VMState state;
+    struct VMState state;
     Heap<Object> params;
 };
 
@@ -87,7 +87,7 @@ Dpp_Object *NewObject(size_t size);
 STATUS DeleteObject(Dpp_Object *obj);
 
 template<typename T> Dpp_Object *NewObject() {
-	void *ptr = malloc(sizeof(T));
+	T *ptr = new T;
 
 	return (Dpp_Object *)ptr;
 }
@@ -105,7 +105,7 @@ inline uint16_t GetObjectType(Dpp_Object *obj) {
 	return (obj->reg->type);
 }
 
-template<typename T, typename VAL_T> inline void SetObject(Dpp_Object *obj, VAL_T val) {
-	((T *)obj)->val = val;
+template<typename T, typename VAL_T> inline void SetObject(Dpp_Object *obj, VAL_T &val) {
+    ((T *)obj)->val = val;
 }
 #endif // !DPPDEF_OBJECTS
