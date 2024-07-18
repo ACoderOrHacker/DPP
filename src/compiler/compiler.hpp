@@ -28,6 +28,7 @@
 #include <any>
 #include <stack>
 #include <cstdarg>
+#include <initializer_list>
 
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
@@ -118,17 +119,15 @@ void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
 DXX_API OpCode MakeOpCode(rt_opcode op,
     char flags = NO_FLAG,
-    int count = 0,
-    ...) {
+    std::initializer_list<Object> l = {}) {
     OpCode _op;
+    _op.params = *new Heap<Object>;
     _op.opcode = op;
     _op.flag = flags;
-    va_list l;
-    va_start(l, count);
-    for(int i = 0; i<count; ++i) {
-        _op.params.PushData(va_arg(l, Object));
+
+    for (auto it : l) {
+        _op.params.PushData(it);
     }
-    va_end(l);
 
     return _op;
 }
@@ -204,13 +203,10 @@ public:
         DXXParser::TheTypeContext *retType = ctx->theType();
         DXXParser::ThrowtableContext *throwTable = ctx->throwtable();
 
-        /*
-          TODO: visitParamList returns Heap<Dpp_Object *> *, visitThrowtable returns Heap<Dpp_Object *> *
-        */
         uint32_t infos = GetInfos(&_infos);
-        Heap<Dpp_Object *> *params = anycast(Heap<Dpp_Object *> *, visitParamList(_params));
-        Dpp_Object *ret = anycast(Dpp_Object *, visitTheType(retType));
-        Heap<Dpp_Object *> *throws = anycast(Heap<Dpp_Object *> *, visitThrowtable(throwTable));
+        Heap<Dpp_CObject *> *params = anycast(Heap<Dpp_CObject *> *, visitParamList(_params));
+        Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
+        Heap<Dpp_CObject *> *throws = anycast(Heap<Dpp_CObject *> *, visitThrowtable(throwTable));
 
         Dpp_Object *func = MakeFunctionObject(id);
         Dpp_CObject *co = MakeFunction(func, infos, params, ret, throws);
@@ -244,6 +240,52 @@ public:
     }
 
     /*
+     * @return: Heap<Dpp_Object *> *
+     * Just a helper function of 'functionHead'
+     */
+    std::any visitThrowtable(DXXParser::ThrowtableContext *ctx) {
+        Heap<Dpp_CObject *> *throw_table = new Heap<Dpp_CObject *>;
+        if (ctx == nullptr) return throw_table;
+
+        for (auto it : ctx->idEx()) {
+            throw_table->PushData(anycast(Dpp_CObject *, visitIdEx(it)));
+        }
+
+        return throw_table;
+    }
+
+    /*
+     * @return: Heap<Dpp_Object *> *
+     * Just a helper function of 'functionHead'
+     */
+    std::any visitParamList(DXXParser::ParamListContext *ctx) {
+        Heap<Dpp_CObject *> *param_list = new Heap<Dpp_CObject *>;
+        if (ctx == nullptr) return param_list;
+
+        for (auto it : ctx->varDefine()) {
+            // TODO: Function may need a local variable of function, but there may not
+            param_list->PushData(anycast(Dpp_CObject *, visitVarDefine(it)));
+
+        }
+
+        return param_list;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * return the type
+     */
+    std::any visitTheType(DXXParser::TheTypeContext *ctx) override {
+        Object o;
+        o.id = 6;
+        o.isInGlobal = true;
+        Dpp_CObject *co = new Dpp_CObject;
+        co->object = o;
+
+        return co;
+    }
+
+    /*
      * @return: Dpp_CObject *
      * Create a 'Compile-time Object' of function
      */
@@ -252,7 +294,7 @@ public:
     }
 
     /*
-     * @return: NONE
+     * @return: Dpp_CObject *
      * Define a variable
      */
 	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) override {
@@ -263,15 +305,15 @@ public:
 		std::string id = ctx->ID()->toString();
 		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
 		Dpp_CObject *data;
-        Object to = allocMapping();
+        Dpp_CObject *to = MakeObject(id);
 
-        LoadOpcode(OPCODE_NEW, NO_FLAG, 2, type->object, to);
+        LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, to->object });
         if (_data != nullptr) {
             data = anycast(Dpp_CObject *, visitChildren(_data));
-            LoadOpcode(OPCODE_MOV, NO_FLAG, 2, data->object, to);
+            LoadOpcode(OPCODE_MOV, NO_FLAG, { data->object, to->object });
         }
 
-		return NONE;
+		return to;
 	}
 
     /*
@@ -282,7 +324,7 @@ public:
 		Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
 		Dpp_CObject *val = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
-		LoadOpcode(OPCODE_MOV, NO_FLAG, 2, val->object, o->object);
+		LoadOpcode(OPCODE_MOV, NO_FLAG, { val->object, o->object });
 
 		return NONE;
 	}
@@ -327,7 +369,7 @@ public:
 
         Object jmp_to = {true, block_end};
         visitBlock(ctx->block());
-        LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, 2, jmp_to, data->object);
+        LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, { jmp_to, data->object });
 
         return NONE;
     }
@@ -345,7 +387,7 @@ public:
 
         for(auto it: ctx->withIfExtendsSub()) {
             datas.PushData(anycast(Dpp_CObject *, visitChildren(it->data())));
-            LoadOpcode(OPCODE_JMP, flag, 2, placeholder, placeholder);
+            LoadOpcode(OPCODE_JMP, flag, { placeholder, placeholder });
             jmp_poses.PushData(fObj->state.vmopcodes.size() - 1);
         }
 
@@ -356,11 +398,11 @@ public:
 
         Object end = {true, (uint32_t)(fObj->state.vmopcodes.size() + block_ends.size())};
         for(auto jmp_pos: jmp_poses) {
-            ResetOpcode(jmp_pos, OPCODE_JMP, flag, 2, datas.PopData(), end);
+            ResetOpcode(jmp_pos, OPCODE_JMP, flag, { datas.PopData()->object, end });
         }
 
         for(auto block_end: block_ends) {
-            LoadAndInsertOpcode(block_end, OPCODE_JMP, NO_FLAG, 1, end);
+            LoadAndInsertOpcode(block_end, OPCODE_JMP, NO_FLAG, { end });
         }
 
         return NONE;
@@ -383,7 +425,7 @@ public:
         std::string id = ctx->ID()->toString();
         Dpp_CObject *label = FindObject(id, true);
 
-        LoadOpcode(OPCODE_JMP, NO_FLAG, 1, label->object);
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { label->object });
 
         return NONE;
     }
@@ -404,7 +446,7 @@ public:
 		Object type = anycast(Object, visitTheType(ctx->theType()));
         Object to = allocMapping();
 
-        LoadOpcode(OPCODE_NEW, NO_FLAG, 2, type, to);
+        LoadOpcode(OPCODE_NEW, NO_FLAG, { type, to });
 		return to;
 	}
 
@@ -415,7 +457,7 @@ public:
 	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
 		Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
-        LoadOpcode(OPCODE_DEL, NO_FLAG, 1, data->object);
+        LoadOpcode(OPCODE_DEL, NO_FLAG, { data->object });
 
 		return NONE;
 	}
@@ -451,13 +493,8 @@ private:
      */
     void LoadOpcode(rt_opcode op,
                     char flags = NO_FLAG,
-                    int count = 0,
-                    ...) {
-        va_list l;
-
-        va_start(l, count);
-        fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, count, l));
-        va_end(l);
+                    std::initializer_list<Object> l = {}) {
+        fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, l));
     }
 
     void LoadOpcode(rt_opcode op,
@@ -473,13 +510,8 @@ private:
     void LoadAndInsertOpcode(uint32_t pos,
                     rt_opcode op,
                     char flags = NO_FLAG,
-                    int count = 0,
-                    ...) {
-        va_list l;
-
-        va_start(l, count);
-        fObj->state.vmopcodes.SetData(pos, MakeOpCode(op, flags, count, l));
-        va_end(l);
+                    std::initializer_list<Object> l = {}) {
+        fObj->state.vmopcodes.SetData(pos, MakeOpCode(op, flags, l));
     }
 
     /*
@@ -489,13 +521,8 @@ private:
     void ResetOpcode(uint32_t pos,
                      rt_opcode op,
                      char flags = NO_FLAG,
-                     int count = 0,
-                     ...) {
-        va_list l;
-
-        va_start(l, count);
-        fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, flags, count, l));
-        va_end(l);
+                     std::initializer_list<Object> l = {}) {
+        fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, flags, l));
     }
 
     /*
@@ -545,9 +572,9 @@ private:
      */
     Dpp_CObject *MakeFunction(Dpp_Object *func,
                               uint32_t infos,
-                              Heap<Dpp_Object *> *params,
-                              Dpp_Object *ret,
-                              Heap<Dpp_Object *> *throws) {
+                              Heap<Dpp_CObject *> *params,
+                              Dpp_CObject *ret,
+                              Heap<Dpp_CObject *> *throws) {
         Object o = allocMapping(true);
         Dpp_CObject *co = MakeConst(o, func);
         co->infos = infos;
@@ -649,10 +676,10 @@ private:
 
 	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
 		uint32_t infos = 0;
-
+        /*
 		for (auto it : *_infos) {
 			infos |= anycast(uint32_t, visitInfo(it));
-		}
+		}*/
 
         return infos;
 	}

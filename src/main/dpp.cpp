@@ -9,6 +9,8 @@
 #include "vm.hpp"
 #include "modules.h"
 
+#define TEST
+
 namespace opt = boost::program_options;
 
 boost::filesystem::path root = boost::filesystem::initial_path<boost::filesystem::path>().parent_path();
@@ -18,7 +20,9 @@ int main(int argc, char *argv[] ) {
     OutputInformation();
     std::cout << "\n\n";
 
+#ifndef TEST
     try {
+#endif // !TEST
         opt::options_description desc;
         desc.add_options()
             ("help,h", "Produce help message")
@@ -65,14 +69,12 @@ int main(int argc, char *argv[] ) {
             }
         }
 #endif
+#ifndef TEST
     } catch (std::exception &e) {
         std::cerr << "error: " << e.what();
         return 1;
-    } catch (...) {
-        std::cerr << "Unknown error\n";
-        return 1;
     }
-
+#endif
     /*
 
 

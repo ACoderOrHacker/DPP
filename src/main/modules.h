@@ -92,7 +92,10 @@ std::string GetFlagsName(char flag) {
     return s;
 }
 
-void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
+void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
+    S_FObject __s_fObj;
+    __s_fObj = *_s_fObj;
+    S_FObject *s_fObj = &__s_fObj;
     fmt::print("\n");
     if (isOutputCopyright) fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
 
@@ -107,7 +110,8 @@ void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
     uint32_t i = 0;
     fmt::print("\n");
     fmt::print("Main State: \n");
-    for(auto it: s_fObj->state.vmopcodes) {
+    while(s_fObj->state.vmopcodes.size() > 0) {
+        OpCode it = s_fObj->state.vmopcodes.PopData();
         std::string s;
 
         s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));
@@ -125,7 +129,7 @@ void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
             // std::length_error: string too long
             std::cout << std::string(s.size() + 10, ' ');
         }
-        fmt::print("flag: {}", GetFlagsName(it.flag));
+        fmt::print("flag: {}\n", GetFlagsName(it.flag));
 
         ++i;
     }
