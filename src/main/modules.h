@@ -120,8 +120,6 @@ void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
             s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
         }
         std::cout << s;
-
-        // Output space to make the console beatufully
         int space_num = 100 - s.size();
         if (space_num > 0) {
             std::cout << std::string(space_num, ' ');
