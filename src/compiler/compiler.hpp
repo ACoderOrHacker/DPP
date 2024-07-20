@@ -535,7 +535,7 @@ private:
         _co->object = o;
 
         fObj->obj_map.write(o, obj);
-        // TODO: Write to the constant pool, it was not success
+        globalNamespace->objects.write(_co);
 
         return _co;
     }
