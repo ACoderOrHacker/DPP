@@ -15,9 +15,10 @@ if (BUILD_VM_SERIALIZATION)
     message(STATUS "Build The Serialization")
 
     file(GLOB SERIALIZATION_FILES serialization/*.cpp)
-    add_library(vm SHARED ${VM_FILES} ${SERIALIZATION_FILES})
+    add_library(vm SHARED ${VM_FILES} ${ACASSERT_FILES} ${SERIALIZATION_FILES})
+    target_link_libraries(vm Boost::serialization)
 else ()
-    add_library(vm SHARED ${VM_FILES})
+    add_library(vm SHARED ${VM_FILES} ${ACASSERT_FILES})
 endif ()
 
 set(GRAMMAR_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/)
@@ -33,12 +34,11 @@ file(GLOB COMPILER_FILES compiler/*.cpp
         compiler/antlr4/*.cpp
         compiler/antlr4/*.hpp
         compiler/antlr4/*.h)
-add_library(compiler SHARED ${COMPILER_FILES})
-find_library(COMPILER_LIB antlr4-runtime ${DXX_LIBRARY_DIR})
-target_link_libraries(compiler ${COMPILER_LIB} vm)
+add_library(compiler SHARED ${COMPILER_FILES} ${ACASSERT_FILES})
+target_link_libraries(compiler antlr4_shared vm fmt::fmt-header-only)
 
-add_executable(dpp main/dpp.cpp)
-target_link_libraries(dpp vm compiler fmt-header-only)
+add_executable(dpp main/dpp.cpp ${ACASSERT_FILES})
+target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options Boost::filesystem)
 
-add_executable(debug main/debug.cpp main/modules.h)
-target_link_libraries(debug vm fmt-header-only)
+add_executable(debug main/debug.cpp main/modules.h ${ACASSERT_FILES})
+target_link_libraries(debug vm fmt::fmt-header-only Boost::filesystem)

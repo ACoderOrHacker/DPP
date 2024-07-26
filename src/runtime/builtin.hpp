@@ -17,7 +17,6 @@ enum BUILTIN : unsigned char {
     CLASS_TYPE,
     ERROR_TYPE,
     FUNCTION_TYPE,
-    OBJECT_TYPE,
 
     BUILTIN_END // the builtin list end
 };

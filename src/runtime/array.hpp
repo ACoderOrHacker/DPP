@@ -32,6 +32,9 @@ template<typename T> class Array {
 
             array->insert(array->end(), data);
         }
+        void remove(T data) {
+            std::ignore = std::remove(array->begin(), array->end(), data);
+        }
 		size_t size() {
 			return array->size();
 		}

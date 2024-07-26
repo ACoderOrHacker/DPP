@@ -29,6 +29,8 @@
 #include <stack>
 #include <cstdarg>
 #include <initializer_list>
+#include <fmt/core.h>
+#include <fmt/color.h>
 
 #include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
@@ -37,6 +39,20 @@
 #include "builtin.hpp"
 #include "metadata.h"
 
+#define THROW(msg)  {                                                     \
+    fmt::print(fmt::fg(fmt::color::red), "\nerror: {}\n", msg);               \
+    exit(1);                                                              \
+}
+
+#define INFO_INT      0b10000000
+#define INFO_FLOAT    0b01000000
+#define INFO_STRING   0b00100000
+#define INFO_BOOL     0b00010000
+#define INFO_TYPE     0b00001000
+#define INFO_OBJECT   0b00000100
+#define INFO_VOID     0b00000010
+#define INFO_ID       0b00000001
+
 DXX_API FObject *fObj = new FObject;
 
 DXX_API FObject *_compile(antlr4::ANTLRInputStream stream);
@@ -44,11 +60,18 @@ DXX_API FObject *compile(std::string &code);
 DXX_API FObject *compile(std::ifstream &ifs);
 
 typedef struct _Dpp_CObject {
+public:
 	Object object;
     std::string id;
     uint32_t infos = 0;
     Array<_Dpp_CObject *> subs;
     void *metadata[8];
+public:
+    bool operator ==(_Dpp_CObject *co) {
+
+
+        return false;
+    }
 } Dpp_CObject;
 
 class Namespace {
@@ -65,6 +88,20 @@ public:
         namespaces.write(ns);
 
         return ns;
+    }
+
+    void RemoveObject(Dpp_CObject *co,
+        bool(*checker)(Dpp_CObject *, Dpp_CObject *) = [](Dpp_CObject *v1, Dpp_CObject *v2) {
+            return *v1 == v2;
+        }) {
+
+        for (auto it : objects) {
+            if (checker(it, co)) {
+                acassert(it == nullptr);
+                std::cout << "there";
+                objects.remove(it);
+            }
+        }
     }
 };
 
@@ -150,6 +187,19 @@ public:
         else fObj = new FObject, RegInit(fObj);
 
         block_end = 0;
+
+        // init the globalNamespace
+        uint32_t builtin_it = 0;
+        for (; builtin_it < BUILTIN_END; ++builtin_it) {
+            Object o{true, builtin_it};
+            Dpp_Object *obj = fObj->obj_map.get(o);
+            Dpp_CObject *co = new Dpp_CObject;
+
+            co->id = obj->name;
+            co->object = o;
+            globalNamespace->objects.write(co);
+
+        }
     }
 
     std::any visit(antlr4::tree::ParseTree *tree) {
@@ -276,11 +326,26 @@ public:
      * return the type
      */
     std::any visitTheType(DXXParser::TheTypeContext *ctx) override {
-        Object o;
-        o.id = 6;
-        o.isInGlobal = true;
-        Dpp_CObject *co = new Dpp_CObject;
-        co->object = o;
+        Dpp_CObject *co;
+
+        for (auto it : ctx->theTypeSub()->children) {
+            if (it != nullptr) {
+                std::string id = it->toString();
+                std::vector<DXXParser::InfoContext *> infos = ctx->info();
+
+                // type is always in global namespace
+                co = FindObject(id, true);
+                if (co == nullptr) {
+                    THROW(fmt::format("no type named '{}'", id));
+                }
+
+                co->infos |= GetInfos(&infos);
+
+                if ((co->infos | INFO_ID) == co->infos) {
+                    // Nothing
+                }
+            }
+        }
 
         return co;
     }
@@ -535,6 +600,10 @@ private:
         _co->object = o;
 
         fObj->obj_map.write(o, obj);
+
+        if (obj->name != "") {
+            globalNamespace->RemoveObject(_co);
+        }
         globalNamespace->objects.write(_co);
 
         return _co;
@@ -549,6 +618,7 @@ private:
         String wstr = stringToWstring(s);
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<StringObject, String>(wstr);
+        obj->name = s;
 
         return MakeConst(o, obj);
     }
@@ -561,6 +631,7 @@ private:
     Dpp_CObject *MakeInteger(Interger idata) {
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<IntObject, Interger>(idata);
+        obj->name = std::to_string(idata);
 
         return MakeConst(o, obj);
     }
@@ -577,6 +648,7 @@ private:
                               Heap<Dpp_CObject *> *throws) {
         Object o = allocMapping(true);
         Dpp_CObject *co = MakeConst(o, func);
+        co->id = func->name;
         co->infos = infos;
         co->metadata[function::PARAMS] = params;
         co->metadata[function::RETURN_TYPE] = ret;
@@ -676,15 +748,45 @@ private:
 
 	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
 		uint32_t infos = 0;
-        /*
-		for (auto it : *_infos) {
-			infos |= anycast(uint32_t, visitInfo(it));
-		}*/
+
+        for (auto it : *_infos) {
+            for (auto info : it->children) {
+                if (info != nullptr) {
+                    infos |= GetInfoFromID(info->toString());
+                }
+            }
+        }
 
         return infos;
 	}
+
+    uint32_t GetInfoFromID(std::string id) {
+        if (id == "int") {
+            return INFO_INT;
+        }
+        else if (id == "float") {
+            return INFO_FLOAT;
+        }
+        else if (id == "string") {
+            return INFO_STRING;
+        }
+        else if (id == "bool") {
+            return INFO_BOOL;
+        }
+        else if (id == "type") {
+            return INFO_TYPE;
+        }
+        else if (id == "object") {
+            return INFO_OBJECT;
+        }
+        else if (id == "void") {
+            return INFO_VOID;
+        }
+        else {
+            return INFO_ID;
+        }
+    }
 private:
-	//FObject *fObj;
     Namespace *globalNamespace = new Namespace;
     Namespace *thisNamespace = globalNamespace;
     std::stack<Namespace *> namespaces;

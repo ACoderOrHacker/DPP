@@ -325,6 +325,8 @@ DXX_API void RegInit(FObject *fObj) {
     FunctionType.name = "function";
     ErrorType.name = "error";
 
+    Dpp_Object *__nullval = NewObject<ObjectObject>();
+    Dpp_Object *__nullptrerror = NewObject<ObjectObject>();
     Dpp_Object *__inttype = NewObject<ObjectObject>();
     Dpp_Object *__floattype = NewObject<ObjectObject>();
     Dpp_Object *__stringtype = NewObject<ObjectObject>();
@@ -332,6 +334,8 @@ DXX_API void RegInit(FObject *fObj) {
     Dpp_Object *__errortype = NewObject<ObjectObject>();
     Dpp_Object *__functiontype = NewObject<ObjectObject>();
 
+    __nullval->reg = {};
+    __nullptrerror->reg = &ErrorType;
     __inttype->reg = &IntType;
     __floattype->reg = &FloatType;
     __stringtype->reg = &StringType;
@@ -346,6 +350,17 @@ DXX_API void RegInit(FObject *fObj) {
     __errortype->isTypeObject = true;
     __functiontype->isTypeObject = true;
 
+    __nullval->name = "null";
+    __nullptrerror->name = "NullPointerError";
+    __inttype->name = "int";
+    __floattype->name = "float";
+    __stringtype->name = "string";
+    __classtype->name = "class";
+    __errortype->name = "error";
+    __functiontype->name = "function";
+
+    fObj->obj_map.write({true, BUILTIN_NULL}, __nullval);
+    fObj->obj_map.write({true, BUILTIN_NULLPOINTER_ERROR}, __nullptrerror);
 	fObj->obj_map.write({true, INT_TYPE}, __inttype);
 	fObj->obj_map.write({true, FLOAT_TYPE}, __floattype);
     fObj->obj_map.write({true, STRING_TYPE}, __stringtype);

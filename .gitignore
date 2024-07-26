@@ -26,9 +26,3 @@ __pycache__
 
 # Cppcheck Cache Folder
 /.cppcheck/
-
-# My Workspace
-/workspace/
-
-# The third-party libraries
-/thirdparty/

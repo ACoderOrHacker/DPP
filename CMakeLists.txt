@@ -7,6 +7,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(DPP VERSION 0.1 LANGUAGES CXX)
 
+set(VCPKG_DIR D:/vcpkg)
+
+# Set the D++ path (D++ library)
+set(DXX_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# Set the vcpkg path (other libraries)
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
+
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/bin)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 endif()
@@ -50,34 +58,30 @@ if(CLION_IDE)
     cmake_policy(SET CMP6666 NEW)
 endif()
 
-# You can set the env variable 'Boost_ROOT' to help cmake find boost
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{Boost_ROOT})
 set(ANTLR4_JAR D:/Antlr4/antlr4.13.1-complete.jar)
-set(Boost_ROOT D:/boost)
 
 cmake_policy(SET CMP0074 NEW)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
     cmake_policy(SET CMP0144 NEW)
 endif()
 
-find_package(Boost REQUIRED COMPONENTS serialization program_options)
+find_package(Boost REQUIRED COMPONENTS serialization program_options filesystem)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
-set(FMT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/fmt/)
-message(STATUS "{fmt}: ${FMT_DIR}")
-add_subdirectory(${FMT_DIR} EXCLUDE_FROM_ALL)
+find_package(fmt CONFIG REQUIRED)
+find_package(antlr4-runtime CONFIG REQUIRED)
 
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
-        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/antlr4-runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/
-        ${Boost_INCLUDE_DIRS}/
-        ${FMT_DIR}/include/)
+        ${Boost_INCLUDE_DIRS}/)
+
+file(GLOB ACASSERT_FILES include/acoder/acassert/*.cpp)
 
 include_directories(PUBLIC ${INC_DIRS})
 
