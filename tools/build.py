@@ -8,8 +8,10 @@ import clean
 
 AUTO: int = 0
 NOT_AUTO: int = 1
+MSBUILD: int = 2
 build_type: int = AUTO
 is_debug: bool = True
+vcpkg_root: str = "D://vcpkg"
 
 
 def mkdir(parent: str, folder: str):
@@ -31,30 +33,37 @@ def bad_build():
 
 
 def get_makefile_type():
-	if build_type != AUTO:
+	if build_type != AUTO and build_type != MSBUILD:
 		makefile_type: str = input("Please input the Makefile type: ")
 		return makefile_type
-	else:
+	elif build_type == AUTO:
 		return "NMake Makefiles"
+	elif build_type == MSBUILD:
+		return "Visual Studio 17 2022"
 
 
 def get_makefile_generator():
-	if build_type != AUTO:
+	if build_type != AUTO and build_type != MSBUILD:
 		gen: str = input("Please input the generator: ")
 		return gen
-	else:
+	elif build_type == AUTO:
 		return "nmake"
+	elif build_type == MSBUILD:
+		return "msbuild DPP.sln"
 
 
-def build() -> None:
+def build():
 	"""
 
 	:rtype: None
 	"""
+
 	path: str = "../"
 	build_dir: str = "build/"
 	cmake: str = "cmake ../ -G\"{}\" ".format(get_makefile_type())
 	cmake_build_args: str = ""
+
+	cmake_build_args += "-DCMAKE_TOOLCHAIN_FILE={}//scripts//buildsystems//vcpkg.cmake ".format(vcpkg_root)
 
 	for arg in sys.argv:
 		if arg.startswith("-D"):
@@ -84,8 +93,10 @@ def build() -> None:
 	os.chdir(path)
 
 
-def main() -> None:
+def main():
 	global build_type, is_debug
+
+	clean.clean()
 
 	if "--release" in sys.argv:
 		is_debug = False
@@ -103,6 +114,7 @@ def main() -> None:
 			  "\n"
 			  "   --help, -h             = Get the help of usage\n"
 			  "   --msvc                 = Compile by MSVC\n"
+			  "   --msbuild              = Compile by MSBuild\n"
 			  "   --other-compiler       = Compile by other C/C++ compiler\n"
 			  "   --no-clean             = Do not clean all the files\n"
 			  "   --release              = Build a release package\n"
@@ -111,6 +123,10 @@ def main() -> None:
 			  "You can get all the supported makefile types and corresponding make tools from the cmake.org or use cmake --help")
 
 	# os.system("cmake --help")
+	elif "--msbuild" in sys.argv:
+		build_type = MSBUILD
+		build()
+
 	elif "--other-compiler" in sys.argv:
 		build_type = NOT_AUTO
 		build()

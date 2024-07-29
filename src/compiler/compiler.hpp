@@ -68,7 +68,7 @@ public:
     void *metadata[8];
 public:
     bool operator ==(_Dpp_CObject *co) {
-
+        if(co->id != id) return false;
 
         return false;
     }
@@ -141,7 +141,7 @@ public:
         return idIt.top();
     }
 
-    uint32_t GetGlobalIterator() noexcept {
+    uint32_t GetGlobalIterator() const noexcept {
         return global;
     }
 private:

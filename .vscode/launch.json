@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "(Windows) 调试 dpp.exe",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/dpp.exe",
+            "args": ["-t"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "preLaunchTask": "Build Debug Project",
+            "console": "internalConsole"
+        }
+        {
+            "name": "(Windows) 调试 debug.exe",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/debug.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "preLaunchTask": "Build Debug Project",
+            "console": "internalConsole"
+        }
+    ]
+}

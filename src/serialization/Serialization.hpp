@@ -1,5 +1,5 @@
-#ifndef _DPP_SERIALIZATION
-#define _DPP_SERIALIZATION
+#ifndef DPP_SERIALIZATION
+#define DPP_SERIALIZATION
 
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
@@ -7,7 +7,7 @@
 #include "struct.hpp"
 
 struct FileHeader {
-    std::string MagicNumber;
+    std::string MagicNumber = "";
     Version version = getVersion();
     Version LowestVersion = getVersion();
 };
@@ -45,4 +45,4 @@ namespace dpp {
     }
 }
 
-#endif // !_DPP_SERIALIZATION
+#endif // !DPP_SERIALIZATION

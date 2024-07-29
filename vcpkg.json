@@ -1,7 +1,0 @@
-{
-  "dependencies": [
-    "antlr4",
-    "fmt",
-    "boost"
-  ]
-}

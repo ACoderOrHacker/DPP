@@ -1,5 +1,5 @@
-#include <signal.h>
-#include <stddef.h>
+#include <csignal>
+#include <cstddef>
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -75,15 +75,5 @@ int main(int argc, char *argv[] ) {
         return 1;
     }
 #endif
-    /*
-
-
-    if (argv[2] != nullptr) {
-        if(argv[1] == "standard-test")
-        FObject *fObj = compile(argv[1]);
-
-        OutputFObject(fObj);
-    }
-*/
     return 0;
 }
