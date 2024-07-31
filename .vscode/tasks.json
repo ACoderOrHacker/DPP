@@ -35,6 +35,28 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "shell",
+            "label": "Generate compile_commands.json",
+            "command": "cmake",
+            "args": [
+                "..",
+                "-G\"MinGW Makefiles\"",
+                "-DCMAKE_TOOLCHAIN_FILE=D:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "-DCMAKE_C_COMPILER=D:/LLVM/bin/clang.exe",
+                "-DCMAKE_CXX_COMPILER=D:/LLVM/bin/clang++.exe",
+                "-DCMAKE_BUILD_TYPE=Debug"
+
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build_compile_commands",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ],
     "version": "2.0.0"

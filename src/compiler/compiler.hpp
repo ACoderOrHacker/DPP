@@ -1,4 +1,12 @@
 /*
+ * @Author: ACoder sgy2788@163.com
+ * @Date: 2024-05-03 06:52:55
+ * @LastEditors: ACoder sgy2788@163.com
+ * @LastEditTime: 2024-07-31 13:01:13
+ * @FilePath: \DPP\src\compiler\compiler.hpp
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
+/*
   MIT License
 
   Copyright (c) 2023 ACoderOrHacker
@@ -27,21 +35,19 @@
 #include <fstream>
 #include <any>
 #include <stack>
-#include <cstdarg>
 #include <initializer_list>
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include "DXXLexer.h"
 #include "DXXParserBaseVisitor.h"
 #include "acdpp.h"
 #include "vm.hpp"
 #include "builtin.hpp"
 #include "metadata.h"
 
-#define THROW(msg)  {                                                     \
+#define THROW(msg)  {                                                         \
     fmt::print(fmt::fg(fmt::color::red), "\nerror: {}\n", msg);               \
-    exit(1);                                                              \
+    exit(1);                                                                  \
 }
 
 #define INFO_INT      0b10000000
@@ -65,10 +71,12 @@ public:
     std::string id;
     uint32_t infos = 0;
     Array<_Dpp_CObject *> subs;
-    void *metadata[8];
+    void *metadata[8] = {};
 public:
-    bool operator ==(_Dpp_CObject *co) {
-        if(co->id != id) return false;
+    bool operator ==(_Dpp_CObject *co) const {
+        if(co->id == id) {
+            return true;
+        }
 
         return false;
     }
@@ -82,7 +90,7 @@ public:
 
 public:
     Namespace *NewNamespace() {
-        Namespace *ns = new Namespace;
+        auto *ns = new Namespace;
 
         ns->parents.write(this);
         namespaces.write(ns);
@@ -111,7 +119,7 @@ public:
         global = BUILTIN_END;
         idIt.push(global);
     }
-    ~IDIterator() {}
+    ~IDIterator() = default;
 
     void IncIterator() noexcept {
         ++idIt.top();
@@ -141,7 +149,7 @@ public:
         return idIt.top();
     }
 
-    uint32_t GetGlobalIterator() const noexcept {
+    [[nodiscard]] uint32_t GetGlobalIterator() const noexcept {
         return global;
     }
 private:
@@ -182,7 +190,7 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
 
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
-    DXXVisitor(FObject *_fObj = nullptr) {
+    explicit DXXVisitor(FObject *_fObj = nullptr) {
         if (_fObj != nullptr) fObj = _fObj;
         else fObj = new FObject, RegInit(fObj);
 
@@ -202,7 +210,7 @@ public:
         }
     }
 
-    std::any visit(antlr4::tree::ParseTree *tree) {
+    std::any visit(antlr4::tree::ParseTree *tree) override {
         visitChildren(tree);
 
         return fObj;
@@ -293,7 +301,7 @@ public:
      * @return: Heap<Dpp_Object *> *
      * Just a helper function of 'functionHead'
      */
-    std::any visitThrowtable(DXXParser::ThrowtableContext *ctx) {
+    std::any visitThrowtable(DXXParser::ThrowtableContext *ctx) override {
         Heap<Dpp_CObject *> *throw_table = new Heap<Dpp_CObject *>;
         if (ctx == nullptr) return throw_table;
 
@@ -308,7 +316,7 @@ public:
      * @return: Heap<Dpp_Object *> *
      * Just a helper function of 'functionHead'
      */
-    std::any visitParamList(DXXParser::ParamListContext *ctx) {
+    std::any visitParamList(DXXParser::ParamListContext *ctx) override {
         Heap<Dpp_CObject *> *param_list = new Heap<Dpp_CObject *>;
         if (ctx == nullptr) return param_list;
 
@@ -556,13 +564,13 @@ private:
      * @return: void
      * Create a opcode and push it to main state(fObj->state)
      */
-    void LoadOpcode(rt_opcode op,
+    static void LoadOpcode(rt_opcode op,
                     char flags = NO_FLAG,
                     std::initializer_list<Object> l = {}) {
         fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, l));
     }
 
-    void LoadOpcode(rt_opcode op,
+    static void LoadOpcode(rt_opcode op,
         char flags,
         Heap<Object> &params) {
         fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, params));
@@ -572,7 +580,7 @@ private:
      * @return: void
      * Create a opcode and push it to main state(fObj->state)
      */
-    void LoadAndInsertOpcode(uint32_t pos,
+    static void LoadAndInsertOpcode(uint32_t pos,
                     rt_opcode op,
                     char flags = NO_FLAG,
                     std::initializer_list<Object> l = {}) {
@@ -583,7 +591,7 @@ private:
      * @return: void
      * Reset the opcode in the state
      */
-    void ResetOpcode(uint32_t pos,
+    static void ResetOpcode(uint32_t pos,
                      rt_opcode op,
                      char flags = NO_FLAG,
                      std::initializer_list<Object> l = {}) {
@@ -614,7 +622,7 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of StringObject
      * And Push the string constant to the object pool
      */
-    Dpp_CObject *MakeString(std::string s) {
+    Dpp_CObject *MakeString(const std::string &s) {
         String wstr = stringToWstring(s);
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<StringObject, String>(wstr);
@@ -662,7 +670,7 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of label
      * And Push the string constant to the object pool
      */
-    Dpp_CObject *MakeLabel(std::string _label,
+    Dpp_CObject *MakeLabel(const std::string &_label,
                                  uint32_t pos) {
         Dpp_CObject *co = MakeInteger(pos);
         Dpp_CObject *label = LinkObject(_label, co);
@@ -674,7 +682,7 @@ private:
      * @return: Dpp_Object *
      * Make a function object(run-time)
      */
-    Dpp_Object *MakeFunctionObject(std::string id) {
+    static Dpp_Object *MakeFunctionObject(const std::string &id) {
         return mkFunction(id);
     }
 
@@ -682,7 +690,7 @@ private:
      * @return: Dpp_CObject *
      * Make a normal object
      */
-    Dpp_CObject *MakeObject(std::string id) {
+    Dpp_CObject *MakeObject(const std::string &id) {
         Dpp_CObject *co = new Dpp_CObject;
         co->id = id;
         co->object = allocMapping();
@@ -695,7 +703,7 @@ private:
      * @return: Dpp_CObject *
      * link the source object and a object
      */
-    Dpp_CObject *LinkObject(std::string id,
+    Dpp_CObject *LinkObject(const std::string &id,
                             Dpp_CObject *src) {
         Dpp_CObject *co = MakeObject(id);
         co->object = src->object;
@@ -707,7 +715,7 @@ private:
      * @return: Dpp_Object *
      * Get a run-time object(constant) from compile-time object
      */
-    Dpp_Object *GetConstFromCObject(Dpp_CObject *co) {
+    static Dpp_Object *GetConstFromCObject(Dpp_CObject *co) {
         if(!co->object.isInGlobal) return nullptr;
 
         return fObj->obj_map.get(co->object);
@@ -717,7 +725,7 @@ private:
      * @return: Dpp_CObject *
      * Find a compile-time object from namespaces
      */
-    Dpp_CObject *FindObject(std::string id, bool onlyGlobal = false) {
+    Dpp_CObject *FindObject(const std::string &id, bool onlyGlobal = false) {
         Dpp_CObject *co = FindObject(globalNamespace, id);
 
         if(onlyGlobal || co != nullptr) {
@@ -727,7 +735,7 @@ private:
         return FindObject(thisNamespace, id);
     }
 
-    Dpp_CObject *FindObject(Namespace *ns, std::string id) {
+    static Dpp_CObject *FindObject(Namespace *ns, const std::string &id) {
 
         for(auto it: ns->objects) {
             if(it->id == id) {
@@ -746,7 +754,7 @@ private:
         return nullptr;
     }
 
-	uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
+	static uint32_t GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
 		uint32_t infos = 0;
 
         for (auto it : *_infos) {
@@ -760,7 +768,7 @@ private:
         return infos;
 	}
 
-    uint32_t GetInfoFromID(std::string id) {
+    static uint32_t GetInfoFromID(const std::string &id) {
         if (id == "int") {
             return INFO_INT;
         }

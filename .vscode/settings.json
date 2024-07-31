@@ -1,4 +1,46 @@
 {
+    /**********
+   * Clangd *
+   **********/
+    // 关闭 C/C++ 提供的 IntelliSenseEngine
+    "C_Cpp.intelliSenseEngine": "disabled",
+    // Clangd 运行参数(在终端/命令行输入 clangd --help-list-hidden 可查看更多)
+    "clangd.onConfigChanged": "restart",
+    "clangd.arguments": [
+        "--clang-tidy",
+
+        "--compile-commands-dir=build_compile_commands",
+        // 建议风格：打包(重载函数只会给出一个建议）；反可以设置为detailed
+        "--completion-style=bundled",
+
+        "--enable-config",
+        // 默认格式化风格: 谷歌开源项目代码指南（可用的有 LLVM, Google, Chromium, Mozilla, Webkit, Microsoft, GNU 等）
+        "--fallback-style=Google",
+        // 启用这项时，补全函数时，将会给参数提供占位符，键入后按 Tab 可以切换到下一占位符，乃至函数末
+        // 我选择禁用
+        "--function-arg-placeholders=false",
+        // 输入建议中，已包含头文件的项与还未包含头文件的项会以圆点加以区分
+        "--header-insertion-decorators",
+        // 允许补充头文件
+        "--header-insertion=iwyu",
+        // 让 Clangd 生成更详细的日志
+        "--log=verbose",
+        // pch优化的位置(memory 或 disk，选择memory会增加内存开销，但会提升性能)
+        "--pch-storage=memory",
+        // 输出的 JSON 文件更美观
+        "--pretty",
+        // 建议排序模型
+        "--ranking-model=heuristics",
+        // 同时开启的任务数量
+        "-j=12"
+    ],
+    "clangd.fallbackFlags": [
+        "-I ${workspaceFolder}/**",
+        "-I D:/vcpkg/installed/x64-windows/include"
+    ],
+    // 自动检测 clangd 更新
+    "clangd.checkUpdates": true,
+    "clangd.path": "clangd",
     /*editor*/
     "editor.cursorBlinking": "smooth",//使编辑器光标的闪烁平滑，有呼吸感
     "editor.formatOnPaste": true,//在粘贴时格式化代码
