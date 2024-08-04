@@ -1,7 +1,0 @@
-1. ANTLR4 ENV
-	(1) download antlr4 from web
-	(2) create a antlr4 command
-	(3) add 'antlr4' command into the os env
-	(4) download antlr4-cpp-runtime
-	(5) use 'MinGW Makefiles' or 'NMake Makefiles' and 'make' or 'nmake'
-	(6) copy

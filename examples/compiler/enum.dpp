@@ -1,5 +1,0 @@
-enum Test {
-    EnumSubA = 1,
-    EnumSubB = 2,
-    EnumSub3 = 114514
-}
