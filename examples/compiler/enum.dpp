@@ -3,3 +3,7 @@ enum Test {
     EnumSubB = 2,
     EnumSub3 = 114514
 }
+
+main() => void {
+
+}

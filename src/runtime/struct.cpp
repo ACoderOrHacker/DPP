@@ -194,6 +194,14 @@ bool Dpp_Object::moveref(Dpp_Object *obj) {
 }
 
 DXX_API std::string to_string(Dpp_Object *obj) {
+    if (obj == nullptr) {
+        return "unknown";
+    }
+
+    if (obj->reg == nullptr) {
+        return obj->name;
+    }
+
     if (obj->reg->to_string == nullptr) {
         return obj->reg->name;
     }

@@ -3,3 +3,7 @@ final x(int y) => int;
 final x(int y) => int {
     
 }
+
+main() => void {
+
+}

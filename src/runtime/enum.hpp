@@ -38,6 +38,7 @@ enum rt_opcode : unsigned char {
 	OPCODE_NEW,
     OPCODE_DEL,
 	OPCODE_MOV,
+    OPCODE_METHOD,
 	OPCODE_EXIT,
     OPCODE_END
 };

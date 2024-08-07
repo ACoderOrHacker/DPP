@@ -32,12 +32,4 @@
 #define NONE nullptr
 #define _cast(type, val) ((type)(val))
 #define anycast(type, val) (std::any_cast<type>(val)) // for std::any
-
-#define METHOD_DEF(type, name)         \
-    type name;                         \
-    forceinline auto *_##name(const type &val) { name = val; return this; }
-#define METHOD_DEF_WITH_VAL(type, name, _val)         \
-    type name = _val;                                 \
-    forceinline auto *_##name(const type &val) { name = _val; return this; }
-
 #endif // !_DXX_CONFIG_H

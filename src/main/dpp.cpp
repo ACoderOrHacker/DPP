@@ -7,7 +7,9 @@
 #include "vm.hpp"
 #include "modules.h"
 
+#if defined (_DEBUG) || defined (DEBUG)
 #define TEST
+#endif
 
 namespace opt = boost::program_options;
 

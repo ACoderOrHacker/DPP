@@ -54,6 +54,7 @@ const OpcodeFunc opcode_list[256] = {
 	&_new,
     &_del,
 	&_mov,
+    &_method,
 	&_exit
 };
 

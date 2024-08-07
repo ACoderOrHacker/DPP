@@ -5,7 +5,9 @@
 #ifndef DPP_MODULES_H
 #define DPP_MODULES_H
 
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
+#endif // _MSC_VER
 
 #include <boost/filesystem.hpp>
 #include <fmt/core.h>
@@ -62,7 +64,7 @@ std::string GetVersionString(Version ver) {
     return fmt::format("{}.{}", ver.ver.high, ver.ver.low);
 }
 
-std::string GetFileTypeFromMagicNumber(std::string MagicNumber) {
+std::string GetFileTypeFromMagicNumber(const std::string &MagicNumber) {
     if(MagicNumber == "DPPO") {
         return "D++ Object File";
     } else {
@@ -70,7 +72,7 @@ std::string GetFileTypeFromMagicNumber(std::string MagicNumber) {
     }
 }
 
-void OutputFileHeader(FileHeader header) {
+void OutputFileHeader(const FileHeader &header) {
     fmt::print("FileHeader:\n");
     fmt::print("    Type: {}", GetFileTypeFromMagicNumber(header.MagicNumber));
     fmt::print("    Compile Version: {}", GetVersionString(header.version));
@@ -96,6 +98,33 @@ void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
     S_FObject __s_fObj;
     __s_fObj = *_s_fObj;
     S_FObject *s_fObj = &__s_fObj;
+
+    auto opt_state = [](struct VMState state) -> void {
+        uint32_t i = 0;
+        while (state.vmopcodes.size() > 0) {
+            OpCode it = state.vmopcodes.PopData();
+            std::string s;
+
+            s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));
+            while (it.params.size() > 0) {
+                Object param = it.params.PopData();
+                s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
+            }
+            std::cout << s;
+            size_t space_num = 100 - s.size();
+            if (space_num > 0) {
+                std::cout << std::string(space_num, ' ');
+            }
+            else {
+                // space_num <= 0
+                // std::length_error: string too long
+                std::cout << std::string(s.size() + 10, ' ');
+            }
+            fmt::print("flag: {}\n", GetFlagsName(it.flag));
+
+            ++i;
+        }
+    };
     fmt::print("\n");
     if (isOutputCopyright) fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
 
@@ -103,35 +132,21 @@ void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
 
     fmt::print("\n");
     fmt::print("Dependent modules: \n");
-    for(auto it: s_fObj->modules) {
+    for(auto &it: s_fObj->modules) {
         fmt::print("    {}\n", it);
     }
 
-    uint32_t i = 0;
     fmt::print("\n");
     fmt::print("Main State: \n");
-    while(s_fObj->state.vmopcodes.size() > 0) {
-        OpCode it = s_fObj->state.vmopcodes.PopData();
-        std::string s;
+    opt_state(s_fObj->state);
 
-        s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));
-        while(it.params.size() > 0) {
-            Object param = it.params.PopData();
-            s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
+    fmt::print("\n");
+    for (auto it : s_fObj->global_mapping) {
+        if (it != nullptr && it->reg != nullptr && it->name != "function" && it->reg->type == FUNCTION_TYPE) {
+            fmt::print("Function: {}\n", it->name.empty() ? "unknown" : it->name);
+            opt_state(_cast(FunctionObject *, it)->state);
+            fmt::print("\n");
         }
-        std::cout << s;
-        int space_num = 100 - s.size();
-        if (space_num > 0) {
-            std::cout << std::string(space_num, ' ');
-        }
-        else {
-            // space_num <= 0
-            // std::length_error: string too long
-            std::cout << std::string(s.size() + 10, ' ');
-        }
-        fmt::print("flag: {}\n", GetFlagsName(it.flag));
-
-        ++i;
     }
 
     fmt::print("\n");
@@ -146,7 +161,7 @@ void OutputFObject(FObject *fObj, bool isOutputCopyright = true) {
     OutputS_FObject(GetS_FObject(fObj), isOutputCopyright);
 }
 
-bool GetFiles(std::vector<boost::filesystem::path> &files, boost::filesystem::path path) {
+bool GetFiles(std::vector<boost::filesystem::path> &files, const boost::filesystem::path &path) {
     try {
         files.clear();
         for (const auto &it : boost::filesystem::directory_iterator(path)) {

@@ -495,6 +495,13 @@ void _mov(FObject *fObj) {
 	}
 }
 
+void _method(FObject *fObj) {
+    Object _container = theap->PopData();
+    Object _method = theap->PopData();
+
+    // TODO: Not Success
+}
+
 void _exit(FObject *fObj) {
 	Object _exitcode = theap->PopData();
 

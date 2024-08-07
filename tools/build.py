@@ -119,6 +119,7 @@ def main():
 			  "   --no-clean             = Do not clean all the files\n"
 			  "   --release              = Build a release package\n"
 			  "   --debug                = Build a debug package\n"
+			  "   --vcpkg-root           = Set the vcpkg root path\n"
 			  "\n"
 			  "You can get all the supported makefile types and corresponding make tools from the cmake.org or use cmake --help")
 
@@ -133,6 +134,9 @@ def main():
 
 	if "--no-clean" in sys.argv:
 		return
+	if "--vcpkg-root" in sys.argv:
+		vcpkg_root = sys.argv[sys.argv.index("--vcpkg-root") + 1]
+
 
 	clean.clean()
 

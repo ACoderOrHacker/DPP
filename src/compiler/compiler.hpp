@@ -39,11 +39,17 @@
 #include "builtin.hpp"
 #include "metadata.h"
 
-#define OBJECT_TYPE 0
+#define VOID_TYPE UINT_MAX
+#define OBJECT_TYPE (UINT_MAX - 1)
+#define TYPE_TYPE (UINT_MAX - 2)
 
 #define THROW(msg) {                                                          \
     fmt::print(fmt::fg(fmt::color::red), "\nerror: {}\n", msg);               \
     exit(1);                                                                  \
+}
+
+#define WARNING(msg) {                                                          \
+    fmt::print(fmt::fg(fmt::color::yellow), "\nwarning: {}\n", msg);            \
 }
 
 struct INFOS {
@@ -134,7 +140,8 @@ public:
 	Object object;
     std::string id;
     struct INFOS infos;
-    METHOD_DEF_WITH_VAL(uint32_t, type, OBJECT_TYPE)
+    bool isNone = false;
+    uint32_t type = OBJECT_TYPE;
     Array<_Dpp_CObject *> subs;
     void *metadata[8] = {};
 public:
@@ -185,7 +192,6 @@ public:
         for (auto it : objects) {
             if (checker(it, co)) {
                 acassert(it == nullptr);
-                std::cout << "there";
                 objects.remove(it);
             }
         }
@@ -196,12 +202,12 @@ class IDIterator {
 public:
     IDIterator() {
         global = BUILTIN_END;
-        idIt.push(global);
     }
     ~IDIterator() = default;
 
     void IncIterator() noexcept {
-        ++idIt.top();
+        if (idIt.empty()) ++global;
+        else ++idIt.top();
     }
 
     void IncGlobalIterator() noexcept {
@@ -225,16 +231,16 @@ public:
     }
 
     uint32_t GetTopIterator() noexcept {
-        return idIt.top();
+        if (idIt.empty()) return global;
+        else return idIt.top();
     }
 
-    [[nodiscard]] uint32_t GetGlobalIterator() const noexcept {
+    uint32_t GetGlobalIterator() const noexcept {
         return global;
     }
 private:
     std::stack<uint32_t> idIt;
     uint32_t global;
-
 };
 
 void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
@@ -287,11 +293,30 @@ public:
             globalNamespace->objects.write(co);
 
         }
+
+        auto make_type = [=](const std::string &id, uint32_t type_id) {
+            Dpp_CObject *type = new Dpp_CObject;
+            type->id = id;
+            type->object = { true, type_id};
+            globalNamespace->objects.write(type);
+        };
+
+        make_type("void", VOID_TYPE);
+        make_type("object", OBJECT_TYPE);
+        make_type("type", TYPE_TYPE);
     }
 
     std::any visit(antlr4::tree::ParseTree *tree) override {
         visitChildren(tree);
 
+        Dpp_CObject *main = FindObject("main", true);
+        if (main == nullptr) {
+            WARNING("no main function in program");
+            goto RETURN;
+        }
+        LoadOpcode(OPCODE_CALL, NO_FLAG, {main->object});
+
+        RETURN:
         return fObj;
     }
 
@@ -348,6 +373,7 @@ public:
         DXXParser::ThrowtableContext *throwTable = _ctx->throwtable();
         DXXParser::BlockContext *block = ctx->block();
 
+        bool isNone = true;
         Dpp_Object *func = MakeFunctionObject(id);
 
         struct INFOS infos = GetInfos(&_infos);
@@ -361,7 +387,10 @@ public:
         fObj->state = state;
 
         Heap<Dpp_CObject *> *params = anycast(Heap<Dpp_CObject *> *, visitParamList(_params));
-        visitBlock(block);
+        if(block != nullptr) {
+            visitBlock(block);
+            isNone = false;
+        }
 
         ((FunctionObject *)func)->state = fObj->state;
 
@@ -373,9 +402,9 @@ public:
         blockNoNamespace = false;
 
         Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
-        Heap<Dpp_CObject *> *throws = anycast(Heap<Dpp_CObject *> *, visitThrowtable(throwTable));
+        Throwtable *throws = anycast(Throwtable *, visitThrowtable(throwTable));
 
-        Dpp_CObject *co = MakeFunction(func, infos, params, ret, throws);
+        Dpp_CObject *co = MakeFunction(func, infos, params, ret, throws, isNone);
 
         return co;
     }
@@ -405,7 +434,6 @@ public:
         if (ctx == nullptr) return param_list;
 
         for (auto it : ctx->varDefine()) {
-            // TODO: Function may need a local variable of function, but there may not
             param_list->PushData(anycast(Dpp_CObject *, visitVarDefine(it)));
 
         }
@@ -450,8 +478,13 @@ public:
 		std::string id = ctx->ID()->toString();
 		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
 		Dpp_CObject *data;
-        Dpp_CObject *to = MakeObject(id);
-        to->_type(type->object.id);
+        Dpp_CObject *to = MakeObject(id, true);
+        to->type = type->object.id;
+        Dpp_CObject *result = FindObject(to);
+        if (result != nullptr) {
+            THROW(fmt::format("{} was defined", id));
+        }
+        thisNamespace->objects.write(to);
 
         LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, to->object });
         if (_data != nullptr) {
@@ -474,30 +507,77 @@ public:
 
 		return NONE;
 	}
-	/*
-	std::any visitTypedef(DXXParser::TypedefContext *ctx) override {
-		std::string id = ctx->ID()->toString();
-		DXXParser::TheTypeContext *type = ctx->theType();
 
-		Object type = anycast(Object, visitTheType(type));
+    /*
+     * @return Dpp_CObject *
+     * Find a object in container
+     */
+    std::any visitIdEx(DXXParser::IdExContext *ctx) override {
+        const auto &idex = ctx->ID();
+        const std::string &_container = (*idex.begin())->toString();
+        Dpp_CObject *container = FindObject(_container);
+        Dpp_CObject *co = container;
+        Object o = container->object;
+        if (container == nullptr) {
+            THROW(fmt::format("cannot find object {}", _container));
+        }
+        if (idex.size() == 1) goto END;
+        if (container->type != FUNCTION_TYPE) {
+            THROW(fmt::format("object {} was not a container", _container));
+        }
 
+        for (auto it = idex.begin() + 1; it != idex.end(); ++it) {
+            const std::string &_method = (*it)->toString();
+            Dpp_CObject *method = MakeString(_method);
+            Dpp_CObject *sub = FindSubObject(container, _method);
+            if (sub == nullptr) {
+                THROW(fmt::format("the '{}' did not have '{}' method", co->id, _method));
+            }
+            Object tmp = allocMapping();
 
-	}*/
+            LoadOpcode(OPCODE_METHOD, NO_FLAG, {container->object, method->object, tmp});
+            o = tmp;
+            container = method;
+        }
+    END:
+        return co;
+    }
+
+    /*
+     * @return: NONE
+     * Create a object linked type
+     */
+    std::any visitTypedef(DXXParser::TypedefContext *ctx) override {
+        std::string id = ctx->ID()->toString();
+        Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(ctx->theType()));
+
+        LinkObject(id, type);
+        return NONE;
+    }
 
     /*
      * @return: NONE
      * Linking the constant to the enum variable
      */
     std::any visitEnum(DXXParser::EnumContext *ctx) override {
-        Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString());
-        enum_object->_type(CLASS_TYPE);
+        Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString(), false, true);
+        enum_object->type = CLASS_TYPE;
+        Interger _idata_it = 0;
 
         for(auto it: ctx->enumSub()) {
             std::string id = it->ID()->toString();
-            Dpp_CObject *idata = MakeInteger(std::stoll(it->IntegerData()->toString()));
+            Interger _idata = _idata_it;
+            antlr4::tree::TerminalNode* node = it->IntegerData();
+            if (node != nullptr) {
+                _idata = std::stoll(node->toString());
+                _idata_it = _idata;
+            }
+            Dpp_CObject *idata = MakeInteger(_idata);
 
             Dpp_CObject *sub = LinkObject(id, idata);
             enum_object->subs.write(sub);
+
+            ++_idata_it;
         }
 
 
@@ -586,15 +666,15 @@ public:
     }
 
     /*
-     * @return: Object
+     * @return: Dpp_CObject *
      * make 'new' opcode and returns the value of object
      */
 	std::any visitNew(DXXParser::NewContext *ctx) override {
-		Object type = anycast(Object, visitTheType(ctx->theType()));
-        Object to = allocMapping();
+		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(ctx->theType()));
+        Dpp_CObject *co = MakeObject("");
 
-        LoadOpcode(OPCODE_NEW, NO_FLAG, { type, to });
-		return to;
+        LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, co->object });
+		return co;
 	}
 
     /*
@@ -608,6 +688,14 @@ public:
 
 		return NONE;
 	}
+
+    std::any visitIntegerExpr(DXXParser::IntegerExprContext *ctx) override {
+        return MakeInteger(std::stoll(ctx->IntegerData()->toString()));
+    }
+
+    std::any visitFloatingExpr(DXXParser::FloatingExprContext* ctx) override {
+        return MakeFloating(std::stod(ctx->FloatingNumberData()->toString()));
+    }
 
 private:
     /*
@@ -677,17 +765,24 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md)
      * And Push the constant to the object pool
      */
-    Dpp_CObject *MakeConst(Object o, Dpp_Object *obj) {
+    Dpp_CObject *MakeConst(Object o, Dpp_Object *obj, bool isCheck = true, bool noWrite = false) {
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
 
-        fObj->obj_map.write(o, obj);
+        if(!noWrite) fObj->obj_map.write(o, obj);
 
         if (!obj->name.empty()) {
             globalNamespace->RemoveObject(_co);
         }
-        globalNamespace->objects.write(_co);
 
+        Dpp_CObject *result = FindObject(_co);
+        if(result != nullptr) {
+            delete _co;
+            _co = nullptr;
+            return result;
+        }
+
+        if(!noWrite) globalNamespace->objects.write(_co);
         return _co;
     }
 
@@ -701,8 +796,10 @@ private:
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<StringObject, String>(wstr);
         obj->name = s;
+        Dpp_CObject *co = MakeConst(o, obj);
+        co->type = STRING_TYPE;
 
-        return MakeConst(o, obj)->_type(STRING_TYPE);
+        return co;
     }
 
     /*
@@ -714,8 +811,25 @@ private:
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<IntObject, Interger>(idata);
         obj->name = std::to_string(idata);
+        Dpp_CObject *co = MakeConst(o, obj);
+        co->type = INT_TYPE;
 
-        return MakeConst(o, obj)->_type(INT_TYPE);
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of IntegerObject
+     * And Push the string constant to the object pool
+     */
+    Dpp_CObject* MakeFloating(FloatNum idata) {
+        Object o = allocMapping(true);
+        Dpp_Object* obj = mkConst<FloatObject, FloatNum>(idata);
+        obj->name = std::to_string(idata);
+        Dpp_CObject *co = MakeConst(o, obj);
+        co->type = FLOAT_TYPE;
+
+        return co;
     }
 
     /*
@@ -727,16 +841,29 @@ private:
                               struct INFOS &infos,
                               Heap<Dpp_CObject *> *params,
                               Dpp_CObject *ret,
-                              Heap<Dpp_CObject *> *throws) {
+                              Throwtable *throws,
+                              bool isNone) {
         Object o = allocMapping(true);
-        Dpp_CObject *co = MakeConst(o, func);
+        Dpp_CObject *co = MakeConst(o, func, false, true);
         co->id = func->name;
         co->infos = infos;
         co->metadata[function::PARAMS] = params;
         co->metadata[function::RETURN_TYPE] = ret;
         co->metadata[function::THROW_TABLE] = throws;
+        co->type = FUNCTION_TYPE;
+        co->isNone = isNone;
 
-        return co->_type(FUNCTION_TYPE);
+        Dpp_CObject *result = FindObject(co);
+        if(result != nullptr) {
+            if (!result->isNone || co->isNone) {
+                THROW(fmt::format("{} was defined", result->id));
+            }
+            return result;
+        }
+
+        fObj->obj_map.write(o, func);
+        globalNamespace->objects.write(co);
+        return co;
     }
 
     /*
@@ -764,11 +891,13 @@ private:
      * @return: Dpp_CObject *
      * Make a normal object
      */
-    Dpp_CObject *MakeObject(const std::string &id) {
+    Dpp_CObject *MakeObject(const std::string &id, bool noWrite = false, bool noMapping = false) {
         Dpp_CObject *co = new Dpp_CObject;
         co->id = id;
-        co->object = allocMapping();
-        thisNamespace->objects.write(co);
+        if (!noMapping) {
+            co->object = allocMapping();
+        }
+        if(!noWrite) thisNamespace->objects.write(co);
 
         return co;
     }
@@ -779,7 +908,7 @@ private:
      */
     Dpp_CObject *LinkObject(const std::string &id,
                             Dpp_CObject *src) {
-        Dpp_CObject *co = MakeObject(id);
+        Dpp_CObject *co = MakeObject(id, false, true);
         co->object = src->object;
 
         return co;
@@ -793,6 +922,20 @@ private:
         if(!co->object.isInGlobal) return nullptr;
 
         return fObj->obj_map.get(co->object);
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Find object from co->subs
+     */
+    static Dpp_CObject *FindSubObject(Dpp_CObject *co, const std::string &sub) {
+        for (auto it : co->subs) {
+            if (it->id == sub) {
+                return it;
+            }
+        }
+
+        return nullptr;
     }
 
     /*
@@ -821,6 +964,39 @@ private:
             for(auto it: ns->objects) {
                 if(it->id == id) {
                     return it;
+                }
+            }
+        }
+
+        return nullptr;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * Find a compile-time object from namespaces
+     */
+    Dpp_CObject *FindObject(Dpp_CObject *_co, bool onlyGlobal = false) {
+        Dpp_CObject *co = FindObject(globalNamespace, _co);
+
+        if(onlyGlobal || co != nullptr) {
+            return co;
+        }
+
+        return FindObject(thisNamespace, _co);
+    }
+
+    static Dpp_CObject *FindObject(Namespace *ns, Dpp_CObject *co) {
+
+        for(auto it: ns->objects) {
+            if(*it == co) {
+                return it;
+            }
+        }
+
+        for(auto it: ns->parents) {
+            for(auto _it: ns->objects) {
+                if(*_it == co) {
+                    return _it;
                 }
             }
         }

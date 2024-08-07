@@ -11,15 +11,15 @@ main
    ;
 
 gExpressions
-   : importLib # importExpr // Done
-//   | operatorDefine # operatorDefineExpr
-   | function # functionExpr // Done
-   | varDefine # varDefineExpr // Done
-   | enum # enumExpr
+   : importLib # importExpr                         // Done
+   | operatorDefine # operatorDefineExpr
+   | function # functionExpr                        // Done
+   | varDefine # varDefineExpr                      // Done
+   | enum # enumExpr                                // Done
    | class # classExpr
    | interface # interfaceExpr
-   | semi # gSemiExpr // Done
-//   | typedef # typedefExpr
+   | semi # gSemiExpr                               // Done
+   | typedef # typedefExpr                          // Done
    ;
 
 // all expressions
@@ -70,6 +70,8 @@ data
    | negative # negativeExpr
    | lambdaFunction # lambdaFunctionExpr
    | theType # typeExpr
+   | new # newExpr_
+   | delete # deleteExpr_
    ;
 
 boolean: True | False;

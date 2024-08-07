@@ -207,7 +207,7 @@ LeftShift: '<<';
 RightShift: '>>';
 
 ID:
-   [a-zA-Z] ([a-zA-Z] | [0-9])*
+   [a-zA-Z_] ([a-zA-Z_] | [0-9])*
 ;
 
 Constructor: '__constructor__';

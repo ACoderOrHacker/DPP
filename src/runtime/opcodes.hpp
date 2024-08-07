@@ -59,6 +59,7 @@ void _sign(FObject *fObj);
 void _new(FObject *fObj);
 void _del(FObject *fObj);
 void _mov(FObject *fObj);
+void _method(FObject *fObj);
 void _exit(FObject *fObj);
 
 #endif // !_DXX_RUNTIME
