@@ -1,7 +1,3 @@
-//
-// Created by ACoder on 2024/7/3.
-//
-
 #ifndef DPP_MODULES_H
 #define DPP_MODULES_H
 
@@ -51,11 +47,12 @@ const char *GetPlatform() {
 }
 
 void OutputInformation() {
-    auto opt = fmt::format("D++ {} ({}) [{} {}] on {}\n", DXX_VERSION,
-                           GetCompileDate(),
-                           GetCompilerInfo(),
-                           Get64BitOr32Bit(),
-                           GetPlatform());
+    auto opt = fmt::format("D++ {} ({}) [{} {}] on {}\n",
+                            DXX_VERSION,
+                            GetCompileDate(),
+                            GetCompilerInfo(),
+                            Get64BitOr32Bit(),
+                            GetPlatform());
 
     std::cout << opt;
 }
@@ -101,8 +98,7 @@ void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
 
     auto opt_state = [](struct VMState state) -> void {
         uint32_t i = 0;
-        while (state.vmopcodes.size() > 0) {
-            OpCode it = state.vmopcodes.PopData();
+        for(auto it : state.vmopcodes) {
             std::string s;
 
             s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));

@@ -1,0 +1,15 @@
+main() => void {/*
+    with if(1) {
+        int x;
+        x = 1;
+    }*/
+
+    with if {
+        1 => {
+            int a = 1;
+        }
+        2 => {
+            int b = 1;
+        }
+    }
+}

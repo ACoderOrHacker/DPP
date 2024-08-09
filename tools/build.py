@@ -12,6 +12,7 @@ MSBUILD: int = 2
 build_type: int = AUTO
 is_debug: bool = True
 vcpkg_root: str = "D://vcpkg"
+build_dir: str = "__build__/"
 
 
 def mkdir(parent: str, folder: str):
@@ -59,7 +60,6 @@ def build():
 	"""
 
 	path: str = "../"
-	build_dir: str = "build/"
 	cmake: str = "cmake ../ -G\"{}\" ".format(get_makefile_type())
 	cmake_build_args: str = ""
 
@@ -120,6 +120,7 @@ def main():
 			  "   --release              = Build a release package\n"
 			  "   --debug                = Build a debug package\n"
 			  "   --vcpkg-root           = Set the vcpkg root path\n"
+			  "   --build-path           = Set the build path\n"
 			  "\n"
 			  "You can get all the supported makefile types and corresponding make tools from the cmake.org or use cmake --help")
 
@@ -136,6 +137,8 @@ def main():
 		return
 	if "--vcpkg-root" in sys.argv:
 		vcpkg_root = sys.argv[sys.argv.index("--vcpkg-root") + 1]
+	if "--build-path" in sys.argv:
+		build_dir = sys.argv[sys.argv.index("--build-path") + 1]
 
 
 	clean.clean()

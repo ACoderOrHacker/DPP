@@ -4,6 +4,7 @@
 # build file (by cmake)
 /build/
 /build_compile_commands/
+/__build__/
 
 # all the binary file
 *.obj

@@ -22,6 +22,7 @@
   SOFTWARE.
  */
 
+#include <cstdint>
 #include "DXXParser.h"
 #ifndef _COMPILER_H
 #include <string>
@@ -345,6 +346,25 @@ public:
     }
 
     /*
+     * @return: Heap<OpCode>
+     * get all opcodes from block
+     */
+    Heap<OpCode> GetOpcodes(DXXParser::BlockContext *ctx) {
+        fObj->callstack.push(fObj->state);
+        fObj->state = VMState();
+
+        for (auto it : ctx->expressions()) {
+            visitChildren(it);
+        }
+
+        struct VMState block = fObj->state;
+        fObj->state = fObj->callstack.top();
+        fObj->callstack.pop();
+
+        return block.vmopcodes;
+    }
+
+    /*
      * @return: NONE
      * Create 'import' opcodes
      */
@@ -594,8 +614,8 @@ public:
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
         Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
 
-        Object jmp_to = {true, block_end};
         visitBlock(ctx->block());
+        Object jmp_to = {true, block_end};
         LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, { jmp_to, data->object });
 
         return NONE;
@@ -606,30 +626,22 @@ public:
      * The if statement opcodes
      */
     std::any visitWithIfExtends(DXXParser::WithIfExtendsContext *ctx) override {
+        Heap<uint32_t> placeholders;
         char flag = NO_FLAG;
         SetBit1(flag, JMP_FALSE);
-        Heap<uint32_t> block_ends;
-        Heap<uint32_t> jmp_poses;
-        Heap<Dpp_CObject *> datas;
 
-        for(auto it: ctx->withIfExtendsSub()) {
-            datas.PushData(anycast(Dpp_CObject *, visitChildren(it->data())));
-            LoadOpcode(OPCODE_JMP, flag, { placeholder, placeholder });
-            jmp_poses.PushData(fObj->state.vmopcodes.size() - 1);
+        for (auto it : ctx->withIfExtendsSub()) {
+            Dpp_CObject *is_jmp = anycast(Dpp_CObject *, visitChildren(it->data()));
+            Heap<OpCode> block = GetOpcodes(it->block());
+            Object next_block_begin = { true, (uint32_t)(block.size() + fObj->state.vmopcodes.size() + 1)};
+            LoadOpcode(OPCODE_JMP, flag, {next_block_begin, is_jmp->object});
+            fObj->state.vmopcodes.merge(block);
+            LoadOpcode(OPCODE_JMP, flag, {placeholder, placeholder});// just a placeholder
+            placeholders.PushData(fObj->state.vmopcodes.size() - 1);
         }
 
-        for(auto it: ctx->withIfExtendsSub()) {
-            visitBlock(it->block());
-            block_ends.PushData(block_end);
-        }
-
-        Object end = {true, (uint32_t)(fObj->state.vmopcodes.size() + block_ends.size())};
-        for(auto jmp_pos: jmp_poses) {
-            ResetOpcode(jmp_pos, OPCODE_JMP, flag, { datas.PopData()->object, end });
-        }
-
-        for(auto block_end: block_ends) {
-            LoadAndInsertOpcode(block_end, OPCODE_JMP, NO_FLAG, { end });
+        for (uint32_t _placeholder : placeholders) {
+            ResetOpcode(_placeholder, OPCODE_JMP, NO_FLAG, { {true, (uint32_t)fObj->state.vmopcodes.size() - 1} });
         }
 
         return NONE;
@@ -649,8 +661,11 @@ public:
      * Make the 'goto' opcode
      */
     std::any visitGoto(DXXParser::GotoContext *ctx) override {
-        std::string id = ctx->ID()->toString();
+        const std::string &id = ctx->ID()->toString();
         Dpp_CObject *label = FindObject(id, true);
+        if (label == nullptr) {
+            THROW(fmt::format("cannot find '{}' label", id));
+        }
 
         LoadOpcode(OPCODE_JMP, NO_FLAG, { label->object });
 
@@ -729,13 +744,13 @@ private:
     static void LoadOpcode(rt_opcode op,
                     char flags = NO_FLAG,
                     std::initializer_list<Object> l = {}) {
-        fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, l));
+        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, flags, l));
     }
 
     static void LoadOpcode(rt_opcode op,
         char flags,
         Heap<Object> &params) {
-        fObj->state.vmopcodes.PushData(MakeOpCode(op, flags, params));
+        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, flags, params));
     }
 
     /*
@@ -768,8 +783,8 @@ private:
     Dpp_CObject *MakeConst(Object o, Dpp_Object *obj, bool isCheck = true, bool noWrite = false) {
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
-
-        if(!noWrite) fObj->obj_map.write(o, obj);
+        _co->id = obj->name;
+        _co->type = obj->reg->type;
 
         if (!obj->name.empty()) {
             globalNamespace->RemoveObject(_co);
@@ -779,10 +794,14 @@ private:
         if(result != nullptr) {
             delete _co;
             _co = nullptr;
+            idIt.DecGlobalIterator(); // Restore
             return result;
         }
 
-        if(!noWrite) globalNamespace->objects.write(_co);
+        if (!noWrite) {
+            fObj->obj_map.write(o, obj);
+            globalNamespace->objects.write(_co);
+        }
         return _co;
     }
 
@@ -796,8 +815,9 @@ private:
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<StringObject, String>(wstr);
         obj->name = s;
+        obj->reg->type = STRING_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
-        co->type = STRING_TYPE;
+        co->id = s;
 
         return co;
     }
@@ -811,8 +831,8 @@ private:
         Object o = allocMapping(true);
         Dpp_Object *obj = mkConst<IntObject, Interger>(idata);
         obj->name = std::to_string(idata);
+        obj->reg->type = INT_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
-        co->type = INT_TYPE;
 
         return co;
     }
@@ -826,8 +846,8 @@ private:
         Object o = allocMapping(true);
         Dpp_Object* obj = mkConst<FloatObject, FloatNum>(idata);
         obj->name = std::to_string(idata);
+        obj->reg->type = FLOAT_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
-        co->type = FLOAT_TYPE;
 
         return co;
     }

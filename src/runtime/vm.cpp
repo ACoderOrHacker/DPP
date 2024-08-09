@@ -92,9 +92,9 @@ const char *flag_name_list[8] = {
     "null",
     "null",
     "null",
+    "null",
     "JMP_FALSE",
     "JMP_TRUE",
-    "null",
     "null",
     "null"
 };
@@ -104,7 +104,7 @@ forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id) {
 }
 
 forceinline VM_API const char *GetFlagName(uint8_t i) {
-    return flag_name_list[i + 1];
+    return flag_name_list[i - 1];
 }
 
 VM_API FObject *MakeVM() {

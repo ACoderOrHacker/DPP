@@ -1,6 +1,7 @@
 #include <fstream>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <process.h>
 #include <boost/program_options.hpp>
 
 #include "compiler.hpp"

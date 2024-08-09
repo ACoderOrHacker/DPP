@@ -1,5 +1,4 @@
-#include "../compiler.h"
-#pragma comment(lib, "antlr4-runtime.lib")
+#include "compiler.h"
 int main() {
 	compile("int x = 1;");
 	/*antlr4::ANTLRInputStream input("int x=1;f.stream(;");

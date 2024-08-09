@@ -24,10 +24,10 @@ gExpressions
 
 // all expressions
 expressions
-   : new # newExpr // Done
-   | delete # deleteExpr // Done
-   | varDefine # varDefineExprTag // Done
-   | varSet # varSetExpr // Done
+   : new # newExpr                                  // Done
+   | delete # deleteExpr                            // Done
+   | varDefine # varDefineExprTag                   // Done
+   | varSet # varSetExpr                            // Done
    | withStatement # withExpr
    | whileLoop # whileLoopExpr
    | doWhileLoop # doWhileLoopExpr
@@ -36,7 +36,7 @@ expressions
    | gotoLabelDefine # gotoLabelDefineExpr
    | try # tryExpr
    | throw # throwExpr
-   | typedef # typedefExprTag
+   | typedef # typedefExprTag                       // Done
    | return # returnExpr
    | Break # breakExpr
    | Continue # continueExpr
@@ -44,9 +44,9 @@ expressions
    ;
 
 constant
-   : IntegerData # integerExpr
-   | FloatingNumberData # floatingExpr
-   | StringData # stringExpr
+   : IntegerData # integerExpr                       // Done
+   | FloatingNumberData # floatingExpr               // Done
+   | StringData # stringExpr                         // Done
    | boolean # booleanExpr
    | Null # nullExpr
    ;
@@ -134,7 +134,7 @@ varSet
    ;
 
 withStatement
-   : withIf
+   : withIf                  // Done
    | withIfExtends
    | withSwitchStatement
    ;

@@ -21,6 +21,9 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		Heap(container &c) {
 			Data = c;
 		}
+        Heap(std::initializer_list<T> l) {
+            Data = l;
+        }
 
     public:
         container Data; // Data for heap
@@ -39,6 +42,7 @@ template<typename T, typename container = std::deque<T>> class Heap {
             it = to_iterator(Data, index);
             Remove();
 
+            it = to_iterator(Data, index);
             ItSetData(it, data);
             it = Data.begin();
         }
@@ -54,7 +58,7 @@ template<typename T, typename container = std::deque<T>> class Heap {
             return (data);
         }
         T PopFront() {
-            T data = &(*(Data.front()+1));
+            T data = Data.front();
             Data.pop_front();
             return (data);
         }
@@ -99,8 +103,8 @@ template<typename T, typename container = std::deque<T>> class Heap {
                 this->Delete(it);
 		    }
 		}
-		void merge(Heap<T> *data) {
-		    Data.insert(Data.end(), data->begin(), data->end());
+		void merge(Heap<T> data) {
+		    Data.insert(Data.end(), data.begin(), data.end());
 		}
 		void Delete(typename container::iterator _start, typename container::iterator _end) {
 		    Data.erase(_start, _end);
