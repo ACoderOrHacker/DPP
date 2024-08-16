@@ -1,11 +1,13 @@
 #include "error.hpp"
 
 bool isError(Dpp_Object *obj) {
-    return (obj->reg->type == ERROR_TYPE);
+    // TODO: Bug return (obj->reg->type == ERROR_TYPE);
+    return true;
 }
 
 bool isFunction(Dpp_Object *obj) {
-    return (obj->reg->type == FUNCTION_TYPE);
+    // TODO: Bug return (obj->reg->type == FUNCTION_TYPE);
+    return true;
 }
 
 DXX_API FunctionObject *getErrorHandle(Dpp_Object *obj) {

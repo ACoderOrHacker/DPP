@@ -28,6 +28,7 @@ expressions
    | delete # deleteExpr                            // Done
    | varDefine # varDefineExprTag                   // Done
    | varSet # varSetExpr                            // Done
+   | functionCall # functionCallExprTag             // Done
    | withStatement # withExpr
    | whileLoop # whileLoopExpr
    | doWhileLoop # doWhileLoopExpr
@@ -47,8 +48,8 @@ constant
    : IntegerData # integerExpr                       // Done
    | FloatingNumberData # floatingExpr               // Done
    | StringData # stringExpr                         // Done
-   | boolean # booleanExpr
-   | Null # nullExpr
+   | boolean # booleanExpr                           // Done
+   | Null # nullExpr                                 // Done
    ;
 
 data
@@ -73,7 +74,6 @@ data
    | new # newExpr_
    | delete # deleteExpr_
    ;
-
 boolean: True | False;
 negative: Minus data;
 semi: Semi;
@@ -115,6 +115,7 @@ functionCall
    : idEx LeftParen callParamList? RightParen
    ;
 
+// TODO: If change the varDefineNoSet to varDefine, it will has bug, the auto value will always be the paramter but not the user set
 paramList: varDefine (Comma varDefine)* (Comma Ellipsis)?;
 
 callParamList: data (Comma data)*;

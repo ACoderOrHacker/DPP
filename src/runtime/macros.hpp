@@ -26,5 +26,10 @@ typedef bool STATUS;
 #define SetBit1(x, bit) ((x) |= (1 << (bit)))
 #define SetBit0(x, bit) ((x) &= ~ (1 << (bit)))
 
+#ifdef _WIN32
+#define PLATFORM_LIB_EX ".dll"
+#elif defined(__linux__)
+#define PLATFORM_LIB_EX ".so"
+#endif
 
 #endif // !_DPP_MACROS

@@ -48,7 +48,7 @@ bool isTrue(Dpp_Object *obj) {
 }
 
 void WriteTHeap(Tmp_Heap *__theap, Tmp_Heap *src) {
-	__theap = src;
+	*__theap = *src;
 }
 
 void EnvClean(FObject *fObj) {

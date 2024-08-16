@@ -250,4 +250,4 @@ IntegerData:  [0-9]+;
 
 FloatingNumberData: IntegerData Dot IntegerData;
 
-StringData: ('"' | '\'') (ESC | ~ ["\\])* ('"' | '\'');
+StringData: '"' (ESC | ~["\\])* '"';

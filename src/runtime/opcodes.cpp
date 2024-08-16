@@ -379,16 +379,20 @@ void _jmp(FObject *fObj) {
 
 void _call(FObject *fObj) {
 	Object _func = *theap->begin();
-
     FunctionObject *func = (FunctionObject *)fObj->obj_map.get(_func);
 
-    std::cout << "not finish!!!";
+    fObj->obj_map.create_mapping(1);
+    for (auto &param : func->params) {
+        fObj->obj_map.write(param, fObj->obj_map.get(theap->PopData()));
+    }
+    fObj->callstack.push(fObj->state);
+    fObj->state = func->state;
 }
 
 void _calln(FObject *fObj) {
 	// call native function
-	Object _lib = theap->PopData();
-	Object _func = theap->PopData();
+	Object _lib = theap->PopFront();
+	Object _func = theap->PopFront();
 
 	Dpp_Object *call_func = fObj->obj_map.get(_func);
 
@@ -403,11 +407,14 @@ void _calln(FObject *fObj) {
 		}
 		NATIVE_FUNC func = (NATIVE_FUNC)proc;
 		Dpp_Object *ret = func(fObj);
-		if(GetBit(fObj->flags, 0) == 1) {
-			Object _to = theap->PopData();
-			fObj->obj_map.write(_to, ret);
-		}
-	}
+        if (ret != nullptr) {
+            Object _to = theap->PopFront();
+            fObj->obj_map.write(_to, ret);
+        }
+    }
+    else {
+        SetError(fObj, Dpp_TypeNotRightError, L"");
+    }
 }
 
 void _import(FObject *fObj) {
@@ -458,6 +465,7 @@ void _new(FObject *fObj) {
 	Dpp_Object *obj = nullptr;
 	try {
 		obj = NewObject(type->reg->size + sizeof(Dpp_Object));
+        obj->reg->init(obj);
 	} catch(std::bad_alloc) {
         SetError(fObj, Dpp_NoMemoryError, L"");
 		return;

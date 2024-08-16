@@ -9,8 +9,9 @@ namespace function {
 
     enum FUNCTION_METADATA {
         PARAMS = 1,
-        RETURN_TYPE = 2,
-        THROW_TABLE = 3
+        AUTOVALUES = 2,
+        RETURN_TYPE = 3,
+        THROW_TABLE = 4
     };
 }
 

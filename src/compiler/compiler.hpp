@@ -53,38 +53,54 @@
     fmt::print(fmt::fg(fmt::color::yellow), "\nwarning: {}\n", msg);            \
 }
 
+#define MESSAGE(msg) {                                                          \
+    fmt::print("\nmessage: {}\n", msg);            \
+}
+
+DXX_API FObject *fObj = new FObject;
+
+DXX_API FObject *_compile(antlr4::ANTLRInputStream stream);
+DXX_API FObject *compile(std::string &code);
+DXX_API FObject *compile(std::ifstream &ifs);
+
+struct _Dpp_CObject;
+class RetTypeNeqError : std::exception {};
+bool throw_when_neq = false;
+
+typedef std::unordered_map<std::string, struct _Dpp_CObject *> Throwtable;
+
 struct INFOS {
 public:
-    unsigned is_compiletime: 1 = false;
-    unsigned is_final: 1 = false;
-    unsigned is_override: 1 = false;
-    unsigned is_inline: 1 = false;
-    unsigned is_static: 1 = false;
-    unsigned is_public: 1 = false;
-    unsigned is_protected: 1 = false;
-    unsigned is_private: 1 = false;
-    unsigned is_constructor: 1 = false;
-    unsigned is_destructor: 1 = false;
-    const char *native_library = nullptr;
-    const char *native_function = nullptr;
+    unsigned is_compiletime : 1 = false;
+    unsigned is_final : 1 = false;
+    unsigned is_override : 1 = false;
+    unsigned is_inline : 1 = false;
+    unsigned is_static : 1 = false;
+    unsigned is_public : 1 = false;
+    unsigned is_protected : 1 = false;
+    unsigned is_private : 1 = false;
+    unsigned is_constructor : 1 = false;
+    unsigned is_destructor : 1 = false;
+    std::string native_library = "";
+    std::string native_function = "";
 public:
     bool operator ==(const INFOS &infos) const {
         return is_compiletime == infos.is_compiletime &&
-               is_final == infos.is_final &&
-               is_override == infos.is_override &&
-               is_inline == infos.is_inline &&
-               is_static == infos.is_static &&
-               is_public == infos.is_public &&
-               is_protected == infos.is_protected &&
-               is_private == infos.is_private &&
-               is_constructor == infos.is_constructor &&
-               is_destructor == infos.is_destructor &&
-               native_library == infos.native_library &&
-               native_function == infos.native_function;
+            is_final == infos.is_final &&
+            is_override == infos.is_override &&
+            is_inline == infos.is_inline &&
+            is_static == infos.is_static &&
+            is_public == infos.is_public &&
+            is_protected == infos.is_protected &&
+            is_private == infos.is_private &&
+            is_constructor == infos.is_constructor &&
+            is_destructor == infos.is_destructor &&
+            native_library == infos.native_library &&
+            native_function == infos.native_function;
     }
 
     struct INFOS &operator =(const INFOS &infos) {
-        if(this == &infos) {
+        if (this == &infos) {
             return *this;
         }
 
@@ -105,7 +121,7 @@ public:
     }
 
     struct INFOS &operator |=(const INFOS &infos) {
-        if(this == &infos) {
+        if (this == &infos) {
             return *this;
         }
 
@@ -126,16 +142,6 @@ public:
     }
 };
 
-DXX_API FObject *fObj = new FObject;
-
-DXX_API FObject *_compile(antlr4::ANTLRInputStream stream);
-DXX_API FObject *compile(std::string &code);
-DXX_API FObject *compile(std::ifstream &ifs);
-
-struct _Dpp_CObject;
-
-typedef std::unordered_map<std::string, struct _Dpp_CObject *> Throwtable;
-
 typedef struct _Dpp_CObject {
 public:
 	Object object;
@@ -155,8 +161,13 @@ public:
         switch(type) {
             case FUNCTION_TYPE:
             if (METADATA_EQ(function::FUNCTION_METADATA::PARAMS, Heap<_Dpp_CObject *>)      &&
-                METADATA_EQ(function::FUNCTION_METADATA::THROW_TABLE, Throwtable)           &&
-                _cast(_Dpp_CObject *, metadata[function::FUNCTION_METADATA::RETURN_TYPE])->object == _cast(_Dpp_CObject *, co->metadata[function::FUNCTION_METADATA::RETURN_TYPE])->object) {
+                METADATA_EQ(function::FUNCTION_METADATA::AUTOVALUES, Heap<_Dpp_CObject *>) &&
+                METADATA_EQ(function::FUNCTION_METADATA::THROW_TABLE, Throwtable)) {
+                if (_cast(_Dpp_CObject *, metadata[function::FUNCTION_METADATA::RETURN_TYPE])->object != _cast(_Dpp_CObject *, co->metadata[function::FUNCTION_METADATA::RETURN_TYPE])->object) {
+                    if(throw_when_neq) throw RetTypeNeqError();
+
+                    return false;
+                }
                 return true;
             }
 
@@ -256,8 +267,10 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
     _op.opcode = op;
     _op.flag = flags;
 
+    uint32_t i = 0;
     for (auto it : l) {
-        _op.params.PushData(it);
+        _op.params.SetData(i, it);
+        ++i;
     }
 
     return _op;
@@ -285,13 +298,16 @@ public:
         // init the globalNamespace
         uint32_t builtin_it = 0;
         for (; builtin_it < BUILTIN_END; ++builtin_it) {
-            Object o{true, builtin_it};
-            Dpp_Object *obj = fObj->obj_map.get(o);
-            Dpp_CObject *co = new Dpp_CObject;
+            if (builtin_it != BUILTIN::BUILTIN_OUT) {
+                Object o{ true, builtin_it };
+                Dpp_Object *obj = fObj->obj_map.get(o);
+                Dpp_CObject *co = new Dpp_CObject;
 
-            co->id = obj->name;
-            co->object = o;
-            globalNamespace->objects.write(co);
+                co->id = obj->name;
+                co->object = o;
+                globalNamespace->objects.write(co);
+            }
+
 
         }
 
@@ -315,10 +331,24 @@ public:
             WARNING("no main function in program");
             goto RETURN;
         }
+        if (main->type != FUNCTION_TYPE) {
+            THROW("main is not a function");
+        }
+        if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
+            THROW(fmt::format("main function has much than 0 paramter"));
+        }
         LoadOpcode(OPCODE_CALL, NO_FLAG, {main->object});
 
         RETURN:
         return fObj;
+    }
+
+    forceinline static std::string SpiltQuote(std::string s) {
+        if (s.empty()) {
+            return "";
+        }
+
+        return s.substr(1, s.size() - 2);
     }
 
     /*
@@ -406,7 +436,9 @@ public:
         fObj->callstack.push(fObj->state);
         fObj->state = state;
 
+        noLoadVarOp = true;
         Heap<Dpp_CObject *> *params = anycast(Heap<Dpp_CObject *> *, visitParamList(_params));
+        noLoadVarOp = false;
         if(block != nullptr) {
             visitBlock(block);
             isNone = false;
@@ -424,7 +456,8 @@ public:
         Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
         Throwtable *throws = anycast(Throwtable *, visitThrowtable(throwTable));
 
-        Dpp_CObject *co = MakeFunction(func, infos, params, ret, throws, isNone);
+        Dpp_CObject *co = MakeFunction(func, infos, params, func_autovalues, ret, throws, isNone);
+        func_autovalues = nullptr;
 
         return co;
     }
@@ -451,13 +484,24 @@ public:
      */
     std::any visitParamList(DXXParser::ParamListContext *ctx) override {
         Heap<Dpp_CObject *> *param_list = new Heap<Dpp_CObject *>;
+        Heap<Dpp_CObject *> *autovalues = new Heap<Dpp_CObject *>;
         if (ctx == nullptr) return param_list;
 
+        bool beginAutovalue = false;
+        varDefineAutovalue = true;
         for (auto it : ctx->varDefine()) {
-            param_list->PushData(anycast(Dpp_CObject *, visitVarDefine(it)));
+            // TODO: If change the varDefineNoSet to varDefine, it will has bug, the auto value will always be the paramter but not the user set
+            param_list->PushEnd(anycast(Dpp_CObject *, visitVarDefine(it)));
 
+            if (beginAutovalue && func_param_autovalue == nullptr) {
+                THROW("the paramters are invalid");
+            }
+            if (func_param_autovalue != nullptr) beginAutovalue = true;
+            autovalues->PushEnd(func_param_autovalue);
         }
+        varDefineAutovalue = false;
 
+        func_autovalues = autovalues;
         return param_list;
     }
 
@@ -506,10 +550,18 @@ public:
         }
         thisNamespace->objects.write(to);
 
-        LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, to->object });
-        if (_data != nullptr) {
-            data = anycast(Dpp_CObject *, visitChildren(_data));
-            LoadOpcode(OPCODE_MOV, NO_FLAG, { data->object, to->object });
+        if (!noLoadVarOp) {
+            LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, to->object });
+            if (_data != nullptr) {
+                data = anycast(Dpp_CObject *, visitChildren(_data));
+                LoadOpcode(OPCODE_MOV, NO_FLAG, { data->object, to->object });
+            }
+        }
+
+        if (varDefineAutovalue) {
+            if (_data != nullptr) {
+                func_param_autovalue = anycast(Dpp_CObject *, visitChildren(_data));
+            }
         }
 
 		return to;
@@ -657,6 +709,105 @@ public:
     }
 
     /*
+     * @return: Dpp_CObject *
+     * Make 'call function' opcode
+     */
+    std::any visitFunctionCall(DXXParser::FunctionCallContext *ctx) override {
+        Dpp_CObject *func = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
+        Dpp_CObject *co = MakeObject("");
+        Heap<Object> params;
+        Heap<Dpp_CObject *> param_list;
+
+
+        if(func->type != FUNCTION_TYPE) {
+            THROW(fmt::format("cannot call '{}' because it is not a function", func->id));
+        }
+
+        if(func->isNone && func->infos.native_function == "") {
+            THROW(fmt::format("function {} was not defined", func->id));
+        }
+
+        for(auto *it : ctx->callParamList()->data()) {
+            Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(it));
+            params.PushData(data->object);
+            param_list.PushData(data);
+        }
+
+        /******************** Check the paramters ********************/
+        if (!__check_call_params(func,
+            _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::PARAMS]),
+            &param_list,
+            _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::AUTOVALUES]))) {
+            THROW(fmt::format("'{}' has different paramters", func->id));
+        }
+
+
+        if(func->infos.native_function != "") {
+            // native function
+            params.PushData(MakeString(func->id)->object);
+
+            uint32_t i = 0;
+            bool isFound = false;
+            for (auto &it : fObj->modules) {
+                if (it == func->infos.native_library) {
+                    params.PushData({true, i});
+                    isFound = true;
+                    break;
+                }
+                ++i;
+            }
+
+            if (!isFound) {
+                THROW(fmt::format("cannot find '{}' library", func->infos.native_library));
+            }
+
+            LoadOpcode(OPCODE_CALLN, NO_FLAG, params);
+            return co;
+        }
+
+        params.PushData(func->object);
+        LoadOpcode(OPCODE_CALL, NO_FLAG, params);
+        return co;
+    }
+
+    forceinline bool __check_call_params(Dpp_CObject *func,
+        Heap<Dpp_CObject *> *params,
+        Heap<Dpp_CObject *> *call_params,
+        Heap<Dpp_CObject *> *autovalues) {
+        if (params->size() < call_params->size()) {
+            THROW(fmt::format("too many parameters to provide in '{}'", func->id));
+        }
+
+        for (uint32_t i = 0; i < params->size(); ++i) {
+            Dpp_CObject *call_arg = nullptr;
+            if (call_params->size() <= i) {
+                Dpp_CObject *autovalue = autovalues->GetData(i);
+                if (autovalue == nullptr) {
+                    THROW(fmt::format("too few parameters to provide in '{}'", func->id));
+                }
+                call_arg = autovalue;
+            }
+            else {
+                call_arg = call_params->GetData(i);
+            }
+
+            Dpp_CObject *arg = params->GetData(i);
+            if (call_arg->type == VOID_TYPE) {
+                THROW("argument is void");
+            }
+            if (call_arg->type == OBJECT_TYPE && arg->type != OBJECT_TYPE) {
+                MESSAGE(fmt::format("object value to not object type value maybe error"));
+            }
+            if (call_arg->type != arg->type && arg->type != OBJECT_TYPE) {
+                // TODO: there need two types
+                THROW(fmt::format("cannot convert from type to other type"));
+            }
+        }
+
+        return true;
+    }
+
+    /*
      * @return: NONE
      * Make the 'goto' opcode
      */
@@ -704,14 +855,51 @@ public:
 		return NONE;
 	}
 
+    /*
+     * @return: Dpp_CObject *
+     * return integer data
+     */
     std::any visitIntegerExpr(DXXParser::IntegerExprContext *ctx) override {
         return MakeInteger(std::stoll(ctx->IntegerData()->toString()));
     }
 
+    /*
+     * @return: Dpp_CObject *
+     * return floating number data
+     */
     std::any visitFloatingExpr(DXXParser::FloatingExprContext* ctx) override {
         return MakeFloating(std::stod(ctx->FloatingNumberData()->toString()));
     }
 
+    /*
+     * @return: Dpp_CObject *
+     * return string data
+     */
+    std::any visitStringExpr(DXXParser::StringExprContext *ctx) override {
+        return MakeString(StringParse(ctx->StringData()->toString()));
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * return integer data of true or false
+     */
+    std::any visitBoolean(DXXParser::BooleanContext *ctx) override {
+        return MakeInteger(ctx->True() != nullptr ? 1 : 0);
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * return null object
+     */
+    std::any visitNullExpr(DXXParser::NullExprContext *ctx) override {
+        Dpp_CObject *null = nullptr;
+
+        if ((null = FindObject("null")) == nullptr) {
+            THROW("null object cannot find");
+        }
+
+        return null;
+    }
 private:
     /*
      * @return: bool
@@ -858,8 +1046,9 @@ private:
      * And Push the function object to the object pool
      */
     Dpp_CObject *MakeFunction(Dpp_Object *func,
-                              struct INFOS &infos,
+                              struct INFOS infos,
                               Heap<Dpp_CObject *> *params,
+                              Heap<Dpp_CObject *> *autovalues,
                               Dpp_CObject *ret,
                               Throwtable *throws,
                               bool isNone) {
@@ -870,17 +1059,29 @@ private:
         co->metadata[function::PARAMS] = params;
         co->metadata[function::RETURN_TYPE] = ret;
         co->metadata[function::THROW_TABLE] = throws;
+        co->metadata[function::FUNCTION_METADATA::AUTOVALUES] = autovalues;
         co->type = FUNCTION_TYPE;
         co->isNone = isNone;
 
-        Dpp_CObject *result = FindObject(co);
+        Dpp_CObject *result = nullptr;
+
+        try {
+            result = FindObject(co);
+        }
+        catch (RetTypeNeqError &) {
+            THROW(fmt::format("{} was defined", result->id));
+        }
+
         if(result != nullptr) {
             if (!result->isNone || co->isNone) {
                 THROW(fmt::format("{} was defined", result->id));
             }
+
+            result->isNone = false;
             return result;
         }
 
+        if(!co->infos.native_library.empty()) fObj->modules.write(co->infos.native_library);
         fObj->obj_map.write(o, func);
         globalNamespace->objects.write(co);
         return co;
@@ -1030,12 +1231,15 @@ private:
         for (auto it : *_infos) {
             for (auto info : it->children) {
                 if (info != nullptr) {
-                    std::string native_lib, native_func;
+                    std::string info_str = info->toString(), native_lib, native_func;
                     if(info->children.size() > 1) {
-                        native_lib = info->children[1]->toString();
-                        native_func = info->children[2]->toString();
+                        DXXParser::NativeContext *native_ctx = _cast(DXXParser::NativeContext *, info);
+                        info_str = native_ctx->Native()->toString();
+                  
+                        native_lib = SpiltQuote(native_ctx->StringData(0)->toString());
+                        native_func = SpiltQuote(native_ctx->StringData(1)->toString());
                     }
-                    infos |= GetInfoFromID(info->toString(), native_lib, native_func);
+                    infos |= GetInfoFromID(info_str, native_lib, native_func);
                 }
             }
         }
@@ -1043,9 +1247,9 @@ private:
         return infos;
 	}
 
-    static struct INFOS GetInfoFromID(const std::string &id,
-                                      const std::string &native_lib,
-                                      const std::string &native_func) {
+    static struct INFOS GetInfoFromID(std::string id,
+                                      std::string native_lib,
+                                      std::string native_func) {
         struct INFOS infos;
 
         if(id == "compiletime") {
@@ -1057,8 +1261,8 @@ private:
         } else if(id == "final") {
             infos.is_final = true;
         } else if(id == "native") {
-            infos.native_function = native_func.c_str();
-            infos.native_library = native_lib.c_str();
+            infos.native_function = native_func;
+            infos.native_library = native_lib;
         } else if(id == "constructor") {
             infos.is_constructor = true;
         } else if(id == "destructor") {
@@ -1075,6 +1279,23 @@ private:
 
         return infos;
     }
+
+    std::string subreplace(std::string resource_str, std::string sub_str, std::string new_str) {
+        std::string dst_str = resource_str;
+        std::string::size_type pos = 0;
+        while ((pos = dst_str.find(sub_str)) != std::string::npos) {
+            dst_str.replace(pos, sub_str.length(), new_str);
+        }
+        return dst_str;
+    }
+
+    std::string StringParse(std::string s) {
+        std::string tmp(SpiltQuote(s));
+        tmp = subreplace(tmp, "\\\"", "\"");
+        tmp = subreplace(tmp, "\\\'", "\'");
+
+        return tmp;
+    }
 private:
     Namespace *globalNamespace = new Namespace;
     Namespace *thisNamespace = globalNamespace;
@@ -1088,6 +1309,11 @@ private:
     uint32_t block_end; // for jump statements
 
     bool blockNoNamespace = false;
+    bool noLoadVarOp = false;
+    bool varDefineAutovalue = false;
+
+    Dpp_CObject *func_param_autovalue = nullptr;
+    Heap<Dpp_CObject *> *func_autovalues = nullptr;
 
     Object placeholder = {true, UINT_MAX};
 };

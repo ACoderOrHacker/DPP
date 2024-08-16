@@ -166,7 +166,7 @@ bool Dpp_Object::print() {
 }
 
 bool Dpp_Object::move(Dpp_Object *obj) {
-	if(obj == nullptr) {
+	if(obj == nullptr || obj->reg == nullptr) {
 		return false; // object is null, we cannot know its type
 	}
 
@@ -174,7 +174,12 @@ bool Dpp_Object::move(Dpp_Object *obj) {
 		return false; // cannot move data
 	}
 
-	std::memcpy(obj, this, sizeof(Dpp_Object) + obj->reg->size);
+    Dpp_Object *tmp = nullptr;
+    tmp = (Dpp_Object *)std::realloc(obj, sizeof(Dpp_Object) + obj->reg->size);
+    if (tmp != nullptr) {
+        obj = tmp;
+        std::memcpy(obj, this, sizeof(Dpp_Object) + obj->reg->size);
+    }
 
 	return true;
 }
@@ -186,6 +191,7 @@ bool Dpp_Object::moveref(Dpp_Object *obj) {
 
 	if(obj == nullptr) {
 		obj = (Dpp_Object *)malloc(sizeof(Dpp_Object) + obj->reg->size);
+        if (obj == nullptr) return false;
 	}
 
 	obj = this;

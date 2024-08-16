@@ -87,7 +87,7 @@ typedef std::string(* to_string_func)(Dpp_Object *);
 typedef Dpp_Object *(* logic_func)(Dpp_Object *, Dpp_Object *);
 typedef Dpp_Object *(* logic_func1)(Dpp_Object *);
 typedef void (* mem_free_func)(Dpp_Object *);
-typedef void (* mem_alloc_func)(Dpp_Object *);
+typedef void (* init_func)(Dpp_Object *);
 
 Dpp_Object *StdBigger(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdSmaller(Dpp_Object *, Dpp_Object *);
@@ -121,7 +121,7 @@ struct RegType {
     to_string_func to_string = nullptr;
 
 	mem_free_func mem_free = nullptr; // free the data
-	mem_alloc_func mem_alloc = nullptr; // alloc and init the data
+    init_func init = nullptr;
 };
 
 class Dpp_Object {
@@ -235,8 +235,8 @@ public:
 		sig = new Signal;
 
         uint32_t i = 0;
-        for(auto it: modules) {
-            NativeModules.write(i, OpenNativeLib(it.c_str()));
+        for(auto &it: modules) {
+            NativeModules.write(i, OpenNativeLib((it + PLATFORM_LIB_EX).c_str()));
             ++i;
         }
 	}

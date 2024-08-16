@@ -9,7 +9,7 @@
 enum BUILTIN : uint32_t {
     BUILTIN_NULL = 0,
     BUILTIN_NULLPOINTER_ERROR, /* NullPointerError */
-
+    BUILTIN_OUT, // 'out' function in builtin
     INT_TYPE,
     FLOAT_TYPE,
     STRING_TYPE,

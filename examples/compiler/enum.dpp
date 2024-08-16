@@ -1,3 +1,5 @@
+native("io", "out") out(object o) => void;
+
 enum Test {
     EnumSubA = 1,
     EnumSubB = 2,
@@ -5,5 +7,5 @@ enum Test {
 }
 
 main() => void {
-
+    out(1);
 }

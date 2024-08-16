@@ -28,7 +28,7 @@ Dpp_Object *NewObject(size_t size) {
 	if(size < sizeof(Dpp_Object)) {
 		throw TypeNotRightError(); // failed to new
 	}
-
+    
 	return (Dpp_Object *)malloc(size);
 }
 
@@ -37,7 +37,6 @@ STATUS DeleteObject(Dpp_Object *obj) {
 		if(obj->reg->mem_free != nullptr) {
 			obj->reg->mem_free(obj);
 		}
-		free(obj);
 
 		return STATUS_SUCCESS; // success
 	}

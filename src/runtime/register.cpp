@@ -212,6 +212,15 @@ bool IntPrint(Dpp_Object *print_obj) {
 	}
 }
 
+void IntFree(Dpp_Object *obj) {
+    delete (IntObject *)obj;
+}
+
+void IntInit(Dpp_Object *obj) {
+    IntObject *idata = (IntObject *)obj;
+    idata->val = 0;
+}
+
 Dpp_Object *FloatAdd(Dpp_Object *lval, Dpp_Object *rval) {
 
 	Dpp_Object *rtn = nullptr;
@@ -281,6 +290,15 @@ bool FloatPrint(Dpp_Object *print_obj) {
 	}
 }
 
+void FloatFree(Dpp_Object *obj) {
+    delete (FloatObject *)obj;
+}
+
+void FloatInit(Dpp_Object *obj) {
+    FloatObject *fdata = (FloatObject *)obj;
+    fdata->val = 0.0f;
+}
+
 // for string
 Dpp_Object *StringAdd(Dpp_Object *lval, Dpp_Object *rval) {
 	Dpp_Object *rtn = nullptr;
@@ -309,12 +327,21 @@ bool StringPrint(Dpp_Object *print_obj) {
 	}
 }
 
+void StringFree(Dpp_Object *obj) {
+    delete (StringObject *)obj;
+}
+
+void StringInit(Dpp_Object *obj) {
+    StringObject *str = (StringObject *)obj;
+    str->val = String();
+}
+
 // register the based types
 DXX_API void RegInit(FObject *fObj) {
 	// init the types
-	IntType = {"int", INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, &IntToString, nullptr, nullptr};
-	FloatType = {"float", FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, &FloatToString, nullptr, nullptr};
-	StringType = {"string", STRING_TYPE, sizeof(String), &StringAdd, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &StringPrint, &StringToString, nullptr, nullptr};
+	IntType = {"int", INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, &IntToString, &IntFree, &IntInit};
+    FloatType = { "float", FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, &FloatToString, &FloatFree,  &FloatInit};
+	StringType = {"string", STRING_TYPE, sizeof(String), &StringAdd, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &StringPrint, &StringToString, &StringFree, &StringInit};
     ClassType.type = CLASS_TYPE;
     ErrorType.type = ERROR_TYPE;
     FunctionType.type = FUNCTION_TYPE;

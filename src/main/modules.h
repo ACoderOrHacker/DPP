@@ -91,19 +91,15 @@ std::string GetFlagsName(char flag) {
     return s;
 }
 
-void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
-    S_FObject __s_fObj;
-    __s_fObj = *_s_fObj;
-    S_FObject *s_fObj = &__s_fObj;
-
+void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
     auto opt_state = [](struct VMState state) -> void {
         uint32_t i = 0;
-        for(auto it : state.vmopcodes) {
+        for(auto &it : state.vmopcodes) {
             std::string s;
 
             s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));
-            while (it.params.size() > 0) {
-                Object param = it.params.PopData();
+
+            for (auto &param : it.params) {
                 s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
             }
             std::cout << s;
@@ -137,12 +133,14 @@ void OutputS_FObject(S_FObject *_s_fObj, bool isOutputCopyright = true) {
     opt_state(s_fObj->state);
 
     fmt::print("\n");
+    uint32_t i = 0;
     for (auto it : s_fObj->global_mapping) {
         if (it != nullptr && it->reg != nullptr && it->name != "function" && it->reg->type == FUNCTION_TYPE) {
-            fmt::print("Function: {}\n", it->name.empty() ? "unknown" : it->name);
+            fmt::print("Function: {} [Global, {}]\n", it->name.empty() ? "unknown" : it->name, i);
             opt_state(_cast(FunctionObject *, it)->state);
             fmt::print("\n");
         }
+        ++i;
     }
 
     fmt::print("\n");

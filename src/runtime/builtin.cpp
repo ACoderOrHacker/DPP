@@ -3,19 +3,19 @@
 
 Object Dpp_Null = { false, 0 };
 
-Dpp_Object *Dpp_NullObject;
+DXX_API Dpp_Object *Dpp_NullObject;
 
-Dpp_Object *Dpp_BaseError;
+DXX_API Dpp_Object *Dpp_BaseError;
 
-Dpp_Object *Dpp_NullPointerError;
+DXX_API Dpp_Object *Dpp_NullPointerError;
 
-Dpp_Object *Dpp_DataCantOperatorError;
+DXX_API Dpp_Object *Dpp_DataCantOperatorError;
 
-Dpp_Object *Dpp_TypeNotRightError;
+DXX_API Dpp_Object *Dpp_TypeNotRightError;
 
-Dpp_Object *Dpp_NoMemoryError;
+DXX_API Dpp_Object *Dpp_NoMemoryError;
 
-Dpp_Object *Dpp_LibNoSymbolError;
+DXX_API Dpp_Object *Dpp_LibNoSymbolError;
 
 Dpp_Object *newErrorObject() {
     Dpp_Object *error = NewObject<ClassObject>();

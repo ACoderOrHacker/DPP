@@ -114,6 +114,16 @@ VM_API FObject *MakeVM() {
 }
 
 VM_API void VM_Run(FObject *fObj) {
+    uint32_t i = 0;
+    for (auto &it : fObj->modules) {
+        Module vm_module = OpenNativeLib((it + PLATFORM_LIB_EX).c_str());
+        if (vm_module == nullptr) {
+            SetError(fObj, Dpp_LibNoSymbolError, L"");
+            continue;
+        }
+        fObj->NativeModules.write(i, vm_module);
+    }
+
 	while(fObj->state.vmopcodes.size() > fObj->state.runat) {
 		OpCode opcode;
 		opcode = fObj->state.vmopcodes.GetData(fObj->state.runat); // get opcode from state
@@ -130,24 +140,14 @@ VM_API void VM_Run(FObject *fObj) {
 			}
 
             CatchError(fObj);
-            /*else if (GetBit(fObj->flags, HAS_SIGNAL)) {
-				// has a signal to execute
-				SetBit0(fObj->flags, HAS_SIGNAL);
-				while(!fObj->sig->isEmpty()) {
-					theap->PushData(fObj->signal_accept[fObj->sig->PopData()]);
-					_call(fObj); // call the signal accept function
-				}
-				return;
-			}*/
-            /*
-			// execute failed
-			while(!error->isEmpty()) {
-				theap->PushData(fObj->error_accept[error->PopData().id]);
-				_call(fObj); // call the error accept function
-			}*/
 		}
 
-        ++fObj->state.runat;
+        if (fObj->state.vmopcodes.size() == fObj->state.runat && fObj->callstack.size() > 0) {
+            fObj->state = fObj->callstack.top();
+            fObj->callstack.pop();
+        }
+
+        if(opcode.opcode != OPCODE_CALL) ++fObj->state.runat;
 	}
 
 	// exit
@@ -164,7 +164,7 @@ VM_API bool Exec(OpCode opcode, FObject *fObj) {
 	WriteTHeap(theap, &opcode.params); // write the params to the 'fObj->_theap' for the opcode
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
-		opcode_list[opcode.opcode](fObj); // call opcode
+		opcode_list[opcode.opcode - 1](fObj); // call opcode
 		if(error == nullptr && fObj->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
 	} else {

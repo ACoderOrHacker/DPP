@@ -88,9 +88,14 @@ include_directories(PUBLIC ${INC_DIRS})
 
 link_directories(${Boost_LIBRARY_DIRS})
 
+option(BUILD_STDLIB "-----Build Standard Library-----" ON)
 option(BUILD_TOOLS "-----Build The Tools-----" ON)
 option(BUILD_TESTS "-----Build The Tests-----" ON)
 option(BUILD_VM_SERIALIZATION "-----Build The Serialization-----" ON)
+
+if(BUILD_STDLIB)
+add_subdirectory(libs/cppnative/)
+endif()
 
 if(BUILD_TOOLS)
     # build the tools

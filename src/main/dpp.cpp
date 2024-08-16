@@ -28,6 +28,7 @@ int main(int argc, char *argv[] ) {
         desc.add_options()
             ("help,h", "Produce help message")
             ("compile,c", opt::value<std::vector<std::string>>(), "Compile a D++ source file")
+            ("list,l", opt::value<std::vector<std::string>>(), "List Opcodes of files")
 #ifdef _COMPILE_TEST
             ("compile-test,t", "Compile the test")
 #endif
@@ -46,6 +47,24 @@ int main(int argc, char *argv[] ) {
         else if (vm.count("file")) {
             // TODO: Not Success
         }
+        else if (vm.count("list")) {
+            uint32_t i = 0;
+            for (auto &it : vm["list"].as<std::vector<std::string>>()) {
+                fmt::print("[{}] {}", i, it);
+
+                std::ifstream ifs;
+                ifs.open(it);
+                fObj = compile(ifs);
+                ifs.close();
+
+                OutputFObject(fObj, false);
+                delete fObj;
+                fObj = nullptr;
+
+                std::cout << "\n\n";
+                ++i;
+            }
+        }
 #ifdef _COMPILE_TEST
         else if (vm.count("compile-test")) {
             std::vector<boost::filesystem::path> files;
@@ -61,7 +80,7 @@ int main(int argc, char *argv[] ) {
                 fObj = compile(ifs);
                 ifs.close();
 
-                OutputFObject(fObj, false);
+                VM_Run(fObj);
                 delete fObj;
                 fObj = nullptr;
 

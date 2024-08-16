@@ -18,6 +18,8 @@
 #define DXX_API
 #endif
 
+#define _DXX_EXPORT_API extern "C" __declspec(dllexport)
+
 #ifdef _MSC_VER // for MSVC
 #define forceinline __forceinline
 #elif defined __GNUC__ // for gcc on Linux/Apple OS X

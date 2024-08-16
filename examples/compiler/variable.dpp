@@ -1,5 +1,6 @@
 int a;
 int b=1;
+string s = "\"\""
 final set_b() => void {
     b=2;
 }

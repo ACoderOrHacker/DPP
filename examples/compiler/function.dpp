@@ -4,6 +4,9 @@ final x(int y) => int {
     
 }
 
-main() => void {
+native("io", "func") f(int y) => int;
 
+main() => void {
+    x(1);
+    f(1);
 }
