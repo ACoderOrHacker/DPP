@@ -27,7 +27,6 @@
 */
 #include <thread>
 #include "acoder/acassert/acassert.h"
-#include "builtin.symbols.hpp"
 #include "builtin.hpp"
 #include "stdrt.hpp"
 #include "opcodes.hpp"
@@ -54,4 +53,4 @@ forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id);
 forceinline VM_API const char *GetFlagName(uint8_t i);
 VM_API FObject *MakeVM();
 VM_API bool Exec(OpCode, FObject *);
-VM_API void VM_Run(FObject *fObj);
+VM_API void VM_Run(FObject *fObj, bool noExit);

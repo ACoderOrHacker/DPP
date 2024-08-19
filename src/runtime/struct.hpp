@@ -126,8 +126,6 @@ struct RegType {
 
 class Dpp_Object {
 	public:
-		Dpp_Object(){};
-	public:
 		Dpp_Object *operator +(Dpp_Object *obj);
 		Dpp_Object *operator -(Dpp_Object *obj);
 		Dpp_Object *operator *(Dpp_Object *obj);
@@ -146,7 +144,7 @@ class Dpp_Object {
 		bool print();
 		bool move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
-        
+
 	public:
 		std::string name;
 		char info = 0; // see doc/object/info.md

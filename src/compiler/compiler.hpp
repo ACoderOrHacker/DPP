@@ -202,6 +202,8 @@ public:
         }) {
 
         for (auto it : objects) {
+            if(it == nullptr) continue;
+
             if (checker(it, co)) {
                 acassert(it == nullptr);
                 objects.remove(it);
@@ -247,7 +249,7 @@ public:
         else return idIt.top();
     }
 
-    uint32_t GetGlobalIterator() const noexcept {
+    [[nodiscard]] uint32_t GetGlobalIterator() const noexcept {
         return global;
     }
 private:
@@ -311,7 +313,7 @@ public:
 
         }
 
-        auto make_type = [=](const std::string &id, uint32_t type_id) {
+        auto make_type = [=, this](const std::string &id, uint32_t type_id) {
             Dpp_CObject *type = new Dpp_CObject;
             type->id = id;
             type->object = { true, type_id};
@@ -343,7 +345,7 @@ public:
         return fObj;
     }
 
-    forceinline static std::string SpiltQuote(std::string s) {
+    forceinline static std::string SpiltQuote(const std::string &s) {
         if (s.empty()) {
             return "";
         }
@@ -490,7 +492,6 @@ public:
         bool beginAutovalue = false;
         varDefineAutovalue = true;
         for (auto it : ctx->varDefine()) {
-            // TODO: If change the varDefineNoSet to varDefine, it will has bug, the auto value will always be the paramter but not the user set
             param_list->PushEnd(anycast(Dpp_CObject *, visitVarDefine(it)));
 
             if (beginAutovalue && func_param_autovalue == nullptr) {
@@ -1176,6 +1177,8 @@ private:
     static Dpp_CObject *FindObject(Namespace *ns, const std::string &id) {
 
         for(auto it: ns->objects) {
+            if(it == nullptr) continue;
+
             if(it->id == id) {
                 return it;
             }
@@ -1209,6 +1212,8 @@ private:
     static Dpp_CObject *FindObject(Namespace *ns, Dpp_CObject *co) {
 
         for(auto it: ns->objects) {
+            if (it == nullptr) continue;
+
             if(*it == co) {
                 return it;
             }
@@ -1216,6 +1221,8 @@ private:
 
         for(auto it: ns->parents) {
             for(auto _it: ns->objects) {
+                if(_it == nullptr) continue;
+
                 if(*_it == co) {
                     return _it;
                 }
@@ -1235,7 +1242,7 @@ private:
                     if(info->children.size() > 1) {
                         DXXParser::NativeContext *native_ctx = _cast(DXXParser::NativeContext *, info);
                         info_str = native_ctx->Native()->toString();
-                  
+
                         native_lib = SpiltQuote(native_ctx->StringData(0)->toString());
                         native_func = SpiltQuote(native_ctx->StringData(1)->toString());
                     }

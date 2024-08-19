@@ -113,7 +113,7 @@ VM_API FObject *MakeVM() {
 	return fObj;
 }
 
-VM_API void VM_Run(FObject *fObj) {
+VM_API void VM_Run(FObject *fObj, bool noExit = false) {
     uint32_t i = 0;
     for (auto &it : fObj->modules) {
         Module vm_module = OpenNativeLib((it + PLATFORM_LIB_EX).c_str());
@@ -142,7 +142,7 @@ VM_API void VM_Run(FObject *fObj) {
             CatchError(fObj);
 		}
 
-        if (fObj->state.vmopcodes.size() == fObj->state.runat && fObj->callstack.size() > 0) {
+        if (fObj->state.vmopcodes.size() - 1 == fObj->state.runat && !fObj->callstack.empty()) {
             fObj->state = fObj->callstack.top();
             fObj->callstack.pop();
         }
@@ -153,7 +153,7 @@ VM_API void VM_Run(FObject *fObj) {
 	// exit
 	int exit_code = fObj->exit_code;
 	EnvClean(fObj);
-	exit(exit_code);
+	if (!noExit) exit(exit_code);
 }
 
 VM_API bool Exec(OpCode opcode, FObject *fObj) {

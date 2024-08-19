@@ -5,12 +5,24 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif // _MSC_VER
 
-#include <boost/filesystem.hpp>
-#include <fmt/core.h>
-#include <iostream>
-
 #include "vm.hpp"
 #include "serialization/Serialization.hpp"
+#undef error
+#undef theap
+
+#include <boost/filesystem.hpp>
+#include <boost/json.hpp>
+#include <fmt/core.h>
+#include <fmt/color.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+boost::filesystem::path root = boost::filesystem::initial_path<boost::filesystem::path>().parent_path();
+const boost::filesystem::path examples_path = root / "examples" / "compiler";
+
+auto *__stdout = std::cout.rdbuf();
+auto *__stdin = std::cin.rdbuf();
 
 std::string GetCompileDate() {
     return fmt::format("{} {}", __DATE__, __TIME__);
@@ -171,6 +183,47 @@ bool GetFiles(std::vector<boost::filesystem::path> &files, const boost::filesyst
         std::cout << "error: " << e.what();
     }
     return false;
+}
+
+void SetOstream(const std::stringstream &stream) {
+    std::cout.rdbuf(stream.rdbuf());
+}
+
+auto *GetOstream() {
+    return std::cout.rdbuf();
+}
+
+void RestoreOstream() {
+    std::cout.rdbuf(__stdout);
+}
+
+void CheckTest(const std::string &id, const std::string &buf) {
+    std::ifstream file;
+    boost::filesystem::path tests_path(root / "examples" / "compiler" / "tests.json");
+    file.open(tests_path.string());
+    if (!file.is_open()) {
+        fmt::print(fmt::fg(fmt::color::red), "\nerror: cannot find tests.json file\n");
+        exit(1);
+    }
+    boost::json::value jv = boost::json::parse(file);
+    boost::json::object &json = jv.as_object();
+
+    boost::json::array &tests = json["tests"].as_array();
+    for (auto &it : tests) {
+        boost::json::object &test = it.as_object();
+        const std::string &_id = test["id"].as_string().c_str();
+        if (_id == id) {
+            const std::string &_buf = test["buf"].as_string().c_str();
+            if (buf != _buf) {
+                fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' failed, result is wrong\n", id);
+                fmt::print("    Source buffer: {}\n", _buf);
+                fmt::print("    Buffer: {}\n", buf);
+                exit(1);
+            }
+        }
+    }
+
+    fmt::print(fmt::fg(fmt::color::green), "\nTest {} passed\n", id);
 }
 
 #endif //DPP_MODULES_H

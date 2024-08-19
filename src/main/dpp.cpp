@@ -14,16 +14,12 @@
 
 namespace opt = boost::program_options;
 
-boost::filesystem::path root = boost::filesystem::initial_path<boost::filesystem::path>().parent_path();
-const boost::filesystem::path examples_path = root / "examples" / "compiler";
-
 int main(int argc, char *argv[] ) {
     OutputInformation();
     std::cout << "\n\n";
 
-#ifndef TEST
+
     try {
-#endif // !TEST
         opt::options_description desc;
         desc.add_options()
             ("help,h", "Produce help message")
@@ -73,27 +69,34 @@ int main(int argc, char *argv[] ) {
             FObject *fObj;
             uint32_t i = 1;
             for (auto &it : files) {
-                fmt::print("[{}] {}", i, it.filename().string());
+                if (it.extension() != ".dpp") {
+                    continue;
+                }
 
+                fmt::print("[{}] {}\n", i, it.filename().string());
+
+                std::stringstream out;
                 std::ifstream ifs;
                 ifs.open(it.string());
                 fObj = compile(ifs);
                 ifs.close();
 
-                VM_Run(fObj);
-                delete fObj;
-                fObj = nullptr;
+                SetOstream(out);
+                VM_Run(fObj, true);
+                std::string str((std::istreambuf_iterator<char>(GetOstream())), std::istreambuf_iterator<char>());
+                CheckTest(it.filename().string(), str);
+                RestoreOstream();
 
                 std::cout << "\n\n";
                 ++i;
             }
+
+            fmt::print(fmt::fg(fmt::color::green), "\nAll tests passed\n");
         }
 #endif
-#ifndef TEST
     } catch (std::exception &e) {
         std::cerr << "error: " << e.what();
         return 1;
     }
-#endif
     return 0;
 }

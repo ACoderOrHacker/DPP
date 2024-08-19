@@ -9,11 +9,13 @@ _DXX_EXPORT_API Dpp_Object *out(FObject *fObj) {
     }
 
     if (obj->reg == nullptr || obj->reg->to_string == nullptr) {
-        fmt::print("<object '{}' at {}>", obj->name, (uintptr_t)obj);
+		std::cout << "<object" << obj->name << " at " << (uintptr_t)obj << ">";
+        // fmt::print("<object '{}' at {}>", obj->name, (uintptr_t)obj);
         goto END;
     }
 
-    fmt::print("{}", obj->reg->to_string(obj));
+    std::cout << obj->reg->to_string(obj);
+	// fmt::print("{}", obj->reg->to_string());
 END:
     return None;
 }

@@ -4,7 +4,6 @@
 #include <cstdint>
 
 #include "struct.hpp"
-#include "builtin.symbols.hpp"
 
 enum BUILTIN : uint32_t {
     BUILTIN_NULL = 0,
@@ -30,5 +29,21 @@ enum BUILTIN : uint32_t {
 Dpp_Object *newErrorObject();
 
 void initBuiltin();
+
+extern Object Dpp_Null;
+
+extern DXX_API Dpp_Object *Dpp_NullObject;
+
+extern DXX_API Dpp_Object *Dpp_BaseError;
+
+extern DXX_API Dpp_Object *Dpp_NullPointerError;
+
+extern DXX_API Dpp_Object *Dpp_DataCantOperatorError;
+
+extern DXX_API Dpp_Object *Dpp_TypeNotRightError;
+
+extern DXX_API Dpp_Object *Dpp_NoMemoryError;
+
+extern DXX_API Dpp_Object *Dpp_LibNoSymbolError;
 
 #endif // !_DXX_BUILTIN_H

@@ -66,7 +66,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS serialization program_options filesystem)
+find_package(Boost REQUIRED COMPONENTS serialization program_options filesystem json)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
@@ -143,7 +143,7 @@ add_library(compiler SHARED ${COMPILER_FILES} ${ACASSERT_FILES})
 target_link_libraries(compiler antlr4_shared vm fmt::fmt-header-only)
 
 add_executable(dpp src/main/dpp.cpp ${ACASSERT_FILES})
-target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options Boost::filesystem)
+target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options Boost::filesystem Boost::json)
 
 add_executable(debug src/main/debug.cpp src/main/modules.h ${ACASSERT_FILES})
-target_link_libraries(debug vm fmt::fmt-header-only Boost::filesystem)
+target_link_libraries(debug vm fmt::fmt-header-only Boost::filesystem Boost::json)
