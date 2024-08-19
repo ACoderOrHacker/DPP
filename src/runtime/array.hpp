@@ -4,6 +4,7 @@
 #ifndef _ARRAY_H
 #define _ARRAY_H
 #include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <algorithm>
 
@@ -15,6 +16,9 @@ template<typename T> class Array {
 		Array(T fill_data) {
 			array->fill(fill_data);
 		}
+        auto *getContainer() {
+            return array;
+        }
 		T operator [](uint32_t n) {
 			return (array->at(n));
 		}
@@ -31,6 +35,12 @@ template<typename T> class Array {
             array->resize(array->size());
 
             array->insert(array->end(), data);
+        }
+        void rewrite(uint32_t n, T data) {
+            if(array->size() < n) {
+				array->resize(n);
+			}
+            array->at(n) = data;
         }
         void remove(T data) {
             std::ignore = std::remove(array->begin(), array->end(), data);

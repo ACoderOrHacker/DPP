@@ -333,7 +333,7 @@ void StringFree(Dpp_Object *obj) {
 
 void StringInit(Dpp_Object *obj) {
     StringObject *str = (StringObject *)obj;
-    str->val = String();
+    new(&str->val) std::wstring();
 }
 
 // register the based types

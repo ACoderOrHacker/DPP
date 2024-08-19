@@ -475,7 +475,7 @@ void _new(FObject *fObj) {
 		return;
 	}
 
-	fObj->obj_map.write(_to, obj);
+	fObj->obj_map.write(_to, obj, true);
 }
 
 void _del(FObject *fObj) {

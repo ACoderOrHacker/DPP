@@ -589,6 +589,9 @@ public:
         const auto &idex = ctx->ID();
         const std::string &_container = (*idex.begin())->toString();
         Dpp_CObject *container = FindObject(_container);
+        if (container == nullptr) {
+            THROW(fmt::format("cannot find object {}", _container));
+        }
         Dpp_CObject *co = container;
         Object o = container->object;
         if (container == nullptr) {

@@ -3,6 +3,14 @@
         {
             "id" : "enum.dpp",
             "buf": "1 2 114514"
+        },
+        {
+            "id" : "typedef.dpp",
+            "buf": ""
+        },
+        {
+            "id": "variable.dpp",
+            "buf": "1 2 114514"
         }
     ]
 }

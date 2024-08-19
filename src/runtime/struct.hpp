@@ -175,9 +175,10 @@ public:
 		return func_mapping[o.id];
 	}
 
-	void write(Object o, Dpp_Object *obj) {
+	void write(Object o, Dpp_Object *obj, bool isRewrite = false) {
 		Array<Dpp_Object *> func_mapping = this->getMapping(o);
-		func_mapping.write(o.id, obj);
+		if(!isRewrite) func_mapping.write(o.id, obj);
+        else func_mapping.rewrite(o.id, obj);
 	}
 
 	void create_mapping(uint32_t mapping_id, bool is_lambda = false) {
