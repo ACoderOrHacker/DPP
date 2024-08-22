@@ -23,6 +23,7 @@
  */
 
 #include "struct.hpp"
+#include "objects.hpp"
 
 // Runtime Variables
 Object null;
@@ -165,23 +166,28 @@ bool Dpp_Object::print() {
 	}
 }
 
-bool Dpp_Object::move(Dpp_Object *obj) {
+Dpp_Object *Dpp_Object::move(Dpp_Object *obj) {
 	if(obj == nullptr || obj->reg == nullptr) {
-		return false; // object is null, we cannot know its type
+		return nullptr; // object is null, we cannot know its type
 	}
 
 	if(this->reg->type != obj->reg->type) {
-		return false; // cannot move data
+		return nullptr; // cannot move data
 	}
 
-    Dpp_Object *tmp = nullptr;
-    tmp = (Dpp_Object *)std::realloc(obj, sizeof(Dpp_Object) + obj->reg->size);
-    if (tmp != nullptr) {
-        obj = tmp;
-        std::memcpy(obj, this, sizeof(Dpp_Object) + obj->reg->size);
+    Dpp_Object *tmp = NewObject(sizeof(Dpp_Object) + obj->reg->size);
+    if (tmp == nullptr) {
+        return nullptr;
     }
 
-	return true;
+    tmp->reg = reg;
+    tmp->info = info;
+    tmp->isTypeObject = isTypeObject;
+    if(obj->reg->move != nullptr) {
+        tmp->reg->move(this, tmp);
+    }
+    DeleteObject(obj);
+	return tmp;
 }
 
 bool Dpp_Object::moveref(Dpp_Object *obj) {

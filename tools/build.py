@@ -96,7 +96,8 @@ def build():
 def main():
 	global build_type, is_debug
 
-	clean.clean()
+	if "--no-clean" not in sys.argv:
+		clean.clean()
 
 	if "--release" in sys.argv:
 		is_debug = False

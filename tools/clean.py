@@ -3,23 +3,30 @@
 
 import shutil
 
-
-def clean() -> None:
+def delete_dir(path: str) -> None:
 	"""
 
-	:rtype: object
+	:param path:
+	:rtype: None
 	"""
-	# delete the folders
-
 	try:
-		shutil.rmtree("../build/")
-		shutil.rmtree("../cmake-build-debug/")
-		shutil.rmtree("../out/")
-		shutil.rmtree("../bin/")
+		shutil.rmtree(path)
 	except FileNotFoundError:
 		# Not found the folders
 		pass
 
+def clean() -> None:
+	"""
+
+	:rtype: None
+	"""
+	# delete the folders
+
+	delete_dir("../__build__/")
+	delete_dir("../cmake-build-debug/")
+	delete_dir("../out/")
+	delete_dir("../bin/")
+	delete_dir("../build/")
 
 def main() -> None:
 	"""

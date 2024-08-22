@@ -81,8 +81,8 @@ public:
     unsigned is_private : 1 = false;
     unsigned is_constructor : 1 = false;
     unsigned is_destructor : 1 = false;
-    std::string native_library = "";
-    std::string native_function = "";
+    std::string native_library;
+    std::string native_function;
 public:
     bool operator ==(const INFOS &infos) const {
         return is_compiletime == infos.is_compiletime &&
@@ -727,10 +727,12 @@ public:
             THROW(fmt::format("cannot call '{}' because it is not a function", func->id));
         }
 
-        if(func->isNone && func->infos.native_function == "") {
+        if(func->isNone && func->infos.native_function.empty()) {
             THROW(fmt::format("function {} was not defined", func->id));
         }
 
+        // TODO: the autovalue cannot be a function paramter, the code not write it
+        // TODO: cannot compile no-paramter function call
         for(auto *it : ctx->callParamList()->data()) {
             Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(it));
             params.PushData(data->object);
@@ -903,6 +905,36 @@ public:
         }
 
         return null;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitNotClassExpr(DXXParser::NotClassExprContext *ctx) override {
+        rt_opcode op = OPCODE_START;
+        Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
+        Dpp_CObject *co = MakeObject("");
+        if(data->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        if (ctx->Not() != nullptr) {
+            op = OPCODE_NOT;
+        } else if (ctx->Tilde() != nullptr) {
+            op = OPCODE_BNEG;
+        } else if (ctx->PlusPlus() != nullptr) {
+            Dpp_CObject *int1 = MakeInteger(1);
+
+            LoadOpcode(OPCODE_ADD, NO_FLAG, { data->object, int1->object, co->object});
+            return co;
+        } else if (ctx->MinusMinus() != nullptr) {
+            Dpp_CObject *int1 = MakeInteger(1);
+
+            LoadOpcode(OPCODE_SUB, NO_FLAG, { data->object, int1->object, co->object});
+            return co;
+        }
+
+        LoadOpcode(op, NO_FLAG, { data->object, co->object });
     }
 private:
     /*

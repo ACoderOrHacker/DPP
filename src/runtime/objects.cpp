@@ -24,11 +24,11 @@
 
 #include "objects.hpp"
 
-Dpp_Object *NewObject(size_t size) {
+DXX_API Dpp_Object *NewObject(size_t size) {
 	if(size < sizeof(Dpp_Object)) {
 		throw TypeNotRightError(); // failed to new
 	}
-    
+
 	return (Dpp_Object *)malloc(size);
 }
 

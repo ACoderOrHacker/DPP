@@ -1,7 +1,9 @@
 #include "io.h"
 
 _DXX_EXPORT_API Dpp_Object *out(FObject *fObj) {
-    Dpp_Object *obj = fObj->obj_map.get(theap->PopData());
+    Object o = theap->PopFront();
+
+    Dpp_Object *obj = fObj->obj_map.get(o);
 
     if (obj == nullptr) {
         SetError(fObj, Dpp_NullPointerError, L"Cannot output null pointer");
@@ -9,7 +11,7 @@ _DXX_EXPORT_API Dpp_Object *out(FObject *fObj) {
     }
 
     if (obj->reg == nullptr || obj->reg->to_string == nullptr) {
-		std::cout << "<object" << obj->name << " at " << (uintptr_t)obj << ">";
+		std::cout << "<object" << " at " << obj << ">";
         // fmt::print("<object '{}' at {}>", obj->name, (uintptr_t)obj);
         goto END;
     }

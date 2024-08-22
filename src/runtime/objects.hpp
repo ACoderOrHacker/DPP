@@ -25,11 +25,12 @@ SOFTWARE.
 #ifndef DPPDEF_OBJECTS
 #define DPPDEF_OBJECTS
 
+#include <exception>
 #include "struct.hpp"
 #include "macros.hpp"
 #define OBJECT_HEAD Dpp_Object head;
 
-class TypeNotRightError{};
+class TypeNotRightError : std::exception {};
 
 // Warning : All object's value will named 'val'
 struct IntObject {
@@ -44,7 +45,7 @@ struct FloatObject {
 
 struct StringObject {
 	OBJECT_HEAD
-	String val = L""; // string value
+	String val; // string value
 };
 
 #define CLASS_OBJECT OBJECT_HEAD Heap<Dpp_Object *> members;
@@ -83,18 +84,20 @@ template<typename MODEL> struct ModelObject {
 
 // create a object and return the object head
 
-Dpp_Object *NewObject(size_t size);
+DXX_API Dpp_Object *NewObject(size_t size);
 STATUS DeleteObject(Dpp_Object *obj);
 
 template<typename T> Dpp_Object *NewObject() {
-	T *ptr = new T;
+    return (Dpp_Object *)new T;
 
-	return (Dpp_Object *)ptr;
+	// return NewObject(sizeof(T));
 }
 
 template<typename T> void DeleteObject(Dpp_Object *obj) {
-	T del_obj = (T)obj;
-	delete del_obj;
+    delete (T *)obj;
+    obj = nullptr;
+
+	// DeleteObject(obj);
 }
 
 template<typename T, typename RTN_T> inline RTN_T GetObjectData(Dpp_Object *obj) {

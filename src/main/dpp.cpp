@@ -23,8 +23,9 @@ int main(int argc, char *argv[] ) {
         opt::options_description desc;
         desc.add_options()
             ("help,h", "Produce help message")
-            ("compile,c", opt::value<std::vector<std::string>>(), "Compile a D++ source file")
+            ("compile,c", opt::value<std::vector<std::string>>(),"Compile a D++ source file")
             ("list,l", opt::value<std::vector<std::string>>(), "List Opcodes of files")
+            ("run,r", opt::value<std::string>(), "Run a D++ source file")
 #ifdef _COMPILE_TEST
             ("compile-test,t", "Compile the test")
 #endif
@@ -42,6 +43,16 @@ int main(int argc, char *argv[] ) {
         }
         else if (vm.count("file")) {
             // TODO: Not Success
+        }
+        else if(vm.count("run")) {
+            std::ifstream ifs;
+            ifs.open(vm["run"].as<std::string>());
+            FObject *fObj = compile(ifs);
+            ifs.close();
+
+            VM_Run(fObj, true);
+            delete fObj;
+            fObj = nullptr;
         }
         else if (vm.count("list")) {
             uint32_t i = 0;
@@ -84,6 +95,7 @@ int main(int argc, char *argv[] ) {
                 SetOstream(out);
                 VM_Run(fObj, true);
                 std::string str((std::istreambuf_iterator<char>(GetOstream())), std::istreambuf_iterator<char>());
+                std::cout << "Output result: " << str << "\n";
                 CheckTest(it.filename().string(), str);
                 RestoreOstream();
 

@@ -10,7 +10,11 @@
         },
         {
             "id": "variable.dpp",
-            "buf": "1 2 114514"
+            "buf": "114514 1919810 \"Hello, world!\""
+        },
+        {
+            "id": "operators.dpp",
+            "buf": "114514"
         }
     ]
 }

@@ -23,6 +23,8 @@
  */
 
 #include "opcodes.hpp"
+#include <cstdint>
+#include "struct.hpp"
 
 struct Version version; // Runtime Machine Version
 
@@ -46,7 +48,7 @@ void _add(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _sub(FObject *fObj) {
@@ -67,7 +69,7 @@ void _sub(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _mul(FObject *fObj) {
@@ -91,7 +93,7 @@ void _mul(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _div(FObject *fObj) {
@@ -113,7 +115,7 @@ void _div(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _mod(FObject *fObj) {
@@ -135,7 +137,7 @@ void _mod(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _bneg(FObject *fObj) {
@@ -147,7 +149,7 @@ void _bneg(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _band(FObject *fObj) {
@@ -169,7 +171,7 @@ void _band(FObject *fObj) {
 		return;
 	}
 
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _bor(FObject *fObj) {
@@ -191,7 +193,7 @@ void _bor(FObject *fObj) {
 		return;
 	}
 
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _bxor(FObject *fObj) {
@@ -213,7 +215,7 @@ void _bxor(FObject *fObj) {
 		return;
 	}
 
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _shl(FObject *fObj) {
@@ -235,7 +237,7 @@ void _shl(FObject *fObj) {
 		return;
 	}
 
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _shr(FObject *fObj) {
@@ -257,7 +259,7 @@ void _shr(FObject *fObj) {
 		return;
 	}
 
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _not(FObject *fObj) {
@@ -269,7 +271,7 @@ void _not(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _eq(FObject *fObj) {
@@ -291,7 +293,7 @@ void _eq(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _bigger(FObject *fObj) {
@@ -313,7 +315,7 @@ void _bigger(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _smaller(FObject *fObj) {
@@ -335,7 +337,7 @@ void _smaller(FObject *fObj) {
 	if(_c == nullptr) {
 		SetError(fObj, Dpp_DataCantOperatorError, L"");
 	}
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _and(FObject *fObj) {
@@ -347,7 +349,7 @@ void _and(FObject *fObj) {
 	Dpp_Object *robj = fObj->obj_map.get(_robj);
 
 	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) && isTrue(robj));
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _or(FObject *fObj) {
@@ -359,7 +361,7 @@ void _or(FObject *fObj) {
 	Dpp_Object *robj = fObj->obj_map.get(_robj);
 
 	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) || isTrue(robj));
-	fObj->obj_map.write(to, _c);
+	fObj->obj_map.write(to, _c, true);
 }
 
 void _jmp(FObject *fObj) {
@@ -381,8 +383,10 @@ void _call(FObject *fObj) {
 	Object _func = *theap->begin();
     FunctionObject *func = (FunctionObject *)fObj->obj_map.get(_func);
 
-    fObj->obj_map.create_mapping(1);
-    for (auto &param : func->params) {
+    fObj->obj_map.create_mapping(fObj->obj_map.getLastCreateID());
+    uint32_t i = 0;
+    for (; i < func->params.size(); ++i){
+        const Object &param = func->params.GetData(i);
         fObj->obj_map.write(param, fObj->obj_map.get(theap->PopFront()));
     }
     fObj->callstack.push(fObj->state);
@@ -409,7 +413,7 @@ void _calln(FObject *fObj) {
 		Dpp_Object *ret = func(fObj);
         if (ret != nullptr) {
             Object _to = theap->PopFront();
-            fObj->obj_map.write(_to, ret);
+            fObj->obj_map.write(_to, ret, true);
         }
     }
     else {
@@ -465,7 +469,8 @@ void _new(FObject *fObj) {
 	Dpp_Object *obj = nullptr;
 	try {
 		obj = NewObject(type->reg->size + sizeof(Dpp_Object));
-        obj->reg = type->reg;
+        obj->reg = new RegType;
+        *obj->reg = *type->reg;
         obj->reg->init(obj);
 	} catch(std::bad_alloc &) {
         SetError(fObj, Dpp_NoMemoryError, L"");
@@ -502,11 +507,13 @@ void _mov(FObject *fObj) {
         return;
     }
 
-	bool status = src->move(to);
-	if(!status) {
+	Dpp_Object *status = src->move(to);
+	if(status == nullptr) {
 		// failed
         SetError(fObj, Dpp_TypeNotRightError, L"");
 	}
+
+    fObj->obj_map.write(_to, status, true);
 }
 
 void _method(FObject *fObj) {
@@ -519,7 +526,7 @@ void _method(FObject *fObj) {
 void _exit(FObject *fObj) {
 	Object _exitcode = theap->PopFront();
 
-	fObj->exit_code = _exitcode.id;
+	fObj->exit_code = (int)_exitcode.id;
 	fObj->sig->PushData(EXIT);
 }
 /*

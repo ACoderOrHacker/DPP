@@ -23,6 +23,7 @@
  */
 
 #include "register.hpp"
+#include "struct.hpp"
 
 DXX_API struct RegType IntType;
 struct RegType FloatType;
@@ -30,7 +31,7 @@ struct RegType StringType;
 struct RegType ClassType;
 struct RegType ErrorType;
 struct RegType FunctionType;
-class NoType{};
+class NoType : std::exception {};
 
 struct _LinkType {
 	RegType reg;
@@ -51,6 +52,7 @@ DXX_API RegType *GetReg(const std::type_info &type) {
 
 DXX_API Dpp_Object *mkFunction(std::string id) {
     Dpp_Object *o = NewObject<FunctionObject>();
+    new(&o->name) std::string();
     FunctionObject *func = (FunctionObject *)o;
 
     o->name = id;
@@ -213,12 +215,19 @@ bool IntPrint(Dpp_Object *print_obj) {
 }
 
 void IntFree(Dpp_Object *obj) {
-    delete (IntObject *)obj;
+    std::free(obj);
+    // delete (IntObject *)obj;
 }
 
 void IntInit(Dpp_Object *obj) {
     IntObject *idata = (IntObject *)obj;
     idata->val = 0;
+}
+
+void IntMove(Dpp_Object *src, Dpp_Object *dst) {
+    IntObject *src_data = (IntObject *)src;
+    IntObject *dst_data = (IntObject *)dst;
+    dst_data->val = src_data->val;
 }
 
 Dpp_Object *FloatAdd(Dpp_Object *lval, Dpp_Object *rval) {
@@ -291,12 +300,19 @@ bool FloatPrint(Dpp_Object *print_obj) {
 }
 
 void FloatFree(Dpp_Object *obj) {
-    delete (FloatObject *)obj;
+    std::free(obj);
+    // delete (FloatObject *)obj;
 }
 
 void FloatInit(Dpp_Object *obj) {
     FloatObject *fdata = (FloatObject *)obj;
     fdata->val = 0.0f;
+}
+
+void FloatMove(Dpp_Object *src, Dpp_Object *dst) {
+    FloatObject *src_data = (FloatObject *)src;
+    FloatObject *dst_data = (FloatObject *)dst;
+    dst_data->val = src_data->val;
 }
 
 // for string
@@ -328,7 +344,8 @@ bool StringPrint(Dpp_Object *print_obj) {
 }
 
 void StringFree(Dpp_Object *obj) {
-    delete (StringObject *)obj;
+    std::free(obj);
+    // delete (StringObject *)obj;
 }
 
 void StringInit(Dpp_Object *obj) {
@@ -336,12 +353,18 @@ void StringInit(Dpp_Object *obj) {
     new(&str->val) std::wstring();
 }
 
+void StringMove(Dpp_Object *src, Dpp_Object *dst) {
+    StringObject *src_data = (StringObject *)src;
+    StringObject *dst_data = (StringObject *)dst;
+    new(&dst_data->val) std::wstring(src_data->val);
+}
+
 // register the based types
 DXX_API void RegInit(FObject *fObj) {
 	// init the types
-	IntType = {"int", INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, &IntToString, &IntFree, &IntInit};
-    FloatType = { "float", FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, &FloatToString, &FloatFree,  &FloatInit};
-	StringType = {"string", STRING_TYPE, sizeof(String), &StringAdd, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &StringPrint, &StringToString, &StringFree, &StringInit};
+	IntType = {"int", INT_TYPE, sizeof(Interger), &IntAdd, &IntSub, &IntMul, &IntDiv, &IntMod, &IntShl, &IntShr, &IntBand, &IntBor, &IntBxor, &IntBneg, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &IntPrint, &IntToString, &StdFree, &IntInit, &IntMove};
+    FloatType = { "float", FLOAT_TYPE, sizeof(FloatNum), &FloatAdd, &FloatSub, &FloatMul, &FloatDiv, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &FloatPrint, &FloatToString, &StdFree,  &FloatInit, &FloatMove};
+	StringType = {"string", STRING_TYPE, sizeof(String), &StringAdd, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &StdBigger, &StdSmaller, &StdEqual, &StdNot, &StringPrint, &StringToString, &StdFree, &StringInit, &StringMove};
     ClassType.type = CLASS_TYPE;
     ErrorType.type = ERROR_TYPE;
     FunctionType.type = FUNCTION_TYPE;
@@ -360,6 +383,15 @@ DXX_API void RegInit(FObject *fObj) {
     Dpp_Object *__classtype = NewObject<ObjectObject>();
     Dpp_Object *__errortype = NewObject<ObjectObject>();
     Dpp_Object *__functiontype = NewObject<ObjectObject>();
+
+    new(&__nullval->name) std::string();
+    new(&__nullptrerror->name) std::string();
+    new(&__inttype->name) std::string();
+    new(&__floattype->name) std::string();
+    new(&__stringtype->name) std::string();
+    new(&__classtype->name) std::string();
+    new(&__errortype->name) std::string();
+    new(&__functiontype->name) std::string();
 
     __nullval->reg = {};
     __nullptrerror->reg = &ErrorType;
@@ -397,6 +429,10 @@ DXX_API void RegInit(FObject *fObj) {
 }
 
 inline void RegSet(Dpp_Object *obj, RegType *reg) {obj->reg = reg;}
+
+void StdFree(Dpp_Object *obj) {
+    std::free(obj);
+}
 
 Dpp_Object *StdBigger(Dpp_Object *lval, Dpp_Object *rval) {
 	if(lval == nullptr || rval == nullptr) {

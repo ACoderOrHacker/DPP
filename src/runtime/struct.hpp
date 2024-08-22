@@ -24,7 +24,7 @@
 
 #ifndef _STRUCT_H
 #define _STRUCT_H
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -88,6 +88,7 @@ typedef Dpp_Object *(* logic_func)(Dpp_Object *, Dpp_Object *);
 typedef Dpp_Object *(* logic_func1)(Dpp_Object *);
 typedef void (* mem_free_func)(Dpp_Object *);
 typedef void (* init_func)(Dpp_Object *);
+typedef void (* mov_func)(Dpp_Object *, Dpp_Object *);
 
 Dpp_Object *StdBigger(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdSmaller(Dpp_Object *, Dpp_Object *);
@@ -122,6 +123,7 @@ struct RegType {
 
 	mem_free_func mem_free = nullptr; // free the data
     init_func init = nullptr;
+    mov_func move = nullptr;
 };
 
 class Dpp_Object {
@@ -142,7 +144,7 @@ class Dpp_Object {
 		Dpp_Object *operator ^(Dpp_Object *obj);
 		Dpp_Object *operator ~();
 		bool print();
-		bool move(Dpp_Object *obj); // move object to object
+		Dpp_Object *move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
 
 	public:

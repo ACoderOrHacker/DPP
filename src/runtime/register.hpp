@@ -107,6 +107,7 @@ std::string StringToString(Dpp_Object *val);
 DXX_API void RegInit(FObject *fObj);
 inline void RegSet(Dpp_Object *obj, RegType *reg);
 
+void StdFree(Dpp_Object *obj);
 Dpp_Object *StdBigger(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *StdSmaller(Dpp_Object *lval, Dpp_Object *rval);
 Dpp_Object *StdEqual(Dpp_Object *lval, Dpp_Object *rval);

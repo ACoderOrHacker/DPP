@@ -1,10 +1,13 @@
-int a;
-int b=1;
-string s = "\"\""
-final set_b() => void {
-    b=2;
-}
+native("io", "out") out(object o) => void;
+
+int a = 114514;
+int b = 1919810;
+string s = "\"Hello, world!\"";
 
 main() => void {
-
+    out(a);
+    out(" ");
+    out(b);
+    out(" ");
+    out(s);
 }
