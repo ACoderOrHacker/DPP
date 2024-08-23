@@ -10,7 +10,7 @@
 </div>
 
 ---
-**D++** is a power, fast programming language.
+**D++** is a **power**, **fast** programming language.
 
 ### Overview
 
