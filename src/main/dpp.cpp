@@ -84,6 +84,7 @@ int main(int argc, char *argv[] ) {
                     continue;
                 }
 
+
                 fmt::print("[{}] {}\n", i, it.filename().string());
 
                 std::stringstream out;

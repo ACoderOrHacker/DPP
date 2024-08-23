@@ -167,7 +167,7 @@ bool Dpp_Object::print() {
 }
 
 Dpp_Object *Dpp_Object::move(Dpp_Object *obj) {
-	if(obj == nullptr || obj->reg == nullptr) {
+	if(obj == nullptr || obj->reg == nullptr || reg == nullptr) {
 		return nullptr; // object is null, we cannot know its type
 	}
 

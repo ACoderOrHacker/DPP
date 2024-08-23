@@ -21,21 +21,21 @@ Refer to their respective `README.md` for more in-depth information.
 |------------------------------------------|--------------------------------------------------|
 | [changelog](CHANGELOG)                   | changelog entries for the upcoming release       |
 | [src/compiler](src/compiler)             | source code, build system and build instructions |
-| [src/compiler/test](src/compiler/test)   | tests and testing infrastructure                 |
-| [docs](doc/compiler/index.md)            | man pages and internal documentation             |
-| [compiler/samples](src/compiler/samples) | Various code examples                            |
+| [docs](doc/compiler/index.md)            | man pages and internal documentation             |                       |
 | [runtime](src/runtime/)                  | root of runtime                                  |
 
 ### Build
 
 #### Windows(MSVC)
 ```
-python tools/build.py --msvc
+cd tools
+python build.py --msvc
 ```
 
 #### Linux
 ```
-python tools/build.py
+cd tools
+python build.py
 ```
 
 ### IDES

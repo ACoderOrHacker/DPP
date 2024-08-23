@@ -323,6 +323,7 @@ public:
         make_type("void", VOID_TYPE);
         make_type("object", OBJECT_TYPE);
         make_type("type", TYPE_TYPE);
+        make_type("bool", INT_TYPE);
     }
 
     std::any visit(antlr4::tree::ParseTree *tree) override {
@@ -354,30 +355,6 @@ public:
     }
 
     /*
-     * @return: NONE
-     * Create a block at fObj->state
-     */
-    std::any visitBlock(DXXParser::BlockContext *ctx) override {
-        if(blockNoNamespace) {
-            namespaces.push(thisNamespace);
-            thisNamespace = thisNamespace->NewNamespace();
-        }
-
-        for (auto it : ctx->expressions()) {
-            visitChildren(it);
-        }
-
-        block_end = fObj->state.vmopcodes.size();
-
-        if(blockNoNamespace) {
-            thisNamespace = namespaces.top();
-            namespaces.pop();
-        }
-
-        return NONE;
-    }
-
-    /*
      * @return: Heap<OpCode>
      * get all opcodes from block
      */
@@ -394,6 +371,30 @@ public:
         fObj->callstack.pop();
 
         return block.vmopcodes;
+    }
+
+    /*
+     * @return: NONE
+     * Create a block at fObj->state
+     */
+    std::any visitBlock(DXXParser::BlockContext *ctx) override {
+        if(blockNoNamespace) {
+            namespaces.push(thisNamespace);
+            thisNamespace = thisNamespace->NewNamespace();
+        }
+
+        for (auto it : ctx->expressions()) {
+			DXXParserBaseVisitor::visit(it);
+        }
+
+        block_end = fObj->state.vmopcodes.size();
+
+        if(blockNoNamespace) {
+            thisNamespace = namespaces.top();
+            namespaces.pop();
+        }
+
+        return NONE;
     }
 
     /*
@@ -554,7 +555,7 @@ public:
         if (!noLoadVarOp) {
             LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, to->object });
             if (_data != nullptr) {
-                data = anycast(Dpp_CObject *, visitChildren(_data));
+                data = anycast(Dpp_CObject *, DXXParserVisitor::visit(_data));
                 LoadOpcode(OPCODE_MOV, NO_FLAG, { data->object, to->object });
             }
         }
@@ -574,7 +575,7 @@ public:
      */
 	std::any visitVarSet(DXXParser::VarSetContext *ctx) override {
 		Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
-		Dpp_CObject *val = anycast(Dpp_CObject *, visitChildren(ctx->data()));
+		Dpp_CObject *val = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
 		LoadOpcode(OPCODE_MOV, NO_FLAG, { val->object, o->object });
 
@@ -668,7 +669,7 @@ public:
         char flag = NO_FLAG;
         SetBit1(flag, JMP_FALSE);
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
-        Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
         visitBlock(ctx->block());
         Object jmp_to = {true, block_end};
@@ -687,7 +688,7 @@ public:
         SetBit1(flag, JMP_FALSE);
 
         for (auto it : ctx->withIfExtendsSub()) {
-            Dpp_CObject *is_jmp = anycast(Dpp_CObject *, visitChildren(it->data()));
+            Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it->data()));
             Heap<OpCode> block = GetOpcodes(it->block());
             Object next_block_begin = { true, (uint32_t)(block.size() + fObj->state.vmopcodes.size() + 1)};
             LoadOpcode(OPCODE_JMP, flag, {next_block_begin, is_jmp->object});
@@ -734,7 +735,7 @@ public:
         // TODO: the autovalue cannot be a function paramter, the code not write it
         // TODO: cannot compile no-paramter function call
         for(auto *it : ctx->callParamList()->data()) {
-            Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(it));
+            Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it));
             params.PushData(data->object);
             param_list.PushData(data);
         }
@@ -854,7 +855,7 @@ public:
      * Make 'delete' opcode
      */
 	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
-		Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
+		Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
         LoadOpcode(OPCODE_DEL, NO_FLAG, { data->object });
 
@@ -912,7 +913,7 @@ public:
      */
     std::any visitNotClassExpr(DXXParser::NotClassExprContext *ctx) override {
         rt_opcode op = OPCODE_START;
-        Dpp_CObject *data = anycast(Dpp_CObject *, visitChildren(ctx->data()));
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         Dpp_CObject *co = MakeObject("");
         if(data->type == VOID_TYPE) {
             THROW("cannot use operator on void type");
@@ -935,6 +936,7 @@ public:
         }
 
         LoadOpcode(op, NO_FLAG, { data->object, co->object });
+        return co;
     }
 private:
     /*
