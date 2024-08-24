@@ -15,10 +15,6 @@
 namespace opt = boost::program_options;
 
 int main(int argc, char *argv[] ) {
-    OutputInformation();
-    std::cout << "\n\n";
-
-
     try {
         opt::options_description desc;
         desc.add_options()
@@ -37,12 +33,12 @@ int main(int argc, char *argv[] ) {
         opt::notify(vm);
 
         if (vm.count("help") || vm.empty()) {
+            OutputInformation();
+            std::cout << "\n\n";
+
             fmt::print("Usage: dpp [options]\n\n");
             std::cout << desc;
             return 0;
-        }
-        else if (vm.count("file")) {
-            // TODO: Not Success
         }
         else if(vm.count("run")) {
             std::ifstream ifs;
@@ -50,11 +46,12 @@ int main(int argc, char *argv[] ) {
             FObject *fObj = compile(ifs);
             ifs.close();
 
-            VM_Run(fObj, true);
-            delete fObj;
-            fObj = nullptr;
+            VM_Run(fObj, false);
         }
         else if (vm.count("list")) {
+            OutputInformation();
+            std::cout << "\n\n";
+
             uint32_t i = 0;
             for (auto &it : vm["list"].as<std::vector<std::string>>()) {
                 fmt::print("[{}] {}", i, it);
@@ -74,6 +71,9 @@ int main(int argc, char *argv[] ) {
         }
 #ifdef _COMPILE_TEST
         else if (vm.count("compile-test")) {
+            OutputInformation();
+            std::cout << "\n\n";
+
             std::vector<boost::filesystem::path> files;
             GetFiles(files, examples_path);
 

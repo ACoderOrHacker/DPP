@@ -2,17 +2,29 @@ native("io", "out") out(object o) => void;
 
 int j = 1;
 int a = ~j;
-bool c = true;
-bool b = !c;
+bool b = true;
+bool c = !b;
 int d = ++j;
 int e = --j;
+bool f = b && c;
+bool g = b || c;
+bool h = 3 == 4;
+bool i = 3 != 4;
 
 main() => void {
     out(a);
     out(" ");
-    out(b);
+    out(c);
     out(" ");
     out(d);
     out(" ");
     out(e);
+    out(" ");
+    out(f);
+    out(" ");
+    out(g);
+    out(" ");
+    out(h);
+    out(" ");
+    out(i);
 }

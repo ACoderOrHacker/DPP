@@ -25,6 +25,9 @@
 /*
   This is an external library that contains all the export functions of the VM
 */
+#ifndef _DPP_VM_H
+#define _DPP_VM_H
+
 #include <thread>
 #include "acoder/acassert/acassert.h"
 #include "builtin.hpp"
@@ -53,4 +56,6 @@ forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id);
 forceinline VM_API const char *GetFlagName(uint8_t i);
 VM_API FObject *MakeVM();
 VM_API bool Exec(OpCode, FObject *);
-VM_API void VM_Run(FObject *fObj, bool noExit);
+VM_API void VM_Run(FObject *fObj, bool noExit = false);
+
+#endif //!_DPP_VM_H

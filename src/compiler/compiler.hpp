@@ -555,14 +555,14 @@ public:
         if (!noLoadVarOp) {
             LoadOpcode(OPCODE_NEW, NO_FLAG, { type->object, to->object });
             if (_data != nullptr) {
-                data = anycast(Dpp_CObject *, DXXParserVisitor::visit(_data));
+                data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
                 LoadOpcode(OPCODE_MOV, NO_FLAG, { data->object, to->object });
             }
         }
 
         if (varDefineAutovalue) {
             if (_data != nullptr) {
-                func_param_autovalue = anycast(Dpp_CObject *, visitChildren(_data));
+                func_param_autovalue = anycast(Dpp_CObject *, (_data));
             }
         }
 
@@ -938,6 +938,69 @@ public:
         LoadOpcode(op, NO_FLAG, { data->object, co->object });
         return co;
     }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitAndandExpr(DXXParser::AndandExprContext *ctx) override {
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+        LoadOpcode(OPCODE_AND, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitOrorExpr(DXXParser::OrorExprContext *ctx) override {
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+        LoadOpcode(OPCODE_OR, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitEqualOrNotEqualExpr(DXXParser::EqualOrNotEqualExprContext *ctx) override {
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+        LoadOpcode(OPCODE_EQ, NO_FLAG, { ldata->object, rdata->object, co->object });
+        if (ctx->NotEqual() != nullptr) {
+            Dpp_CObject *co2 = MakeObject("");
+            LoadOpcode(OPCODE_NOT, NO_FLAG, { co->object, co2->object });
+            return co2;
+        }
+
+        return co;
+    }
+
 private:
     /*
      * @return: bool

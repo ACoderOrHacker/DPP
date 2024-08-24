@@ -51,8 +51,8 @@ data:
 	constant												# constantExpr // Done
 	| idEx													# idExExpr // Done
 	| functionCall											# functionCallExpr // May Done
-	| LeftParen data? RightParen							# parens // simple: (1+2)/3 Change priorities // Done
-	| (Not | Tilde | PlusPlus | MinusMinus) data			# notClassExpr // simple: !114, ~114, ++i, --i
+	| LeftParen data RightParen							    # parens // simple: (1+2)/3 Change priorities // Done
+	| (Not | Tilde | PlusPlus | MinusMinus) data			# notClassExpr // simple: !114, ~114, ++i, --i // Done
 	| data AndAnd data										# andandExpr
 	| data OrOr data										# ororExpr
 	| data (Equal | NotEqual) data							# equalOrNotEqualExpr // simple: 1 == 1, 2 != 1

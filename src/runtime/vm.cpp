@@ -113,7 +113,7 @@ VM_API FObject *MakeVM() {
 	return fObj;
 }
 
-VM_API void VM_Run(FObject *fObj, bool noExit = false) {
+VM_API void VM_Run(FObject *fObj, bool noExit) {
     uint32_t i = 0;
     for (auto &it : fObj->modules) {
         Module vm_module = OpenNativeLib((it + PLATFORM_LIB_EX).c_str());
