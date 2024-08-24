@@ -21,10 +21,11 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
  */
-
+#ifndef _COMPILER_H
 #include <cstdint>
 #include "DXXParser.h"
-#ifndef _COMPILER_H
+#include "DXXParserBaseVisitor.h"
+
 #include <string>
 #include <fstream>
 #include <any>
@@ -34,7 +35,6 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include "DXXParserBaseVisitor.h"
 #include "acdpp.h"
 #include "vm.hpp"
 #include "builtin.hpp"
@@ -293,7 +293,7 @@ class DXXVisitor : public DXXParserBaseVisitor {
 public:
     explicit DXXVisitor(FObject *_fObj = nullptr) {
         if (_fObj != nullptr) fObj = _fObj;
-        else fObj = new FObject, RegInit(fObj);
+        else fObj = MakeVM();
 
         block_end = 0;
 
@@ -1369,7 +1369,7 @@ private:
             infos.is_final = true;
         } else if(id == "native") {
             infos.native_function = native_func;
-            infos.native_library = native_lib;
+            infos.native_library = std::string(LIB_PREFIX) + native_lib;
         } else if(id == "constructor") {
             infos.is_constructor = true;
         } else if(id == "destructor") {

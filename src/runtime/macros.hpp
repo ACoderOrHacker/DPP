@@ -27,8 +27,10 @@ typedef bool STATUS;
 #define SetBit0(x, bit) ((x) &= ~ (1 << (bit)))
 
 #ifdef _WIN32
+#define LIB_PREFIX ""
 #define PLATFORM_LIB_EX ".dll"
 #elif defined(__linux__)
+#define LIB_PREFIX "lib"
 #define PLATFORM_LIB_EX ".so"
 #endif
 
