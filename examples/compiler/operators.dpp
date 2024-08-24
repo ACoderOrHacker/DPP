@@ -10,6 +10,17 @@ bool f = b && c;
 bool g = b || c;
 bool h = 3 == 4;
 bool i = 3 != 4;
+int k = 3 * 4;
+int l = 8 / 4;
+int m = 7 % 4;
+int n = 3 + 4;
+int o = 3 - 4;
+int p = 3 << 4;
+int q = 3 >> 4;
+bool r = 3 < 4;
+bool s = 3 > 4;
+bool t = 3 <= 4;
+bool u = 3 >= 4;
 
 main() => void {
     out(a);
@@ -27,4 +38,26 @@ main() => void {
     out(h);
     out(" ");
     out(i);
+    out(" ");
+    out(k);
+    out(" ");
+    out(l);
+    out(" ");
+    out(m);
+    out(" ");
+    out(n);
+    out(" ");
+    out(o);
+    out(" ");
+    out(p);
+    out(" ");
+    out(q);
+    out(" ");
+    out(r);
+    out(" ");
+    out(s);
+    out(" ");
+    out(t);
+    out(" ");
+    out(u);
 }

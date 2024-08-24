@@ -131,7 +131,7 @@ VM_API void VM_Run(FObject *fObj, bool noExit) {
 		// execute the opcode and get the error code(isfail variable)
 		bool isfail = Exec(opcode, fObj);
 
-		if(isfail) {
+		if(isfail && fObj->_error != nullptr) {
 			// the opcode has error
 			if(GetBit(fObj->flags, NO_OPCODE)) {
 				// has a unknown opcode

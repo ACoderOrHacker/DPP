@@ -53,13 +53,13 @@ data:
 	| functionCall											# functionCallExpr // May Done
 	| LeftParen data RightParen							    # parens // simple: (1+2)/3 Change priorities // Done
 	| (Not | Tilde | PlusPlus | MinusMinus) data			# notClassExpr // simple: !114, ~114, ++i, --i // Done
-	| data AndAnd data										# andandExpr
-	| data OrOr data										# ororExpr
-	| data (Equal | NotEqual) data							# equalOrNotEqualExpr // simple: 1 == 1, 2 != 1
-	| data (Star | Div | Mod) data							# starClassExpr // simple: 1 * 2, 1 / 2, 1 % 2
-	| data (Plus | Minus) data								# plusClassExpr // simple: 1 + 2, 1 - 2
-	| data (LeftShift | RightShift) data					# leftOrRightShiftExpr // simple: 1 << 2, 1 >> 2
-	| data (Less | Greater | LessEqual | GreaterEqual) data	# lessClassExpr
+	| data AndAnd data										# andandExpr // Done
+	| data OrOr data										# ororExpr // Done
+	| data (Equal | NotEqual) data							# equalOrNotEqualExpr // simple: 1 == 1, 2 != 1 // Done
+	| data (Star | Div | Mod) data							# starClassExpr // simple: 1 * 2, 1 / 2, 1 % 2 // Done
+	| data (Plus | Minus) data								# plusClassExpr // simple: 1 + 2, 1 - 2 // Done
+	| data (LeftShift | RightShift) data					# leftOrRightShiftExpr // simple: 1 << 2, 1 >> 2 // Done
+	| data (Less | Greater | LessEqual | GreaterEqual) data	# lessClassExpr // Done
 	// simple: 1 < 2, 2 > 1, 1 <= 2, 2 >=1
 	| data And data		# andExpr
 	| data Caret data	# caretExpr

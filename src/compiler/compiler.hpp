@@ -21,6 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
  */
+#include "enum.hpp"
 #ifndef _COMPILER_H
 #include <cstdint>
 #include "DXXParser.h"
@@ -1001,6 +1002,127 @@ public:
         return co;
     }
 
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitStarClassExpr(DXXParser::StarClassExprContext *ctx) override {
+        rt_opcode op = OPCODE_START;
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        if (ctx->Star() != nullptr) {
+            op = OPCODE_MUL;
+        } else if (ctx->Div()!= nullptr) {
+            op = OPCODE_DIV;
+        } else if (ctx->Mod()!= nullptr) {
+            op = OPCODE_MOD;
+        }
+        LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitPlusClassExpr(DXXParser::PlusClassExprContext *ctx) override {
+        rt_opcode op = OPCODE_START;
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        if (ctx->Plus() != nullptr) {
+            op = OPCODE_ADD;
+        } else if (ctx->Minus()!= nullptr) {
+            op = OPCODE_SUB;
+        }
+        LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitLeftOrRightShiftExpr(DXXParser::LeftOrRightShiftExprContext *ctx) override {
+        rt_opcode op = OPCODE_START;
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        if (ctx->LeftShift() != nullptr) {
+            op = OPCODE_SHL;
+        } else if (ctx->RightShift() != nullptr) {
+            op = OPCODE_SHR;
+        }
+        LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitLessClassExpr(DXXParser::LessClassExprContext *ctx) override {
+        rt_opcode op = OPCODE_START;
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        if (ctx->Less() != nullptr) {
+            op = OPCODE_SMALLER;
+        } else if (ctx->Greater()!= nullptr) {
+            op = OPCODE_BIGGER;
+        }
+        LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
+        if (op != OPCODE_START) return co;
+
+        if (ctx->LessEqual() != nullptr) {
+            Dpp_CObject *less_tmp = MakeObject("");
+            Dpp_CObject *equal_tmp = MakeObject("");
+
+            LoadOpcode(OPCODE_SMALLER, NO_FLAG, { ldata->object, rdata->object, less_tmp->object });
+            LoadOpcode(OPCODE_EQ, NO_FLAG, { ldata->object, rdata->object, equal_tmp->object });
+            LoadOpcode(OPCODE_OR, NO_FLAG, { less_tmp->object, equal_tmp->object, co->object });
+        } else if (ctx->GreaterEqual() != nullptr) {
+            Dpp_CObject *greater_tmp = MakeObject("");
+            Dpp_CObject *equal_tmp = MakeObject("");
+
+            LoadOpcode(OPCODE_BIGGER, NO_FLAG, { ldata->object, rdata->object, greater_tmp->object });
+            LoadOpcode(OPCODE_EQ, NO_FLAG, { ldata->object, rdata->object, equal_tmp->object });
+            LoadOpcode(OPCODE_OR, NO_FLAG, { greater_tmp->object, equal_tmp->object, co->object });
+        }
+        return co;
+    }
 private:
     /*
      * @return: bool
