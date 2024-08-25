@@ -61,9 +61,9 @@ data:
 	| data (LeftShift | RightShift) data					# leftOrRightShiftExpr // simple: 1 << 2, 1 >> 2 // Done
 	| data (Less | Greater | LessEqual | GreaterEqual) data	# lessClassExpr // Done
 	// simple: 1 < 2, 2 > 1, 1 <= 2, 2 >=1
-	| data And data		# andExpr
-	| data Caret data	# caretExpr
-	| data Or data		# orExpr
+	| data And data		# andExpr // Done
+	| data Caret data	# caretExpr // Done
+	| data Or data		# orExpr // Done
 	| negative			# negativeExpr
 	| lambdaFunction	# lambdaFunctionExpr
 	| theType			# typeExpr

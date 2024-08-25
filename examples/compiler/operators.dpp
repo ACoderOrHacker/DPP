@@ -21,6 +21,9 @@ bool r = 3 < 4;
 bool s = 3 > 4;
 bool t = 3 <= 4;
 bool u = 3 >= 4;
+int v = 3 ^ 4;
+int w = 3 & 4;
+int x = 3 | 4;
 
 main() => void {
     out(a);
@@ -60,4 +63,10 @@ main() => void {
     out(t);
     out(" ");
     out(u);
+    out(" ");
+    out(v);
+    out(" ");
+    out(w);
+    out(" ");
+    out(x);
 }

@@ -154,13 +154,15 @@ public:
     void *metadata[8] = {};
 public:
     bool operator ==(_Dpp_CObject *co) const {
-        if(co->id != id || co->type != type || co->infos != infos) {
+        if(co->id != id || co->type != type) {
             return false;
         }
 
 #define METADATA_EQ(pos, type) (*_cast(type *, co->metadata[(pos)]) == *_cast(type *, metadata[(pos)]))
         switch(type) {
             case FUNCTION_TYPE:
+            if (co->infos != infos) return false;
+
             if (METADATA_EQ(function::FUNCTION_METADATA::PARAMS, Heap<_Dpp_CObject *>)      &&
                 METADATA_EQ(function::FUNCTION_METADATA::AUTOVALUES, Heap<_Dpp_CObject *>) &&
                 METADATA_EQ(function::FUNCTION_METADATA::THROW_TABLE, Throwtable)) {
@@ -176,8 +178,6 @@ public:
             return true;
         }
 #undef METADATA_EQ
-
-        return false;
     }
 } Dpp_CObject;
 
@@ -725,7 +725,7 @@ public:
         Heap<Dpp_CObject *> param_list;
 
 
-        if(func->type != FUNCTION_TYPE) {
+        if(func->type != FUNCTION_TYPE && func->infos.native_function.empty()) {
             THROW(fmt::format("cannot call '{}' because it is not a function", func->id));
         }
 
@@ -1100,13 +1100,11 @@ public:
 
         if (ctx->Less() != nullptr) {
             op = OPCODE_SMALLER;
+            LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
         } else if (ctx->Greater()!= nullptr) {
             op = OPCODE_BIGGER;
-        }
-        LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
-        if (op != OPCODE_START) return co;
-
-        if (ctx->LessEqual() != nullptr) {
+            LoadOpcode(op, NO_FLAG, { ldata->object, rdata->object, co->object });
+        } else if (ctx->LessEqual() != nullptr) {
             Dpp_CObject *less_tmp = MakeObject("");
             Dpp_CObject *equal_tmp = MakeObject("");
 
@@ -1123,6 +1121,67 @@ public:
         }
         return co;
     }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitAndExpr(DXXParser::AndExprContext *ctx) override {
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        LoadOpcode(OPCODE_BAND, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitCaretExpr(DXXParser::CaretExprContext *ctx) override {
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        LoadOpcode(OPCODE_BXOR, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitOrExpr(DXXParser::OrExprContext *ctx) override {
+        DXXParser::DataContext *_ldata = ctx->data(0);
+        DXXParser::DataContext *_rdata = ctx->data(1);
+
+        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *co = MakeObject("");
+
+        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        LoadOpcode(OPCODE_BOR, NO_FLAG, { ldata->object, rdata->object, co->object });
+
+        return co;
+    }
+
 private:
     /*
      * @return: bool
@@ -1191,7 +1250,8 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md)
      * And Push the constant to the object pool
      */
-    Dpp_CObject *MakeConst(Object o, Dpp_Object *obj, bool isCheck = true, bool noWrite = false) {
+    Dpp_CObject *MakeConst(Object o, Dpp_Object *obj,
+                            bool isCheck = true, bool noWrite = false) {
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
         _co->id = obj->name;
@@ -1228,7 +1288,6 @@ private:
         obj->name = s;
         obj->reg->type = STRING_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
-        co->id = s;
 
         return co;
     }
