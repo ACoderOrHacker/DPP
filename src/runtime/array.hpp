@@ -3,17 +3,18 @@
 */
 #ifndef _ARRAY_H
 #define _ARRAY_H
-#include <stdint.h>
+#include <cstdint>
 #include <cstdint>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 
 template<typename T> class Array {
 	public:
 		Array() {
 			array = new std::vector<T>();
 		}
-		Array(T fill_data) {
+		explicit Array(T fill_data) {
 			array->fill(fill_data);
 		}
         auto *getContainer() {
@@ -37,8 +38,8 @@ template<typename T> class Array {
             array->insert(array->end(), data);
         }
         void rewrite(uint32_t n, T data) {
-            if(array->size() < n) {
-				array->resize(n);
+            if(array->size() <= n) {
+				array->resize(n + 1);
 			}
             array->at(n) = data;
         }

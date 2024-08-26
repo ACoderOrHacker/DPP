@@ -179,8 +179,8 @@ public:
 
 	void write(Object o, Dpp_Object *obj, bool isRewrite = false) {
 		Array<Dpp_Object *> func_mapping = this->getMapping(o);
-		if(!isRewrite) func_mapping.write(o.id, obj);
-        else func_mapping.rewrite(o.id, obj);
+		if(!isRewrite) {func_mapping.write(o.id, obj);}
+        else           {func_mapping.rewrite(o.id, obj);}
 	}
 
 	void create_mapping(uint32_t mapping_id, bool is_lambda = false) {
@@ -201,7 +201,7 @@ private:
 		if (_o.isInGlobal) {
 			return mappings[0];
 		}
-		return *mappings.end();
+		return *(--mappings.end());
 	}
 };
 

@@ -64,9 +64,9 @@ data:
 	| data And data		# andExpr // Done
 	| data Caret data	# caretExpr // Done
 	| data Or data		# orExpr // Done
-	| negative			# negativeExpr
+	| negative			# negativeExpr // Done
 	| lambdaFunction	# lambdaFunctionExpr
-	| theType			# typeExpr
+	| theType			# typeExpr // Done
 	| new				# newExpr_
 	| delete			# deleteExpr_;
 boolean: True | False;

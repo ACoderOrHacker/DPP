@@ -24,6 +24,7 @@ bool u = 3 >= 4;
 int v = 3 ^ 4;
 int w = 3 & 4;
 int x = 3 | 4;
+int y = -k;
 
 main() => void {
     out(a);
@@ -69,4 +70,6 @@ main() => void {
     out(w);
     out(" ");
     out(x);
+    out(" ");
+    out(y);
 }

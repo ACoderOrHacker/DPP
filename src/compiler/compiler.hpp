@@ -1182,6 +1182,25 @@ public:
         return co;
     }
 
+    /*
+     * @return: Dpp_CObject *
+     */
+    std::any visitNegative(DXXParser::NegativeContext *ctx) override {
+        DXXParser::DataContext *_data = ctx->data();
+
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *co = MakeObject("");
+        Dpp_CObject *int_1 = MakeInteger(-1);
+
+        if (data->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        LoadOpcode(OPCODE_MUL, NO_FLAG, { data->object, int_1->object, co->object });
+
+        return co;
+    }
+
 private:
     /*
      * @return: bool
