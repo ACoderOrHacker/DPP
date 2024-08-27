@@ -15,7 +15,7 @@ DXX_API FunctionObject *getErrorHandle(Dpp_Object *obj) {
         return nullptr;
     }
 
-    if (((ErrorObject *)obj)->handles.size() == 0) {
+    if (((ErrorObject *)obj)->handles.empty()) {
         return nullptr; // standard handle
     }
     return ((ErrorObject *)obj)->handles.top();

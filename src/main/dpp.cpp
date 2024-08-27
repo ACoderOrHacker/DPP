@@ -42,11 +42,17 @@ int main(int argc, char *argv[] ) {
         }
         else if(vm.count("run")) {
             std::ifstream ifs;
-            ifs.open(vm["run"].as<std::string>());
+            std::string filename = vm["run"].as<std::string>();
+            ifs.open(filename);
+            if (!ifs.is_open()) {
+                fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' source file\n", filename);
+                return 1;
+            }
             FObject *fObj = compile(ifs);
             ifs.close();
 
-            VM_Run(fObj, false);
+            int exit_code = VM_Run(fObj, false);
+            exit(exit_code);
         }
         else if (vm.count("list")) {
             OutputInformation();
@@ -58,6 +64,10 @@ int main(int argc, char *argv[] ) {
 
                 std::ifstream ifs;
                 ifs.open(it);
+                if (!ifs.is_open()) {
+                    fmt::print(fmt::fg(fmt::color::red), "error: cannot find {} source file\n", it);
+                    continue;
+                }
                 fObj = compile(ifs);
                 ifs.close();
 

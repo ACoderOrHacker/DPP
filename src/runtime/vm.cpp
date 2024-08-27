@@ -26,6 +26,8 @@
   This is an external library that contains all the export functions of the VM
  */
 #include "vm.hpp"
+#include <cstdlib>
+#include "builtin.hpp"
 
 const OpcodeFunc opcode_list[256] = {
     &_import,
@@ -110,10 +112,11 @@ forceinline VM_API const char *GetFlagName(uint8_t i) {
 VM_API FObject *MakeVM() {
 	FObject *fObj = new FObject;
     RegInit(fObj);
+    initBuiltin();
 	return fObj;
 }
 
-VM_API void VM_Run(FObject *fObj, bool noExit) {
+VM_API int VM_Run(FObject *fObj, bool noExit) {
     uint32_t i = 0;
     for (auto &it : fObj->modules) {
         Module vm_module = OpenNativeLib((it + PLATFORM_LIB_EX).c_str());
@@ -136,24 +139,28 @@ VM_API void VM_Run(FObject *fObj, bool noExit) {
 			if(GetBit(fObj->flags, NO_OPCODE)) {
 				// has a unknown opcode
 				SetBit0(fObj->flags, NO_OPCODE);
-				return; // Skip this opcode
+				return EXIT_FAILURE; // Skip this opcode
 			}
 
             CatchError(fObj);
 		}
 
-        if (fObj->state.vmopcodes.size() - 1 == fObj->state.runat && !fObj->callstack.empty()) {
+        if (fObj->state.vmopcodes.size() == fObj->state.runat && !fObj->callstack.empty()) {
             fObj->state = fObj->callstack.top();
             fObj->callstack.pop();
+
+            ++fObj->state.runat;
+            continue;
         }
 
-        if(opcode.opcode != OPCODE_CALL) ++fObj->state.runat;
+        if (opcode.opcode != OPCODE_CALL) ++fObj->state.runat;
 	}
 
 	// exit
 	int exit_code = fObj->exit_code;
 	EnvClean(fObj);
 	if (!noExit) exit(exit_code);
+    else return exit_code;
 }
 
 VM_API bool Exec(OpCode opcode, FObject *fObj) {

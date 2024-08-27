@@ -21,12 +21,11 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
  */
-#include "enum.hpp"
 #ifndef _COMPILER_H
-#include <cstdint>
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
 
+#include <cstdint>
 #include <string>
 #include <fstream>
 #include <any>
@@ -36,6 +35,7 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
+#include "enum.hpp"
 #include "acdpp.h"
 #include "vm.hpp"
 #include "builtin.hpp"

@@ -19,6 +19,10 @@
         {
             "id": "new-delete.dpp",
             "buf": ""
+        },
+        {
+            "id": "test.dpp",
+            "buf": "Hello World"
         }
     ]
 }

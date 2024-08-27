@@ -38,7 +38,7 @@ expressions:
 	| return			# returnExpr
 	| Break				# breakExpr
 	| Continue			# continueExpr
-	| semi				# semiExpr;
+	| semi				# semiExpr; // Done
 
 constant:
 	IntegerData				# integerExpr // Done
@@ -67,8 +67,8 @@ data:
 	| negative			# negativeExpr // Done
 	| lambdaFunction	# lambdaFunctionExpr
 	| theType			# typeExpr // Done
-	| new				# newExpr_
-	| delete			# deleteExpr_;
+	| new				# newExpr_ // Done
+	| delete			# deleteExpr_; // Done
 boolean: True | False;
 negative: Minus data;
 semi: Semi;

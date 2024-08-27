@@ -1,0 +1,8 @@
+native("io", "out") out(object o) => void;
+
+string s = "Hello World";
+string shit = 1;
+
+main() => void {
+    out(s);
+}
