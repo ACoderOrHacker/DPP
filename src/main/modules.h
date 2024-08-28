@@ -19,7 +19,7 @@
 #include <sstream>
 
 boost::filesystem::path root = boost::filesystem::initial_path<boost::filesystem::path>().parent_path();
-const boost::filesystem::path examples_path = root / "examples" / "compiler";
+const boost::filesystem::path examples_path = root / "examples";
 
 auto *__stdout = std::cout.rdbuf();
 auto *__stdin = std::cin.rdbuf();
@@ -199,7 +199,7 @@ void RestoreOstream() {
 
 void CheckTest(const std::string &id, const std::string &buf) {
     std::ifstream file;
-    boost::filesystem::path tests_path(root / "examples" / "compiler" / "tests.json");
+    boost::filesystem::path tests_path(examples_path / "tests.json");
     file.open(tests_path.string());
     if (!file.is_open()) {
         fmt::print(fmt::fg(fmt::color::red), "\nerror: cannot find tests.json file\n");
