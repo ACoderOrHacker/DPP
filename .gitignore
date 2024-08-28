@@ -33,6 +33,7 @@ __pycache__
 # Antlr4 Generate Files
 /src/compiler/antlr4/
 /src/compiler/templates/.antlr/
+/gen/
 
 # Waitlist
 /example/compiler/Waitlist/

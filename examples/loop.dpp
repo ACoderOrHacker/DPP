@@ -1,0 +1,31 @@
+native("io", "out") out(object o) => void;
+
+main() => void {
+    /*
+    int i = 0;
+    while(i < 10) {
+        if (i == 5) {
+            break;
+        }
+
+        out(i);
+        ++i;
+    }*/
+
+/*
+    int i2 = 0;
+    while (i2 < 10) {
+        if (i == 5) {
+            continue;
+        }
+
+        out(i);
+        ++i;
+    }
+
+    int i3 = 0;
+    do {
+        out(i3);
+        ++i3;
+    } while (i3 != 0);*/
+}

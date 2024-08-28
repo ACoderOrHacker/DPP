@@ -729,6 +729,7 @@ public:
         in_loop = true;
         auto block = GetOpcodes(_block);
         in_loop = false;
+
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
 
         if (data->type == VOID_TYPE) {
@@ -739,6 +740,16 @@ public:
         fObj->state.vmopcodes.merge(block);
         LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, state_end}});
         loop_end = fObj->state.vmopcodes.size() - 1;
+
+        for (auto it : breaks) {
+            ResetOpcode(it, OPCODE_JMP, NO_FLAG, { {true, loop_end} });
+        }
+        for (auto it : continues) {
+            ResetOpcode(it, OPCODE_JMP, NO_FLAG, { {true, loop_end - 1} });
+        }
+        breaks.clear();
+        continues.clear();
+        loop_end = 0;
 
         return NONE;
     }
@@ -765,6 +776,16 @@ public:
         LoadOpcode(OPCODE_JMP, flag, { data->object, {true, state_end} });
         loop_end = fObj->state.vmopcodes.size() - 1;
 
+        for (auto it : breaks) {
+            ResetOpcode(it, OPCODE_JMP, NO_FLAG, { {true, loop_end} });
+        }
+        for (auto it : continues) {
+            ResetOpcode(it, OPCODE_JMP, NO_FLAG, { {true, loop_end - 1} });
+        }
+        breaks.clear();
+        continues.clear();
+        loop_end = 0;
+
         return NONE;
     }
 
@@ -776,7 +797,8 @@ public:
             THROW("break is not in loop");
         }
 
-        LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, loop_end}});
+        breaks.PushData(fObj->state.vmopcodes.size());
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder});
 
         return NONE;
     }
@@ -789,7 +811,8 @@ public:
             THROW("continue is not in loop");
         }
 
-        LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, loop_end - 1}});
+        continues.PushData(fObj->state.vmopcodes.size());
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder});
 
         return NONE;
     }
@@ -1727,6 +1750,8 @@ private:
     uint32_t block_end; // for jump statements
     uint32_t loop_end; // for break and continue
     bool in_loop = false;
+    Heap<uint32_t> breaks;
+    Heap<uint32_t> continues;
 
     Dpp_CObject *return_value = nullptr;
     bool blockNoNamespace = false;

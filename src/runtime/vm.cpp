@@ -87,6 +87,7 @@ const char *opcode_name_list[256] = {
     "new",
     "del",
     "mov",
+    "method",
     "exit"
 };
 

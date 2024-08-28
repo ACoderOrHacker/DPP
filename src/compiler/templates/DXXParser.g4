@@ -25,6 +25,7 @@ expressions:
 	| delete			# deleteExpr // Done
 	| varDefine			# varDefineExprTag // Done
 	| varSet			# varSetExpr // Done
+
 	| functionCall		# functionCallExprTag // Done
 	| withStatement		# withExpr
 	| whileLoop			# whileLoopExpr
@@ -109,7 +110,7 @@ varSet: idEx assigns data;
 
 withStatement:
 	withIf // Done
-	| withIfExtends
+	| withIfExtends // Done
 	| withSwitchStatement;
 
 withIf: With If LeftParen data RightParen block;
@@ -127,7 +128,7 @@ defaultStatement: Default Arrow block;
 
 whileLoop: While LeftParen data RightParen block;
 
-doWhileLoop: While block Do LeftParen data RightParen;
+doWhileLoop: Do block While LeftParen data RightParen;
 
 foreachLoop:
 	Foreach LeftParen (varDefine | idEx) Colon data RightParen block?;
