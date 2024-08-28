@@ -1,0 +1,28 @@
+native("io", "out") out(object o) => void;
+
+main() => void {
+    int a = 1;
+    int b = 2;
+
+    with if(a == 1) {
+        out("a == 1 in with if");
+    }
+
+    with if {
+        b == 2 => {
+            out("b == 2");
+        }
+        b == 3 => {
+            out("b == 3");
+        }
+    }
+
+    with if {
+        b == 1 => {
+            out("b == 1");
+        }
+        a == 1 => {
+            out("a == 1");
+        }
+    }
+}

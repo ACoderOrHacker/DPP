@@ -133,6 +133,7 @@ VM_API int VM_Run(FObject *fObj, bool noExit) {
 
 		// execute the opcode and get the error code(isfail variable)
 		bool isfail = Exec(opcode, fObj);
+        fObj->flags = NO_FLAG; // clear the flags
 
 		if(isfail && fObj->_error != nullptr) {
 			// the opcode has error

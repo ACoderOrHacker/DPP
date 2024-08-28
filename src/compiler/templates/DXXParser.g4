@@ -125,12 +125,12 @@ caseStatement: constant Arrow block;
 
 defaultStatement: Default Arrow block;
 
-whileLoop: While LeftParen expressions RightParen block?;
+whileLoop: While LeftParen data RightParen block;
 
-doWhileLoop: whileLoop Do LeftParen expressions RightParen;
+doWhileLoop: While block Do LeftParen data RightParen;
 
 foreachLoop:
-	Foreach LeftParen (varDefine | idEx) Colon expressions RightParen block?;
+	Foreach LeftParen (varDefine | idEx) Colon data RightParen block?;
 
 goto: Goto ID;
 

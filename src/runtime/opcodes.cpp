@@ -371,10 +371,12 @@ void _jmp(FObject *fObj) {
         if (isTrue(fObj->obj_map.get(theap->PopFront()))) {
             fObj->state.runat = _jmpto.id;
         }
+        return;
     } else if (GetBit(fObj->flags, JMP_FALSE) == 1) {
         if (!isTrue(fObj->obj_map.get(theap->PopFront()))) {
             fObj->state.runat = _jmpto.id;
         }
+        return;
     }
 	fObj->state.runat = _jmpto.id;
 }

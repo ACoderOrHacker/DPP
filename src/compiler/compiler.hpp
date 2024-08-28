@@ -427,6 +427,9 @@ public:
         DXXParser::ThrowtableContext *throwTable = _ctx->throwtable();
         DXXParser::BlockContext *block = ctx->block();
 
+        Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
+        Throwtable *throws = anycast(Throwtable *, visitThrowtable(throwTable));
+
         bool isNone = true;
         Dpp_Object *func = MakeFunctionObject(id);
 
@@ -440,6 +443,7 @@ public:
         fObj->callstack.push(fObj->state);
         fObj->state = state;
 
+        return_value = ret;
         noLoadVarOp = true;
         Heap<Dpp_CObject *> *params = anycast(Heap<Dpp_CObject *> *, visitParamList(_params));
         noLoadVarOp = false;
@@ -447,6 +451,7 @@ public:
             visitBlock(block);
             isNone = false;
         }
+        return_value = nullptr;
 
         ((FunctionObject *)func)->state = fObj->state;
 
@@ -456,9 +461,6 @@ public:
         thisNamespace = namespaces.top();
         namespaces.pop();
         blockNoNamespace = false;
-
-        Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
-        Throwtable *throws = anycast(Throwtable *, visitThrowtable(throwTable));
 
         Dpp_CObject *co = MakeFunction(func, infos, params, func_autovalues, ret, throws, isNone);
         func_autovalues = nullptr;
@@ -669,12 +671,12 @@ public:
     std::any visitWithIf(DXXParser::WithIfContext *ctx) override {
         char flag = NO_FLAG;
         SetBit1(flag, JMP_FALSE);
+        Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
         visitBlock(ctx->block());
         Object jmp_to = {true, block_end};
-        LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, { jmp_to, data->object });
+        LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, { jmp_to, is_jmp->object });
 
         return NONE;
     }
@@ -712,6 +714,115 @@ public:
     std::any visitWithSwitchStatement(DXXParser::WithSwitchStatementContext *ctx) override {
         // TODO: Not success
         return NONE;
+    }
+
+    /*
+     * @return: NONE
+     */
+    std::any visitWhileLoop(DXXParser::WhileLoopContext *ctx) override {
+        DXXParser::BlockContext *_block = ctx->block();
+        DXXParser::DataContext *_data = ctx->data();
+        uint32_t state_end = fObj->state.vmopcodes.size() - 1;
+        char flag = NO_FLAG;
+        SetBit1(flag, JMP_FALSE);
+
+        in_loop = true;
+        auto block = GetOpcodes(_block);
+        in_loop = false;
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+
+        if (data->type == VOID_TYPE) {
+            THROW("the data type of 'while' loop must be integer");
+        }
+
+        LoadOpcode(OPCODE_JMP, flag, { data->object, {true, (uint32_t)(fObj->state.vmopcodes.size() + block.size() + 1)} });
+        fObj->state.vmopcodes.merge(block);
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, state_end}});
+        loop_end = fObj->state.vmopcodes.size() - 1;
+
+        return NONE;
+    }
+
+    /*
+     * @return: NONE
+     */
+    std::any visitDoWhileLoop(DXXParser::DoWhileLoopContext *ctx) override {
+        DXXParser::BlockContext *_block = ctx->block();
+        DXXParser::DataContext *_data = ctx->data();
+        uint32_t state_end = fObj->state.vmopcodes.size() - 1;
+        char flag = NO_FLAG;
+        SetBit1(flag, JMP_TRUE);
+
+        in_loop = true;
+        visitBlock(_block);
+        in_loop = false;
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+
+        if (data->type == VOID_TYPE) {
+            THROW("the data type of 'while' loop must be integer");
+        }
+
+        LoadOpcode(OPCODE_JMP, flag, { data->object, {true, state_end} });
+        loop_end = fObj->state.vmopcodes.size() - 1;
+
+        return NONE;
+    }
+
+    /*
+     * @return: NONE
+     */
+    std::any visitBreakExpr(DXXParser::BreakExprContext *) override {
+        if (!in_loop) {
+            THROW("break is not in loop");
+        }
+
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, loop_end}});
+
+        return NONE;
+    }
+
+    /*
+     * @return: NONE
+     */
+    std::any visitContinueExpr(DXXParser::ContinueExprContext *) override {
+        if (!in_loop) {
+            THROW("continue is not in loop");
+        }
+
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, loop_end - 1}});
+
+        return NONE;
+    }
+
+    /*
+     * @return: NONE
+     */
+    std::any visitReturn(DXXParser::ReturnContext *ctx) override {
+        if (return_value == nullptr) {
+            THROW("return must in function");
+        }
+
+        DXXParser::DataContext *_data = ctx->data();
+
+        if (_data == nullptr) {
+            if (return_value->type != VOID_TYPE) {
+                THROW("no return paramter");
+            }
+
+            LoadOpcode(OPCODE_RET, NO_FLAG);
+        }
+
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        if (data->type == VOID_TYPE) {
+            THROW("return paramter cannot be void");
+        }
+        if (return_value->type != data->type && return_value->type != OBJECT_TYPE) {
+            THROW("return paramter type is not match");
+        }
+
+        LoadOpcode(OPCODE_RET, NO_FLAG, { data->object, return_value->object });
+
+        return NONE; // TODO: _ret not success
     }
 
     /*
@@ -1614,7 +1725,10 @@ private:
     IDIterator idIt;
 
     uint32_t block_end; // for jump statements
+    uint32_t loop_end; // for break and continue
+    bool in_loop = false;
 
+    Dpp_CObject *return_value = nullptr;
     bool blockNoNamespace = false;
     bool noLoadVarOp = false;
     bool varDefineAutovalue = false;

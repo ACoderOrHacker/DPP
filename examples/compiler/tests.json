@@ -21,6 +21,10 @@
             "buf": ""
         },
         {
+            "id": "with.dpp",
+            "buf": "a == 1 in with ifb == 2a == 1"
+        },
+        {
             "id": "test.dpp",
             "buf": "Hello World"
         }
