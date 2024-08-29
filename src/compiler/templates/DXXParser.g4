@@ -25,11 +25,10 @@ expressions:
 	| delete			# deleteExpr // Done
 	| varDefine			# varDefineExprTag // Done
 	| varSet			# varSetExpr // Done
-
 	| functionCall		# functionCallExprTag // Done
 	| withStatement		# withExpr
-	| whileLoop			# whileLoopExpr
-	| doWhileLoop		# doWhileLoopExpr
+	| whileLoop			# whileLoopExpr // Done
+	| doWhileLoop		# doWhileLoopExpr // Done
 	| foreachLoop		# foreachLoopExpr
 	| goto				# gotoExpr
 	| gotoLabelDefine	# gotoLabelDefineExpr
@@ -37,9 +36,10 @@ expressions:
 	| throw				# throwExpr
 	| typedef			# typedefExprTag // Done
 	| return			# returnExpr
-	| Break				# breakExpr
-	| Continue			# continueExpr
-	| semi				# semiExpr; // Done
+	| Break				# breakExpr // Done
+	| Continue			# continueExpr // Done
+	| semi				# semiExpr // Done
+    | (PlusPlus | MinusMinus) data # incDecExpr; // Done
 
 constant:
 	IntegerData				# integerExpr // Done
@@ -53,7 +53,7 @@ data:
 	| idEx													# idExExpr // Done
 	| functionCall											# functionCallExpr // May Done
 	| LeftParen data RightParen							    # parens // simple: (1+2)/3 Change priorities // Done
-	| (Not | Tilde | PlusPlus | MinusMinus) data			# notClassExpr // simple: !114, ~114, ++i, --i // Done
+	| (Not | Tilde) data			                        # notClassExpr // simple: !114, ~114 // Done
 	| data AndAnd data										# andandExpr // Done
 	| data OrOr data										# ororExpr // Done
 	| data (Equal | NotEqual) data							# equalOrNotEqualExpr // simple: 1 == 1, 2 != 1 // Done

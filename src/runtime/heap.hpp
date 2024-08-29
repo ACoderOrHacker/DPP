@@ -5,6 +5,7 @@
 #ifndef _HEAP_H
 #define _HEAP_H
 #include <stdint.h>
+#include <cstdint>
 #include <deque>
 #include <algorithm>
 
@@ -15,16 +16,16 @@
 */
 template<typename T, typename container = std::deque<T>> class Heap {
 	public:
-		Heap() {
-
-		}
+		Heap() = default;
 		Heap(container &c) {
 			Data = c;
 		}
         Heap(std::initializer_list<T> l) {
             Data = l;
         }
-
+        Heap(typename container::iterator _start, typename container::iterator _end) {
+            Data = container(_start, _end);
+        }
     public:
         container Data; // Data for heap
         typename container::iterator it;
@@ -122,5 +123,8 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		void operator =(container &c) {
 			Data = c;
 		}
+        Heap<T> get(uint32_t start, uint32_t end) {
+            return (Heap<T>(Data.begin()+start, Data.begin()+end));
+        }
 };
 #endif // !_HEAP_H

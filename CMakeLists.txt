@@ -103,8 +103,7 @@ if(BUILD_TOOLS)
 endif()
 
 if(BUILD_TESTS)
-    # build the tests
-    add_subdirectory(src/runtime/test/)
+    add_compile_definitions(_COMPILE_TEST)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

@@ -296,6 +296,7 @@ public:
         if (_fObj != nullptr) fObj = _fObj;
         else fObj = MakeVM();
 
+        loop_end = 0;
         block_end = 0;
 
         // init the globalNamespace
@@ -356,25 +357,6 @@ public:
     }
 
     /*
-     * @return: Heap<OpCode>
-     * get all opcodes from block
-     */
-    Heap<OpCode> GetOpcodes(DXXParser::BlockContext *ctx) {
-        fObj->callstack.push(fObj->state);
-        fObj->state = VMState();
-
-        for (auto it : ctx->expressions()) {
-            visitChildren(it);
-        }
-
-        struct VMState block = fObj->state;
-        fObj->state = fObj->callstack.top();
-        fObj->callstack.pop();
-
-        return block.vmopcodes;
-    }
-
-    /*
      * @return: NONE
      * Create a block at fObj->state
      */
@@ -384,9 +366,7 @@ public:
             thisNamespace = thisNamespace->NewNamespace();
         }
 
-        for (auto it : ctx->expressions()) {
-			DXXParserBaseVisitor::visit(it);
-        }
+        visitChildren(ctx);
 
         block_end = fObj->state.vmopcodes.size();
 
@@ -674,9 +654,10 @@ public:
         Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
 
+        LoadOpcode(OPCODE_JMP, flag, {placeholder, placeholder});// just a placeholder
         visitBlock(ctx->block());
-        Object jmp_to = {true, block_end};
-        LoadAndInsertOpcode(jmp_pos, OPCODE_JMP, flag, { jmp_to, is_jmp->object });
+        Object jmp_to = {true, block_end - 1};
+        ResetOpcode(jmp_pos, OPCODE_JMP, flag, { jmp_to, is_jmp->object });
 
         return NONE;
     }
@@ -692,10 +673,13 @@ public:
 
         for (auto it : ctx->withIfExtendsSub()) {
             Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it->data()));
-            Heap<OpCode> block = GetOpcodes(it->block());
-            Object next_block_begin = { true, (uint32_t)(block.size() + fObj->state.vmopcodes.size() + 1)};
-            LoadOpcode(OPCODE_JMP, flag, {next_block_begin, is_jmp->object});
-            fObj->state.vmopcodes.merge(block);
+
+            uint32_t jmp1 = fObj->state.vmopcodes.size();
+
+            LoadOpcode(OPCODE_JMP, flag, { placeholder, placeholder });
+            visitBlock(it->block());
+            Object next_block_begin = { true, (uint32_t)(fObj->state.vmopcodes.size() + 1)};
+            ResetOpcode(jmp1, OPCODE_JMP, flag, {next_block_begin, is_jmp->object});
             LoadOpcode(OPCODE_JMP, flag, {placeholder, placeholder});// just a placeholder
             placeholders.PushData(fObj->state.vmopcodes.size() - 1);
         }
@@ -726,18 +710,20 @@ public:
         char flag = NO_FLAG;
         SetBit1(flag, JMP_FALSE);
 
-        in_loop = true;
-        auto block = GetOpcodes(_block);
-        in_loop = false;
-
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
-
         if (data->type == VOID_TYPE) {
             THROW("the data type of 'while' loop must be integer");
         }
 
-        LoadOpcode(OPCODE_JMP, flag, { data->object, {true, (uint32_t)(fObj->state.vmopcodes.size() + block.size() + 1)} });
-        fObj->state.vmopcodes.merge(block);
+        uint32_t jmp1 = fObj->state.vmopcodes.size();
+        LoadOpcode(OPCODE_JMP, flag, { placeholder, placeholder });
+
+        in_loop = true;
+        visitChildren(_block);
+        // visitBlock(_block);
+        in_loop = false;
+
+        ResetOpcode(jmp1, OPCODE_JMP, flag, { {true, (uint32_t)(fObj->state.vmopcodes.size())}, data->object });
         LoadOpcode(OPCODE_JMP, NO_FLAG, { {true, state_end}});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
@@ -765,7 +751,8 @@ public:
         SetBit1(flag, JMP_TRUE);
 
         in_loop = true;
-        visitBlock(_block);
+        visitChildren(_block);
+        // visitBlock(_block);
         in_loop = false;
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
 
@@ -773,7 +760,7 @@ public:
             THROW("the data type of 'while' loop must be integer");
         }
 
-        LoadOpcode(OPCODE_JMP, flag, { data->object, {true, state_end} });
+        LoadOpcode(OPCODE_JMP, flag, { {true, state_end}, data->object });
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
@@ -798,7 +785,7 @@ public:
         }
 
         breaks.PushData(fObj->state.vmopcodes.size());
-        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder});
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder });
 
         return NONE;
     }
@@ -812,7 +799,7 @@ public:
         }
 
         continues.PushData(fObj->state.vmopcodes.size());
-        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder});
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder });
 
         return NONE;
     }
@@ -1046,6 +1033,33 @@ public:
     /*
      * @return: Dpp_CObject *
      */
+    std::any visitIncDecExpr(DXXParser::IncDecExprContext *ctx) override {
+        rt_opcode op = OPCODE_START;
+        DXXParser::DataContext *_data = ctx->data();
+
+        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *co = MakeObject("");
+
+        if (data->type == VOID_TYPE) {
+            THROW("cannot use operator on void type");
+        }
+
+        if (ctx->PlusPlus() != nullptr) {
+            op = OPCODE_ADD;
+        } else if (ctx->MinusMinus() != nullptr) {
+            op = OPCODE_SUB;
+        }
+
+        Dpp_CObject *int1 = MakeInteger(1);
+        LoadOpcode(op, NO_FLAG, { data->object, int1->object, co->object });
+        LoadOpcode(OPCODE_MOV, NO_FLAG, { co->object, data->object });
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     */
     std::any visitNotClassExpr(DXXParser::NotClassExprContext *ctx) override {
         rt_opcode op = OPCODE_START;
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
@@ -1058,16 +1072,6 @@ public:
             op = OPCODE_NOT;
         } else if (ctx->Tilde() != nullptr) {
             op = OPCODE_BNEG;
-        } else if (ctx->PlusPlus() != nullptr) {
-            Dpp_CObject *int1 = MakeInteger(1);
-
-            LoadOpcode(OPCODE_ADD, NO_FLAG, { data->object, int1->object, co->object});
-            return co;
-        } else if (ctx->MinusMinus() != nullptr) {
-            Dpp_CObject *int1 = MakeInteger(1);
-
-            LoadOpcode(OPCODE_SUB, NO_FLAG, { data->object, int1->object, co->object});
-            return co;
         }
 
         LoadOpcode(op, NO_FLAG, { data->object, co->object });
@@ -1374,17 +1378,6 @@ private:
         char flags,
         Heap<Object> &params) {
         fObj->state.vmopcodes.PushEnd(MakeOpCode(op, flags, params));
-    }
-
-    /*
-     * @return: void
-     * Create a opcode and push it to main state(fObj->state)
-     */
-    static void LoadAndInsertOpcode(uint32_t pos,
-                    rt_opcode op,
-                    char flags = NO_FLAG,
-                    std::initializer_list<Object> l = {}) {
-        fObj->state.vmopcodes.SetData(pos, MakeOpCode(op, flags, l));
     }
 
     /*
