@@ -50,6 +50,7 @@ const OpcodeFunc opcode_list[256] = {
 	&_or,
 	&_jmp,
 	&_call,
+    &_getret,
 	&_calln,
 	&_ret,
 	&_sign,
@@ -81,6 +82,7 @@ const char *opcode_name_list[256] = {
     "or",
     "jmp",
     "call",
+    "getret",
     "calln",
     "ret",
     "sign",
@@ -150,6 +152,8 @@ VM_API int VM_Run(FObject *fObj, bool noExit) {
         if (fObj->state.vmopcodes.size() == fObj->state.runat && !fObj->callstack.empty()) {
             fObj->state = fObj->callstack.top();
             fObj->callstack.pop();
+            fObj->obj_map.pop_mapping();
+            fObj->return_values.push(nullptr);
 
             ++fObj->state.runat;
             continue;

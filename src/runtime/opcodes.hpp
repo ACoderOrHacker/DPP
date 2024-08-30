@@ -53,6 +53,7 @@ void _and(FObject *fObj);
 void _or(FObject *fObj);
 void _jmp(FObject *fObj);
 void _call(FObject *fObj);
+void _getret(FObject *fObj);
 void _calln(FObject *fObj);
 void _ret(FObject *fObj);
 void _sign(FObject *fObj);

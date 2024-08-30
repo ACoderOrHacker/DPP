@@ -55,6 +55,9 @@ template<typename T> class Array {
 		auto end() {
 			return array->end();
 		}
+        void pop() {
+            array->pop_back();
+        }
 	private:
 		std::vector<T> *array;
 };

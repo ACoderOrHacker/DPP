@@ -58,7 +58,7 @@ if(CLION_IDE)
     cmake_policy(SET CMP6666 NEW)
 endif()
 
-set(ANTLR4_JAR D:/Antlr4/antlr4.13.1-complete.jar)
+set(ANTLR4_JAR ${CMAKE_CURRENT_SOURCE_DIR}/antlr4.13.1-complete.jar)
 
 cmake_policy(SET CMP0074 NEW)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)

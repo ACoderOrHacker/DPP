@@ -14,12 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Clone vcpkg
-        run: git clone https://github.com/Microsoft/vcpkg.git
+      - uses: lukka/get-cmake@latest
 
       - name: Install dependencies with vcpkg
-        working-directory: vcpkg
-        run:./bootstrap-vcpkg.sh &&./vcpkg install boost-serialization && ./vcpkg install boost-json && ./vcpkg install boost-program-options &&./vcpkg install boost-filesystem &&./vcpkg install boost-test && ./vcpkg install fmt && ./vcpkg install antlr4
+        uses: lukka/run-vcpkg@v11
       - name: Build source code
         run: cd DPP && cd tools && python build.py --release
 

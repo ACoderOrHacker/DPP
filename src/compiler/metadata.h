@@ -15,4 +15,10 @@ namespace function {
     };
 }
 
+namespace label {
+    enum LABEL_METADATA {
+        POS = 1
+    };
+}
+
 #endif //DPP_METADATA_H

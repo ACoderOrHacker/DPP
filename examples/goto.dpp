@@ -1,0 +1,10 @@
+native("io", "out") out(object o) => void;
+
+main() => void {
+    out("start");
+    goto END;
+    out("jntm"); // there is never a way to reach this line
+
+END:
+    out("end");
+}

@@ -172,6 +172,11 @@ public:
 
 	uint32_t getLastCreateID() { return mappings.size() + 1; }
 
+    Dpp_Object *get(Object o, uint32_t mapping_id) {
+        Array<Dpp_Object *> func_mapping = this->getMapping(o, mapping_id);
+		return func_mapping[o.id];
+    }
+
 	Dpp_Object *get(Object o) {
 		Array<Dpp_Object *> func_mapping = this->getMapping(o);
 		return func_mapping[o.id];
@@ -189,6 +194,10 @@ public:
 		this->is_lambda.write(mapping_id, is_lambda);
 	}
 
+    void pop_mapping() {
+        mappings.pop();
+    }
+
     Array<Dpp_Object *> getGlobalMapping() {
         return mappings[0];
     }
@@ -202,6 +211,13 @@ private:
 			return mappings[0];
 		}
 		return *(--mappings.end());
+	}
+
+    Array<Dpp_Object *> getMapping(Object &_o, uint32_t mapping_id) {
+		if (_o.isInGlobal) {
+			return mappings[0];
+		}
+		return *(mappings.begin() + mapping_id);
 	}
 };
 
@@ -251,6 +267,7 @@ public:
 	Array<std::string> modules;
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
+    std::stack<Dpp_Object *> return_values;
 	Signal *sig;
 	struct VMState state;
 	char flags = NO_FLAG;

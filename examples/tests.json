@@ -29,6 +29,14 @@
             "buf": "01234 12346789100"
         },
         {
+            "id": "goto.dpp",
+            "buf": "startend"
+        },
+        {
+            "id": "function.dpp",
+            "buf": "2"
+        },
+        {
             "id": "test.dpp",
             "buf": "Hello World"
         }

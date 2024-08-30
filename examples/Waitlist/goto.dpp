@@ -1,8 +1,0 @@
-main() => void {
-/*LABEL:
-
-    goto LABEL;
-    */
-    
-
-}

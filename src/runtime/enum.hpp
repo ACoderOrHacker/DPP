@@ -32,6 +32,7 @@ enum rt_opcode : unsigned char {
 	OPCODE_OR,
 	OPCODE_JMP,
 	OPCODE_CALL,
+    OPCODE_GETRET,
 	OPCODE_CALLN,
 	OPCODE_RET,
 	OPCODE_SIGN,

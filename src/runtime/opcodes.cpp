@@ -382,17 +382,40 @@ void _jmp(FObject *fObj) {
 }
 
 void _call(FObject *fObj) {
-	Object _func = *theap->begin();
+	Object _func = theap->PopFront();
     FunctionObject *func = (FunctionObject *)fObj->obj_map.get(_func);
 
-    fObj->obj_map.create_mapping(fObj->obj_map.getLastCreateID());
+    uint32_t func_mapping_id = fObj->obj_map.getLastCreateID();
+    fObj->obj_map.create_mapping(func_mapping_id);
+
     uint32_t i = 0;
-    for (; i < func->params.size(); ++i){
-        const Object &param = func->params.GetData(i);
-        fObj->obj_map.write(param, fObj->obj_map.get(theap->PopFront()));
+    while (!theap->isEmpty()) {
+        const Object &param = theap->PopFront();
+        fObj->obj_map.write({ false, i }, fObj->obj_map.get(param, func_mapping_id - 1));
     }
     fObj->callstack.push(fObj->state);
     fObj->state = func->state;
+}
+
+void _ret(FObject *fObj) {
+    Dpp_Object *val = nullptr;
+    if (!theap->isEmpty()) val = fObj->obj_map.get(theap->PopFront());
+
+	fObj->state = fObj->callstack.top();
+    fObj->callstack.pop();
+    fObj->obj_map.pop_mapping();
+
+    fObj->return_values.push(val);
+}
+
+void _getret(FObject *fObj) {
+    Object to = theap->PopFront();
+
+    Dpp_Object *val = fObj->return_values.top();
+    if (val != nullptr) {
+        fObj->obj_map.write(to, val, true);
+    }
+    fObj->return_values.pop();
 }
 
 void _calln(FObject *fObj) {
@@ -425,10 +448,6 @@ void _calln(FObject *fObj) {
 
 void _import(FObject *fObj) {
 
-}
-
-void _ret(FObject *fObj) {
-	fObj->state = fObj->callstack.top();
 }
 
 void _sign(FObject *fObj) {

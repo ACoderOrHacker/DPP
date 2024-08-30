@@ -1,0 +1,11 @@
+final x(int y) => int;
+
+final x(int y) => int {
+    return y + 1;
+}
+
+native("io", "out") out(object o) => void;
+
+main() => void {
+    out(x(1));
+}

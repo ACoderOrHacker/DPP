@@ -319,6 +319,7 @@ public:
             Dpp_CObject *type = new Dpp_CObject;
             type->id = id;
             type->object = { true, type_id};
+            type->type = TYPE_TYPE;
             globalNamespace->objects.write(type);
         };
 
@@ -361,7 +362,7 @@ public:
      * Create a block at fObj->state
      */
     std::any visitBlock(DXXParser::BlockContext *ctx) override {
-        if(blockNoNamespace) {
+        if(!blockNoNamespace) {
             namespaces.push(thisNamespace);
             thisNamespace = thisNamespace->NewNamespace();
         }
@@ -370,7 +371,19 @@ public:
 
         block_end = fObj->state.vmopcodes.size();
 
-        if(blockNoNamespace) {
+        for(auto &it : gotos) {
+            const std::string &id = it.first;
+            Dpp_CObject *label = FindObject(id, true);
+            if (label == nullptr) {
+                THROW(fmt::format("cannot find '{}' label", id));
+            }
+
+            uint32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
+            ResetOpcode(it.second, OPCODE_JMP, NO_FLAG, { {true, pos} });
+        }
+        gotos.clear();
+
+        if(!blockNoNamespace) {
             thisNamespace = namespaces.top();
             namespaces.pop();
         }
@@ -407,9 +420,6 @@ public:
         DXXParser::ThrowtableContext *throwTable = _ctx->throwtable();
         DXXParser::BlockContext *block = ctx->block();
 
-        Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
-        Throwtable *throws = anycast(Throwtable *, visitThrowtable(throwTable));
-
         bool isNone = true;
         Dpp_Object *func = MakeFunctionObject(id);
 
@@ -422,6 +432,8 @@ public:
         struct VMState state;
         fObj->callstack.push(fObj->state);
         fObj->state = state;
+        Dpp_CObject *ret = anycast(Dpp_CObject *, visitTheType(retType));
+        Throwtable *throws = anycast(Throwtable *, visitThrowtable(throwTable));
 
         return_value = ret;
         noLoadVarOp = true;
@@ -678,7 +690,7 @@ public:
 
             LoadOpcode(OPCODE_JMP, flag, { placeholder, placeholder });
             visitBlock(it->block());
-            Object next_block_begin = { true, (uint32_t)(fObj->state.vmopcodes.size() + 1)};
+            Object next_block_begin = { true, (uint32_t)(fObj->state.vmopcodes.size())};
             ResetOpcode(jmp1, OPCODE_JMP, flag, {next_block_begin, is_jmp->object});
             LoadOpcode(OPCODE_JMP, flag, {placeholder, placeholder});// just a placeholder
             placeholders.PushData(fObj->state.vmopcodes.size() - 1);
@@ -830,7 +842,7 @@ public:
             THROW("return paramter type is not match");
         }
 
-        LoadOpcode(OPCODE_RET, NO_FLAG, { data->object, return_value->object });
+        LoadOpcode(OPCODE_RET, NO_FLAG, { data->object });
 
         return NONE; // TODO: _ret not success
     }
@@ -871,7 +883,7 @@ public:
         }
 
 
-        if(func->infos.native_function != "") {
+        if(!func->infos.native_function.empty()) {
             // native function
             params.PushData(MakeString(func->id)->object);
 
@@ -896,6 +908,8 @@ public:
 
         params.PushData(func->object);
         LoadOpcode(OPCODE_CALL, NO_FLAG, params);
+        LoadOpcode(OPCODE_GETRET, NO_FLAG, { co->object });
+
         return co;
     }
 
@@ -942,12 +956,9 @@ public:
      */
     std::any visitGoto(DXXParser::GotoContext *ctx) override {
         const std::string &id = ctx->ID()->toString();
-        Dpp_CObject *label = FindObject(id, true);
-        if (label == nullptr) {
-            THROW(fmt::format("cannot find '{}' label", id));
-        }
 
-        LoadOpcode(OPCODE_JMP, NO_FLAG, { label->object });
+        gotos.insert({ id, fObj->state.vmopcodes.size() });
+        LoadOpcode(OPCODE_JMP, NO_FLAG, { placeholder });
 
         return NONE;
     }
@@ -957,7 +968,7 @@ public:
      * Define a label of runtime opcode id
      */
     std::any visitGotoLabelDefine(DXXParser::GotoLabelDefineContext *ctx) override {
-        return MakeLabel(ctx->ID()->toString(), fObj->state.vmopcodes.size());
+        return MakeLabel(ctx->ID()->toString(), fObj->state.vmopcodes.size() - 1);
     }
 
     /*
@@ -1474,12 +1485,12 @@ private:
      * And Push the function object to the object pool
      */
     Dpp_CObject *MakeFunction(Dpp_Object *func,
-                              struct INFOS infos,
-                              Heap<Dpp_CObject *> *params,
-                              Heap<Dpp_CObject *> *autovalues,
-                              Dpp_CObject *ret,
-                              Throwtable *throws,
-                              bool isNone) {
+            const struct INFOS &infos,
+            Heap<Dpp_CObject *> *params,
+            Heap<Dpp_CObject *> *autovalues,
+            Dpp_CObject *ret,
+            Throwtable *throws,
+            bool isNone) {
         Object o = allocMapping(true);
         Dpp_CObject *co = MakeConst(o, func, false, true);
         co->id = func->name;
@@ -1505,8 +1516,15 @@ private:
                 THROW(fmt::format("{} was defined", result->id));
             }
 
-            result->isNone = false;
-            return result;
+            //*result = *co;
+            thisNamespace->RemoveObject(result);
+            thisNamespace->objects.write(co);
+            co->object = result->object;
+            fObj->obj_map.write(co->object, func, true);
+            co->isNone = false;
+            delete result;
+            result = nullptr;
+            return co;
         }
 
         if(!co->infos.native_library.empty()) fObj->modules.write(co->infos.native_library);
@@ -1521,9 +1539,12 @@ private:
      * And Push the string constant to the object pool
      */
     Dpp_CObject *MakeLabel(const std::string &_label,
-                                 uint32_t pos) {
+            uint32_t pos) {
+        uint32_t *_pos = new uint32_t;
+        *_pos = pos;
         Dpp_CObject *co = MakeInteger(pos);
-        Dpp_CObject *label = LinkObject(_label, co);
+        Dpp_CObject *label = LinkObject(_label, co, true);
+        label->metadata[label::LABEL_METADATA::POS] = _pos;
 
         return label;
     }
@@ -1540,13 +1561,16 @@ private:
      * @return: Dpp_CObject *
      * Make a normal object
      */
-    Dpp_CObject *MakeObject(const std::string &id, bool noWrite = false, bool noMapping = false) {
+    Dpp_CObject *MakeObject(const std::string &id, bool noWrite = false, bool noMapping = false, bool alwaysConst = false) {
         Dpp_CObject *co = new Dpp_CObject;
         co->id = id;
         if (!noMapping) {
             co->object = allocMapping();
         }
-        if(!noWrite) thisNamespace->objects.write(co);
+        if(!noWrite) {
+            if (alwaysConst) globalNamespace->objects.write(co);
+            else thisNamespace->objects.write(co);
+        }
 
         return co;
     }
@@ -1556,6 +1580,19 @@ private:
      * link the source object and a object
      */
     Dpp_CObject *LinkObject(const std::string &id,
+                            Dpp_CObject *src,
+                            bool alwaysConst = false) {
+        Dpp_CObject *co = MakeObject(id, false, true, alwaysConst);
+        co->object = src->object;
+
+        return co;
+    }
+
+    /*
+     * @return: Dpp_CObject *
+     * link the source object and a object
+     */
+    Dpp_CObject *LinkConst(const std::string &id,
                             Dpp_CObject *src) {
         Dpp_CObject *co = MakeObject(id, false, true);
         co->object = src->object;
@@ -1681,8 +1718,8 @@ private:
         return infos;
 	}
 
-    static struct INFOS GetInfoFromID(std::string id,
-                                      std::string native_lib,
+    static struct INFOS GetInfoFromID(const std::string &id,
+                                      const std::string &native_lib,
                                       std::string native_func) {
         struct INFOS infos;
 
@@ -1695,7 +1732,7 @@ private:
         } else if(id == "final") {
             infos.is_final = true;
         } else if(id == "native") {
-            infos.native_function = native_func;
+            infos.native_function = std::move(native_func);
             infos.native_library = std::string(LIB_PREFIX) + native_lib;
         } else if(id == "constructor") {
             infos.is_constructor = true;
@@ -1714,7 +1751,7 @@ private:
         return infos;
     }
 
-    std::string subreplace(std::string resource_str, std::string sub_str, std::string new_str) {
+    static std::string subreplace(const std::string &resource_str, const std::string &sub_str, const std::string &new_str) {
         std::string dst_str = resource_str;
         std::string::size_type pos = 0;
         while ((pos = dst_str.find(sub_str)) != std::string::npos) {
@@ -1723,7 +1760,7 @@ private:
         return dst_str;
     }
 
-    std::string StringParse(std::string s) {
+    static std::string StringParse(const std::string &s) {
         std::string tmp(SpiltQuote(s));
         tmp = subreplace(tmp, "\\\"", "\"");
         tmp = subreplace(tmp, "\\\'", "\'");
@@ -1745,6 +1782,8 @@ private:
     bool in_loop = false;
     Heap<uint32_t> breaks;
     Heap<uint32_t> continues;
+
+    std::map<std::string, uint32_t> gotos;
 
     Dpp_CObject *return_value = nullptr;
     bool blockNoNamespace = false;

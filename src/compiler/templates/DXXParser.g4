@@ -30,12 +30,12 @@ expressions:
 	| whileLoop			# whileLoopExpr // Done
 	| doWhileLoop		# doWhileLoopExpr // Done
 	| foreachLoop		# foreachLoopExpr
-	| goto				# gotoExpr
-	| gotoLabelDefine	# gotoLabelDefineExpr
+	| goto				# gotoExpr // Done
+	| gotoLabelDefine	# gotoLabelDefineExpr // Done
 	| try				# tryExpr
 	| throw				# throwExpr
 	| typedef			# typedefExprTag // Done
-	| return			# returnExpr
+	| return			# returnExpr // Done
 	| Break				# breakExpr // Done
 	| Continue			# continueExpr // Done
 	| semi				# semiExpr // Done
@@ -85,7 +85,7 @@ typedef: Using ID Assign theType;
 // simple: static x(int y) => int { return y++;}
 function: functionHead block?;
 
-return: Return data;
+return: Return data?;
 
 lambdaFunction:
 	LeftBracket RightBracket LeftParen paramList? RightParen block;
