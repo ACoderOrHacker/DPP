@@ -1764,6 +1764,7 @@ private:
         std::string tmp(SpiltQuote(s));
         tmp = subreplace(tmp, "\\\"", "\"");
         tmp = subreplace(tmp, "\\\'", "\'");
+        tmp = subreplace(tmp, "\\n", "\n");
 
         return tmp;
     }

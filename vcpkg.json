@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "antlr4",
+    "boost-filesystem",
+    "boost-json",
+    "boost-program-options",
+    "boost-serialization",
+    "fmt"
+  ]
+}
