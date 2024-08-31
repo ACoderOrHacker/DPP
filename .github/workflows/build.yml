@@ -20,6 +20,12 @@ jobs:
         os: [ubuntu-latest, windows-latest, windows-2019]
         triplet: [x64-linux, x64-windows-release, x86-windows-release]
 
+        ubuntu-latest:
+            triplet: x64-linux
+        windows-latest:
+            triplet: x64-windows-release
+        windows-2019:
+            triplet: x86-windows-release
 
     steps:
     - name: Checkout code
