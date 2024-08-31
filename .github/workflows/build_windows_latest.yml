@@ -29,7 +29,30 @@ jobs:
       with:
         pkgs: boost-json boost-filesystem boost-serialization boost-program-options antlr4 fmt
         token: ${{ github.token }}
-        triplets: x64-linux-release
+        triplet: x64-linux-release
+        github-binarycache: true
+
+    - name: Build project
+      run: |
+        cd tools
+        python build.py
+
+  build-macos:
+    name: Build on MacOS
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up cmake
+      uses: lukka/get-cmake@latest
+
+    - name: vcpkg build
+      uses: johnwason/vcpkg-action@v6
+      id: vcpkg
+      with:
+        triplet: x64-linux-release
         github-binarycache: true
 
     - name: Build project
