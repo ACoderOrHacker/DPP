@@ -19,6 +19,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, windows-2019]
         triplet: [x64-linux, x64-windows-release, x86-windows-release]
+        compiler: [gcc, msvc]
         exclude:
           - os: windows-2019
             triplet: x64-windows-release
@@ -30,6 +31,11 @@ jobs:
             triplet: x64-windows-release
           - os: ubuntu-latest
             triplet: x86-windows-release
+          - os: ubuntu-latest
+            compiler: msvc
+          - os: windows-latest
+            compiler: gcc
+
 
     steps:
     - name: Checkout code
@@ -37,6 +43,13 @@ jobs:
 
     - name: Set up cmake
       uses: lukka/get-cmake@latest
+
+    - name: Setup Cpp
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: ${{matrix.compiler}}
+        vcvarsall: ${{contains(matrix.os, 'windows')}}
+
 
     - name: vcpkg build
       uses: johnwason/vcpkg-action@v6
