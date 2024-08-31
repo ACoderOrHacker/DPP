@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, windows-2019]
-        triplet: [x64-linux, x64-windows-release, x86-windows-release]
+        triplet: [x64-linux, x64-windows-release]
         compiler: [gcc, msvc]
         exclude:
           - os: windows-2019
@@ -29,8 +29,6 @@ jobs:
             triplet: x64-linux
           - os: ubuntu-latest
             triplet: x64-windows-release
-          - os: ubuntu-latest
-            triplet: x86-windows-release
           - os: ubuntu-latest
             compiler: msvc
           - os: windows-latest
