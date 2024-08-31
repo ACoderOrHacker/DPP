@@ -21,11 +21,14 @@ jobs:
         triplet: [x64-linux, x64-windows-release, x86-windows-release]
 
         ubuntu-latest:
+            # If you want to change the default value for ubuntu-latest, set it here
             triplet: x64-linux
         windows-latest:
+            # If you want to change the default value for windows-latest, set it here
             triplet: x64-windows-release
-        #windows-2019:
-        #    triplet: x86-windows-release
+        windows-2019:
+            # If you want to change the default value for windows-2019, set it here
+            triplet: x86-windows-release
 
     steps:
     - name: Checkout code

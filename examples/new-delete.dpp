@@ -1,4 +1,4 @@
 main() => void {
-    int a = new int;
+    a: int = new int;
     delete a;
 }

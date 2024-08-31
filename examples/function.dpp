@@ -1,10 +1,10 @@
-final x(int y) => int;
+final x(y: int) => int;
 
-final x(int y) => int {
+final x(y: int) => int {
     return y + 1;
 }
 
-native("io", "out") out(object o) => void;
+native("io", "out") out(o: object) => void;
 
 main() => void {
     out(x(1));

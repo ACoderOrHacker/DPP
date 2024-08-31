@@ -398,8 +398,11 @@ void _call(FObject *fObj) {
 }
 
 void _ret(FObject *fObj) {
+    // TODO: _ret cannot use like null object
     Dpp_Object *val = nullptr;
-    if (!theap->isEmpty()) val = fObj->obj_map.get(theap->PopFront());
+    if (!theap->isEmpty()) {
+        val = fObj->obj_map.get(theap->PopFront());
+    }
 
 	fObj->state = fObj->callstack.top();
     fObj->callstack.pop();

@@ -1,7 +1,7 @@
-native("io", "out") out(object o) => void;
+native("io", "out") out(o: object) => void;
 
 main() => void {
-    int i = 0;
+    i: int = 0;
     while(i < 10) {
         with if (i == 5) {
             break;
@@ -13,7 +13,7 @@ main() => void {
 
     out(" ");
 
-    int i2 = 0;
+    i2: int = 0;
     while (i2 < 10) {
         ++i2;
         with if (i2 == 5) {
@@ -24,7 +24,7 @@ main() => void {
 
     }
 
-   int i3 = 0;
+    i3: int = 0;
     do {
         out(i3);
         ++i3;

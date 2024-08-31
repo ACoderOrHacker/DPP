@@ -1,4 +1,4 @@
-native("io", "out") out(object o) => void;
+native("io", "out") out(o: object) => void;
 
 enum Test {
     EnumSubA = 1,

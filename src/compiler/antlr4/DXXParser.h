@@ -942,8 +942,9 @@ public:
   public:
     VarDefineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    TheTypeContext *theType();
     antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *Colon();
+    TheTypeContext *theType();
     std::vector<InfoContext *> info();
     InfoContext* info(size_t i);
     AssignsContext *assigns();
@@ -960,8 +961,9 @@ public:
   public:
     VarDefineNoSetContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    TheTypeContext *theType();
     antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *Colon();
+    TheTypeContext *theType();
     std::vector<InfoContext *> info();
     InfoContext* info(size_t i);
 

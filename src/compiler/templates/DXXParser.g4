@@ -102,9 +102,9 @@ callParamList: data (Comma data)*;
 
 throwtable: Throw (idEx Comma)* idEx?;
 
-varDefine: theType info* ID (assigns data)?;
+varDefine: info* ID Colon theType (assigns data)?;
 
-varDefineNoSet: theType info* ID;
+varDefineNoSet: info* ID Colon theType;
 
 varSet: idEx assigns data;
 

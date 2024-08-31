@@ -1765,6 +1765,11 @@ private:
         tmp = subreplace(tmp, "\\\"", "\"");
         tmp = subreplace(tmp, "\\\'", "\'");
         tmp = subreplace(tmp, "\\n", "\n");
+        tmp = subreplace(tmp, "\\a", "\a");
+        tmp = subreplace(tmp, "\\b", "\b");
+        tmp = subreplace(tmp, "\\f", "\f");
+        tmp = subreplace(tmp, "\\r", "\r");
+        tmp = subreplace(tmp, "\\t", "\t");
 
         return tmp;
     }

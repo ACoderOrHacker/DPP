@@ -1,8 +1,8 @@
-native("io", "out") out(object o) => void;
+native("io", "out") out(o: object) => void;
 
-int a = 114514;
-int b = 1919810;
-string s = "\"Hello, world!\"";
+a: int = 114514;
+b: int = 1919810;
+s: string = "\"Hello, world!\"";
 
 main() => void {
     out(a);
