@@ -12,9 +12,14 @@ on:
 
 
 jobs:
-  build-ubuntu:
-    name: Build on Ubuntu
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, windows-2019]
+        triplet: [x64-linux, x64-windows-release, x86-windows-release]
+
 
     steps:
     - name: Checkout code
@@ -29,60 +34,10 @@ jobs:
       with:
         pkgs: boost-json boost-filesystem boost-serialization boost-program-options antlr4 fmt
         token: ${{ github.token }}
-        triplet: x64-linux-release
+        triplet: ${{matrix.triplet}}
         github-binarycache: true
 
     - name: Build project
       run: |
         cd tools
-        python build.py --debug --vcpkg-root ${{ steps.vcpkg.outputs.vcpkg-root }} --build
-
-  build-windows7:
-    name: Build on Windows 7
-    runs-on: windows-2019
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up cmake
-      uses: lukka/get-cmake@latest
-
-    - name: vcpkg build
-      uses: johnwason/vcpkg-action@v6
-      id: vcpkg
-      with:
-        pkgs: boost-json boost-filesystem boost-serialization boost-program-options antlr4 fmt
-        token: ${{ github.token }}
-        triplet: x64-windows-release
-        github-binarycache: true
-
-    - name: Build project
-      run: |
-        cd tools
-        python build.py --debug --vcpkg-root ${{ steps.vcpkg.outputs.vcpkg-root }} --build
-
-  build-windows-latest:
-    name: Build on Latest Windows
-    runs-on: windows-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up cmake
-      uses: lukka/get-cmake@latest
-
-    - name: vcpkg build
-      uses: johnwason/vcpkg-action@v6
-      id: vcpkg
-      with:
-        pkgs: boost-json boost-filesystem boost-serialization boost-program-options antlr4 fmt
-        token: ${{ github.token }}
-        triplet: x64-windows-release
-        github-binarycache: true
-
-    - name: Build project
-      run: |
-        cd tools
-        python build.py --debug --vcpkg-root ${{ steps.vcpkg.outputs.vcpkg-root }} --build
+        python build.py --debug --vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
