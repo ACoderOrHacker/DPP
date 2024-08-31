@@ -19,15 +19,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, windows-2019]
         triplet: [x64-linux, x64-windows-release, x86-windows-release]
-
-        ubuntu-latest:
-            # If you want to change the default value for ubuntu-latest, set it here
-            triplet: x64-linux
-        windows-latest:
-            # If you want to change the default value for windows-latest, set it here
+        exclude:
+          - os: windows-2019
             triplet: x64-windows-release
-        windows-2019:
-            # If you want to change the default value for windows-2019, set it here
+          - os: windows-2019
+            triplet: x64-linux
+          - os: windows-latest
+            triplet: x64-linux
+          - os: ubuntu-latest
+            triplet: x64-windows-release
+          - os: ubuntu-latest
             triplet: x86-windows-release
 
     steps:
