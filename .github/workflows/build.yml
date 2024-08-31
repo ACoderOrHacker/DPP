@@ -60,5 +60,8 @@ jobs:
 
     - name: Build project
       run: |
-        cd tools
-        python build.py --debug --vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
+        mkdir build
+        cd __build__
+        cmake .. -DCMAKE_BUILD_TYPE=Debug ${{steps.vcpkg.outputs.vcpkg-cmake-config}}
+        # cd tools
+        # python build.py --debug --vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
