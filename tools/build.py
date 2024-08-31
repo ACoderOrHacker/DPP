@@ -16,7 +16,7 @@ build_type: int = AUTO
 is_debug: bool = True
 vcpkg_root: str = "D://vcpkg"
 build_dir: str = "__build__/"
-
+no_vcpkg_root: bool = False
 
 def mkdir(parent: str, folder: str):
 	old_parent: str = os.getcwd()
@@ -71,7 +71,8 @@ def build():
 	cmake: str = "cmake ../ -G\"{}\" ".format(get_makefile_type())
 	cmake_build_args: str = ""
 
-	cmake_build_args += "-DCMAKE_TOOLCHAIN_FILE={}//scripts//buildsystems//vcpkg.cmake ".format(vcpkg_root)
+	if not no_vcpkg_root:
+		cmake_build_args += "-DCMAKE_TOOLCHAIN_FILE={}//scripts//buildsystems//vcpkg.cmake ".format(vcpkg_root)
 
 	for arg in sys.argv:
 		if arg.startswith("-D"):
@@ -104,6 +105,13 @@ def build():
 def main():
 	global build_type, is_debug
 
+	if "--vcpkg-root" in sys.argv:
+		vcpkg_root = sys.argv[sys.argv.index("--vcpkg-root") + 1]
+	if "--no-vcpkg-root" in sys.argv:
+		no_vcpkg_root = True
+	if "--build-path" in sys.argv:
+		build_dir = sys.argv[sys.argv.index("--build-path") + 1]
+
 	if "--no-clean" not in sys.argv:
 		clean.clean()
 
@@ -131,6 +139,7 @@ def main():
 			  "   --release              = Build a release package\n"
 			  "   --debug                = Build a debug package\n"
 			  "   --vcpkg-root           = Set the vcpkg root path\n"
+			  "   --no-vcpkg-root        = Do not use vcpkg\n"
 			  "   --build-path           = Set the build path\n"
 			  "\n"
 			  "You can get all the supported makefile types and corresponding make tools from the cmake.org or use cmake --help")
@@ -158,10 +167,6 @@ def main():
 
 	if "--no-clean" in sys.argv:
 		return
-	if "--vcpkg-root" in sys.argv:
-		vcpkg_root = sys.argv[sys.argv.index("--vcpkg-root") + 1]
-	if "--build-path" in sys.argv:
-		build_dir = sys.argv[sys.argv.index("--build-path") + 1]
 
 
 	clean.clean()
