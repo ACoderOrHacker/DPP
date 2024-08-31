@@ -26,6 +26,7 @@
 #include "DXXParserBaseVisitor.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <string>
 #include <fstream>
 #include <any>

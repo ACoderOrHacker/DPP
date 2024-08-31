@@ -14,6 +14,8 @@ typedef HMODULE Module;
 typedef FARPROC NativeProc;
 #elif __linux__
 #include <dlfcn.h>
+typedef void *Module;
+typedef void *NativeProc;
 #endif
 
 DXX_API Module OpenNativeLib(const char *libname);

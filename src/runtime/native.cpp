@@ -25,13 +25,18 @@
 #include "native.hpp"
 
 DXX_API Module OpenNativeLib(const char *libname) {
-	static Module module;
+	Module module;
 #ifdef _WIN32
 	module = LoadLibrary(libname);
 	if(module == NULL) {
 		return nullptr;
 	}
-#endif // _WIN32
+#else
+    module = dlopen(libname, RTLD_LAZY);
+    if(module == NULL) {
+        return nullptr;
+    }
+#endif
 	return module;
 }
 
@@ -42,14 +47,21 @@ DXX_API NativeProc GetNativeProc(Module m, const char *procname) {
 	if(proc == NULL) {
 		return nullptr;
 	}
-#endif // _WIN32
+#else
+    proc = dlsym(m, procname);
+    if(proc == NULL) {
+        return nullptr;
+    }
+#endif
 	return proc;
 }
 
 DXX_API void FreeNativeLib(Module m) {
 #ifdef _WIN32
 	FreeLibrary(m);
-#endif // _WIN32
+#else
+    dlclose(m);
+#endif
 }
 
 DXX_API std::string WStrToPChar(std::wstring wstr) {
