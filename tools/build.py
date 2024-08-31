@@ -122,6 +122,7 @@ def main():
 			  "Options:"
 			  "\n"
 			  "   --help, -h             = Get the help of usage\n"
+			  "   --build                = Build the project\n"
 			  "   --msvc                 = Compile by MSVC\n"
 			  "   --gcc                  = Compile by GCC\n"
 			  "   --msbuild              = Compile by MSBuild\n"
@@ -144,7 +145,7 @@ def main():
 	elif "--other-compiler" in sys.argv:
 		build_type = NOT_AUTO
 		build()
-	else:
+	elif "--build" in sys.argv:
 		if platform.system() == "Windows":
 			build_type = AUTO
 		elif platform.system() == "Linux":
