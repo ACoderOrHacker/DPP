@@ -84,7 +84,7 @@ int main(int argc, char *argv[] ) {
             OutputInformation();
             std::cout << "\n\n";
 
-            std::vector<boost::filesystem::path> files;
+            std::vector<fs::path> files;
             GetFiles(files, examples_path);
 
             FObject *fObj;

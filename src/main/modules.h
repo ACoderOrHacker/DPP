@@ -10,7 +10,7 @@
 #undef error
 #undef theap
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/json.hpp>
 #include <fmt/core.h>
 #include <fmt/color.h>
@@ -18,8 +18,10 @@
 #include <fstream>
 #include <sstream>
 
-boost::filesystem::path root = boost::filesystem::initial_path<boost::filesystem::path>().parent_path();
-const boost::filesystem::path examples_path = root / "examples";
+namespace fs = std::filesystem;
+
+fs::path root = fs::current_path().parent_path();
+const fs::path examples_path = root / "examples";
 
 auto *__stdout = std::cout.rdbuf();
 auto *__stdin = std::cin.rdbuf();
@@ -167,14 +169,14 @@ void OutputFObject(FObject *fObj, bool isOutputCopyright = true) {
     OutputS_FObject(GetS_FObject(fObj), isOutputCopyright);
 }
 
-bool GetFiles(std::vector<boost::filesystem::path> &files, const boost::filesystem::path &path) {
+bool GetFiles(std::vector<fs::path> &files, const fs::path &path) {
     try {
         files.clear();
-        for (const auto &it : boost::filesystem::directory_iterator(path)) {
-            if (boost::filesystem::is_directory(it.path()))
+        for (const auto &it : fs::directory_iterator(path)) {
+            if (fs::is_directory(it.path()))
                 continue;
 
-            boost::filesystem::path file = it.path();
+            const fs::path &file = it.path();
             files.push_back(file);
         }
         return true;
@@ -199,7 +201,7 @@ void RestoreOstream() {
 
 void CheckTest(const std::string &id, const std::string &buf) {
     std::ifstream file;
-    boost::filesystem::path tests_path(examples_path / "tests.json");
+    fs::path tests_path(examples_path / "tests.json");
     file.open(tests_path.string());
     if (!file.is_open()) {
         fmt::print(fmt::fg(fmt::color::red), "\nerror: cannot find tests.json file\n");
