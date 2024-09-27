@@ -34,7 +34,7 @@ std::string GetCompilerInfo() {
 #ifdef __clang__
     return fmt::format("{}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
 #elif defined(__GNUC__)
-    return fmt::format("{}.{}.{}", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL);
+    return fmt::format("{}.{}.{}", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #elif defined(_MSC_VER)
     return fmt::format("MSC .v{}", _MSC_VER);
 #else

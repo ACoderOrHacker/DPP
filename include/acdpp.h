@@ -8,7 +8,7 @@
 #define VERSION_LOW 1
 #define DXX_VERSION "0.1"
 
-#ifdef _WIN32
+#ifdef _MSC_VER // for MSVC
 #ifdef _DXX_API
 #define DXX_API __declspec(dllimport)
 #else
