@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: linux-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up cmake
+      uses: lukka/get-cmake@latest
+
+    - name: Setup Cpp
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: gcc
+
+    - name: vcpkg build
+      uses: johnwason/vcpkg-action@v6
+      id: vcpkg
+      with:
+        pkgs: boost-json boost-serialization boost-program-options antlr4 fmt
+        token: ${{ github.token }}
+        triplet: x64-linux
+        github-binarycache: true
+
+    - name: Build project
+      run: |
+        cd tools
+        python build.py --debug --no-vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: built-project
+        path: ${{github.workspace}}/

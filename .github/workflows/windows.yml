@@ -13,27 +13,9 @@ on:
 
 jobs:
   build:
-    runs-on: ${{matrix.os}}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, windows-2019]
-        triplet: [x64-linux, x64-windows-release]
-        compiler: [gcc, msvc]
-        exclude:
-          - os: windows-2019
-            triplet: x64-windows-release
-          - os: windows-2019
-            triplet: x64-linux
-          - os: windows-latest
-            triplet: x64-linux
-          - os: ubuntu-latest
-            triplet: x64-windows-release
-          - os: ubuntu-latest
-            compiler: msvc
-          - os: windows-latest
-            compiler: gcc
-
 
     steps:
     - name: Checkout code
@@ -45,9 +27,8 @@ jobs:
     - name: Setup Cpp
       uses: aminya/setup-cpp@v1
       with:
-        compiler: ${{matrix.compiler}}
+        compiler: msvc
         vcvarsall: ${{contains(matrix.os, 'windows')}}
-
 
     - name: vcpkg build
       uses: johnwason/vcpkg-action@v6
@@ -55,7 +36,7 @@ jobs:
       with:
         pkgs: boost-json boost-serialization boost-program-options antlr4 fmt
         token: ${{ github.token }}
-        triplet: ${{matrix.triplet}}
+        triplet: x64-windows
         github-binarycache: true
 
     - name: Build project
@@ -68,5 +49,3 @@ jobs:
       with:
         name: built-project
         path: ${{github.workspace}}/
-
-
