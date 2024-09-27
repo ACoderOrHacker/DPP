@@ -66,7 +66,7 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS serialization program_options filesystem json)
+find_package(Boost REQUIRED COMPONENTS serialization program_options json)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
