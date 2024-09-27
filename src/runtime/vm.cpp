@@ -187,13 +187,15 @@ VM_API bool Exec(OpCode opcode, FObject *fObj) {
 }
 
 #ifndef _WIN32
-void InitVMLibrary() __attribute__((constructor)) {
-
+void InitVMLibrary() __attribute__((constructor));
+void InitVMLibrary() {
+    initBuiltin();
 }
 #else
 BOOL WINAPI DllMain(HINSTANCE,
 	DWORD,
 	LPVOID) {
+    initBuiltin();
 	return TRUE;
 }
 #endif
