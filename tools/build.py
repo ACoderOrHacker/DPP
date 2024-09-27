@@ -47,20 +47,6 @@ def get_makefile_type():
 		makefile_type: str = input("Please input the Makefile type: ")
 		return makefile_type
 
-
-
-def get_makefile_generator():
-	if build_type == AUTO:
-		return "nmake"
-	elif build_type == MSBUILD:
-		return "msbuild DPP.sln"
-	elif build_type == GCC:
-		return "make -j 4"
-	else:
-		gen: str = input("Please input the generator: ")
-		return gen
-
-
 def build():
 	"""
 
@@ -93,7 +79,11 @@ def build():
 	if cmake_ret != 0:
 		bad_build()
 	else:
-		gen_ret: int = os.system(get_makefile_generator())
+		gen_ret: int
+		if is_debug:
+			gen_ret = os.system("cmake --build . --config Debug --target all")
+		else:
+			gen_ret = os.system("cmake --build . --config Release --target all")
 		if gen_ret != 0:
 			bad_build()
 

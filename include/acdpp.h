@@ -14,11 +14,11 @@
 #else
 #define DXX_API __declspec(dllexport)
 #endif // _DXX_API
+#define _DXX_EXPORT_API extern "C" __declspec(dllexport)
 #else
 #define DXX_API
+#define _DXX_EXPORT_API extern "C"
 #endif
-
-#define _DXX_EXPORT_API extern "C" __declspec(dllexport)
 
 #ifdef _MSC_VER // for MSVC
 #define forceinline __forceinline

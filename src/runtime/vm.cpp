@@ -108,7 +108,7 @@ forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id) {
     return opcode_name_list[opcode_id - 1];
 }
 
-forceinline VM_API const char *GetFlagName(uint8_t i) {
+VM_API const char *GetFlagName(uint8_t i) {
     return flag_name_list[i - 1];
 }
 
