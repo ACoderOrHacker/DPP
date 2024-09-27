@@ -142,7 +142,7 @@ add_library(compiler SHARED ${COMPILER_FILES} ${ACASSERT_FILES})
 target_link_libraries(compiler antlr4_shared vm fmt::fmt-header-only)
 
 add_executable(dpp src/main/dpp.cpp ${ACASSERT_FILES})
-target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options Boost::filesystem Boost::json)
+target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options Boost::json)
 
 add_executable(debug src/main/debug.cpp src/main/modules.h ${ACASSERT_FILES})
-target_link_libraries(debug vm fmt::fmt-header-only Boost::filesystem Boost::json)
+target_link_libraries(debug vm fmt::fmt-header-only Boost::json)
