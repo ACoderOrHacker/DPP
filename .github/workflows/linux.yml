@@ -12,8 +12,8 @@ on:
 
 
 jobs:
-  build:
-    runs-on: linux-latest
+  build_ubuntu:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
 

@@ -12,7 +12,7 @@ on:
 
 
 jobs:
-  build:
+  build_windows:
     runs-on: windows-latest
     strategy:
       fail-fast: false
