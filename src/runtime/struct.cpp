@@ -22,6 +22,7 @@
   SOFTWARE.
  */
 
+#include <iostream>
 #include "struct.hpp"
 #include "objects.hpp"
 
@@ -29,141 +30,69 @@
 Object null;
 
 Dpp_Object *Dpp_Object::operator +(Dpp_Object *obj) {
-	if(obj == nullptr || (this->reg->nb_add == nullptr)) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_add(this, obj);
-	return rtn;
+    return add(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator -(Dpp_Object *obj) {
-	if(obj == nullptr || (this->reg->nb_sub == nullptr)) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_sub(this, obj);
-	return rtn;
+	return sub(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator *(Dpp_Object *obj) {
-	if(obj == nullptr || (this->reg->nb_mul == nullptr)) {
-		return nullptr;
-	}
-
-
-	Dpp_Object *rtn = this->reg->nb_mul(this, obj);
-	return rtn;
+	return mul(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator /(Dpp_Object *obj) {
-	if(obj == nullptr || (this->reg->nb_div == nullptr)) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_div(this, obj);
-	return rtn;
+	return div(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator %(Dpp_Object *obj) {
-	if(obj == nullptr || (this->reg->nb_mod == nullptr)) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_mod(this, obj);
-	return rtn;
+	return mod(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator >(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->bigger(this, obj);
-	return rtn;
+	return bigger(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator <(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->smaller(this, obj);
-	return rtn;
+    return smaller(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator ==(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->equal(this, obj);
-	return rtn;
+	return equal(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator !() {
-	Dpp_Object *rtn = this->reg->notval(this);
-	return rtn;
+	return notval(this);
 }
 
 Dpp_Object *Dpp_Object::operator <<(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_shl(this, obj);
-	return rtn;
+	return shl(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator >>(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_shr(this, obj);
-	return rtn;
+	return shr(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator &(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_band(this, obj);
-	return rtn;
+	return band(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator |(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_bor(this, obj);
-	return rtn;
+	return bor(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator ^(Dpp_Object *obj) {
-	if(obj == nullptr) {
-		return nullptr;
-	}
-
-	Dpp_Object *rtn = this->reg->nb_bxor(this, obj);
-	return rtn;
+	return bxor(this, obj);
 }
 
 Dpp_Object *Dpp_Object::operator ~() {
-	Dpp_Object *rtn = this->reg->nb_bneg(this);
-	return rtn;
+	return bneg(this);
 }
 
 bool Dpp_Object::print() {
-	if(this->reg->print != nullptr) {
-		bool state = this->reg->print(this);
-		return state;
-	} else {
-		std::cout << this; // only output pointer
-		return true; // success
-	}
+	std::cout << to_string(this);
+
+    return true;
 }
 
 Dpp_Object *Dpp_Object::move(Dpp_Object *obj) {

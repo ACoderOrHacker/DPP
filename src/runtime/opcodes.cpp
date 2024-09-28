@@ -443,8 +443,7 @@ void _calln(FObject *fObj) {
             Object _to = theap->PopFront();
             fObj->obj_map.write(_to, ret, true);
         }
-    }
-    else {
+    } else {
         SetError(fObj, Dpp_TypeNotRightError, L"");
     }
 }
@@ -512,11 +511,7 @@ void _del(FObject *fObj) {
 
     Dpp_Object *obj = fObj->obj_map.get(_obj);
 
-    STATUS status = DeleteObject(obj);
-
-    if(status == STATUS_FAILED) {
-        SetError(fObj, Dpp_NullPointerError, L"");
-    }
+    DeleteObject(obj);
 }
 
 void _mov(FObject *fObj) {

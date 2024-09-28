@@ -7,8 +7,4 @@
 
 #define None nullptr
 
-namespace dxx {
-    namespace api {
-}
-}
 #endif // !_INC_DXX_API

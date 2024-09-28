@@ -31,15 +31,3 @@ DXX_API Dpp_Object *NewObject(size_t size) {
 
 	return (Dpp_Object *)malloc(size);
 }
-
-STATUS DeleteObject(Dpp_Object *obj) {
-	if(obj != nullptr) {
-		if(obj->reg->mem_free != nullptr) {
-			obj->reg->mem_free(obj);
-		}
-
-		return STATUS_SUCCESS; // success
-	}
-
-	return STATUS_FAILED; // failed to delete
-}

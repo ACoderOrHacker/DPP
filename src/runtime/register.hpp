@@ -25,11 +25,9 @@ SOFTWARE.
 #ifndef REGISTER
 #define REGISTER
 
-#include <iostream>
 #include <typeinfo>
 #include "struct.hpp"
 #include "objects.hpp"
-#include "builtin.hpp"
 
 #define IS_TYPE_EQUAL(type1, type2) (type1 == type2)
 

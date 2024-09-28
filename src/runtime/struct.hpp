@@ -25,8 +25,6 @@
 #ifndef _STRUCT_H
 #define _STRUCT_H
 #include <cstdint>
-#include <iostream>
-#include <cstring>
 #include <string>
 #include <stack>
 #include <boost/archive/binary_iarchive.hpp>
@@ -40,11 +38,10 @@
 #include "macros.hpp"
 #include "array.hpp"
 #include "heap.hpp"
-#include "set.hpp"
 #include "enum.hpp"
 #include "native.hpp"
 
-typedef long long Interger;
+typedef long long Integer;
 typedef double FloatNum;
 typedef std::wstring String;
 
@@ -56,8 +53,8 @@ public:
 	bool isInGlobal = true;
 	uint32_t id = 0;
 
-	bool operator ==(_Object o) { return (this->id == o.id &&
-		                          this->isInGlobal == o.isInGlobal); }
+	bool operator ==(_Object o) const { return (this->id == o.id &&
+                                        this->isInGlobal == o.isInGlobal); }
 } Object;
 
 struct _Version {
@@ -72,61 +69,15 @@ struct Version {
 	};
 }; // D++ Version structure
 
-forceinline Version getVersion() {
-    Version ver;
-    ver.ver.high = VERSION_HIGH;
-    ver.ver.low = VERSION_LOW;
-
-    return ver;
-}
-
-typedef Dpp_Object *(* nb_func)(Dpp_Object *, Dpp_Object *);
-typedef Dpp_Object *(* nb_func1)(Dpp_Object *); // only 1 param
-typedef bool(* print_func)(Dpp_Object *);
-typedef std::string(* to_string_func)(Dpp_Object *);
-typedef Dpp_Object *(* logic_func)(Dpp_Object *, Dpp_Object *);
-typedef Dpp_Object *(* logic_func1)(Dpp_Object *);
-typedef void (* mem_free_func)(Dpp_Object *);
-typedef void (* init_func)(Dpp_Object *);
-typedef void (* mov_func)(Dpp_Object *, Dpp_Object *);
-
 Dpp_Object *StdBigger(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdSmaller(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdEqual(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdNot(Dpp_Object *);
-struct RegType {
-    const char *name = "none";
-	uint8_t type;
-	size_t size;
-
-	// for number
-	// number function if is nullptr value, call interpter no function of this operator
-	nb_func nb_add = nullptr;
-	nb_func nb_sub = nullptr;
-	nb_func nb_mul = nullptr;
-	nb_func nb_div = nullptr;
-	nb_func nb_mod = nullptr;
-	nb_func nb_shl = nullptr;
-	nb_func nb_shr = nullptr;
-	nb_func nb_band = nullptr;
-	nb_func nb_bor = nullptr;
-	nb_func nb_bxor = nullptr;
-	nb_func1 nb_bneg = nullptr;
-
-	logic_func bigger = nullptr;
-	logic_func smaller = nullptr;
-	logic_func equal = nullptr;
-	logic_func1 notval = nullptr;
-
-	print_func print = nullptr;
-    to_string_func to_string = nullptr;
-
-	mem_free_func mem_free = nullptr; // free the data
-    init_func init = nullptr;
-    mov_func move = nullptr;
-};
 
 class Dpp_Object {
+public:
+    virtual ~Dpp_Object() = default; // virtual destructor
+
 	public:
 		Dpp_Object *operator +(Dpp_Object *obj);
 		Dpp_Object *operator -(Dpp_Object *obj);
@@ -143,14 +94,34 @@ class Dpp_Object {
 		Dpp_Object *operator &(Dpp_Object *obj);
 		Dpp_Object *operator ^(Dpp_Object *obj);
 		Dpp_Object *operator ~();
-		bool print();
+		virtual bool print();
 		Dpp_Object *move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
+
+    protected:
+        virtual Dpp_Object *add(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *sub(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *mul(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *div(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *mod(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *shl(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *shr(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *band(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *bor(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *bxor(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *bneg(Dpp_Object *) = 0;
+        virtual Dpp_Object *bigger(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *smaller(Dpp_Object *, Dpp_Object *) = 0;
+        virtual Dpp_Object *equal(Dpp_Object *, Dpp_Object *) = 0;
+
+        virtual std::string to_string(Dpp_Object *) = 0;
+        virtual Dpp_Object *notval(Dpp_Object *) = 0;
+
+        virtual void mem_free(Dpp_Object *) = 0;
 
 	public:
 		std::string name;
 		char info = 0; // see doc/object/info.md
-		RegType *reg = nullptr;
         bool isTypeObject = false;
 };
 
@@ -184,8 +155,11 @@ public:
 
 	void write(Object o, Dpp_Object *obj, bool isRewrite = false) {
 		Array<Dpp_Object *> func_mapping = this->getMapping(o);
-		if(!isRewrite) {func_mapping.write(o.id, obj);}
-        else           {func_mapping.rewrite(o.id, obj);}
+		if(!isRewrite) {
+            func_mapping.write(o.id, obj);
+        } else {
+            func_mapping.rewrite(o.id, obj);
+        }
 	}
 
 	void create_mapping(uint32_t mapping_id, bool is_lambda = false) {
@@ -257,7 +231,7 @@ public:
             ++i;
         }
 	}
-	~_FObject() {}
+	~_FObject() = default;
 
 public:
 	Tmp_Heap *_theap;
@@ -275,4 +249,26 @@ public:
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);
+
+// apis
+NAMESPACE_DPP_BEGIN
+
+// Defines types
+
+using object = Dpp_Object;
+using vm = FObject *;
+using state = struct VMState;
+using error = VMError;
+using opcode = OpCode;
+using mapping = ObjectMapping; // mapped object
+
+forceinline Version get_version() {
+    Version ver = {};
+    ver.ver.high = VERSION_HIGH;
+    ver.ver.low = VERSION_LOW;
+
+    return ver;
+}
+NAMESPACE_DPP_END
+
 #endif // !_STRUCT_H

@@ -25,42 +25,45 @@ SOFTWARE.
 #ifndef DPPDEF_OBJECTS
 #define DPPDEF_OBJECTS
 
-#include <exception>
+#include <type_traits>
+#include "builtin.hpp"
 #include "struct.hpp"
 #include "macros.hpp"
-#define OBJECT_HEAD Dpp_Object head;
+#include "acoder/acassert/acassert.h"
 
-class TypeNotRightError : std::exception {};
+Dpp_DEFINE_ERROR(TypeNotRightError)
 
-// Warning : All object's value will named 'val'
-struct IntObject {
-	OBJECT_HEAD
-	Interger val = 0; // interger value
+Dpp_TYPE(IntObject) {
+public:
+    Integer val = 0; // integer value
+public:
 };
 
-struct FloatObject {
-	OBJECT_HEAD
-	FloatNum val = 0.0; // floating number value
+Dpp_TYPE(FloatObject) {
+public:
+    FloatNum val = 0.0; // floating number value
+public:
 };
 
-struct StringObject {
-	OBJECT_HEAD
-	String val; // string value
+Dpp_TYPE(StringObject) {
+public:
+    String val(); // string value
+public:
 };
 
-#define CLASS_OBJECT OBJECT_HEAD Heap<Dpp_Object *> members;
-struct ClassObject {
-    CLASS_OBJECT
+Dpp_TYPE(ClassObject) {
+public:
+    Heap<Dpp_Object *> members; // members of the class
+public:
 };
 
-struct FunctionObject {
-    OBJECT_HEAD
+Dpp_TYPE(FunctionObject) {
+public:
     struct VMState state;
-    Heap<Object> params;
 };
 
-struct ErrorObject {
-    CLASS_OBJECT
+Dpp_TYPE_EX(ErrorObject, ClassObject) {
+public:
     std::stack<FunctionObject *> handles;
 };
 
@@ -70,45 +73,41 @@ struct BitObject {
 	bit val; // bit value
 };
  */
-struct ObjectObject {
-	OBJECT_HEAD // only has object head
-};
-
-#ifdef CPP_NATIVEAPI
-// this object is api
-template<typename MODEL> struct ModelObject {
-	OBJECT_HEAD
-	MODEL val;
-};
-#endif // CPP_NATIVEAPI
 
 // create a object and return the object head
 
 DXX_API Dpp_Object *NewObject(size_t size);
-STATUS DeleteObject(Dpp_Object *obj);
 
 template<typename T> Dpp_Object *NewObject() {
     return (Dpp_Object *)new T;
 
 	// return NewObject(sizeof(T));
 }
+void DeleteObject(Dpp_Object *obj) {
+    acassert(obj == nullptr || obj == Dpp_NullObject);
 
-template<typename T> void DeleteObject(Dpp_Object *obj) {
-    delete (T *)obj;
-    obj = nullptr;
+    delete obj;
+    obj = Dpp_NullObject;
 
-	// DeleteObject(obj);
 }
 
-template<typename T, typename RTN_T> inline RTN_T GetObjectData(Dpp_Object *obj) {
-	return (((T *)obj)->val);
+NAMESPACE_DPP_BEGIN
+
+// This function may throw an std::bad_alloc
+template<class T> forceinline Dpp_Object *new_object() {
+    static_assert(std::is_base_of<T, Dpp_Object>::value, "<dpp::new_object>: T must base from Dpp_Object");
+
+    return (Dpp_Object *)new T;
 }
 
-inline uint16_t GetObjectType(Dpp_Object *obj) {
-	return (obj->reg->type);
+template<class T> forceinline Dpp_Object *delete_object(Dpp_Object *obj) {
+    static_assert(std::is_base_of<T, Dpp_Object>::value, "<dpp::new_object>: T must base from Dpp_Object");
+
+    delete obj;
+    obj = Dpp_NullObject;
+    return obj;
 }
 
-template<typename T, typename VAL_T> inline void SetObject(Dpp_Object *obj, VAL_T &val) {
-    ((T *)obj)->val = val;
-}
+NAMESPACE_DPP_END
+
 #endif // !DPPDEF_OBJECTS

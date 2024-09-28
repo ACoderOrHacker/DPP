@@ -56,11 +56,11 @@ DXX_API NativeProc GetNativeProc(Module m, const char *procname) {
 	return proc;
 }
 
-DXX_API void FreeNativeLib(Module m) {
+DXX_API bool FreeNativeLib(Module m) {
 #ifdef _WIN32
-	FreeLibrary(m);
+	return FreeLibrary(m) == TRUE;
 #else
-    dlclose(m);
+    return dlclose(m) == 0;
 #endif
 }
 

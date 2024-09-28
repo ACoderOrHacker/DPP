@@ -1,6 +1,8 @@
 #ifndef _DPP_MACROS
 #define _DPP_MACROS
 
+#include <exception> // std::exception
+
 /*
  * The Status Code
  */
@@ -33,5 +35,16 @@ typedef bool STATUS;
 #define LIB_PREFIX "lib"
 #define PLATFORM_LIB_EX ".so"
 #endif
+
+#define NAMESPACE_DPP_BEGIN namespace dpp {
+#define NAMESPACE_DPP_END }
+#define NAMESPACE_BASE_BEGIN namespace base {
+#define NAMESPACE_BASE_END }
+
+#define Dpp_DEFINE_ERROR(id) class id : std::exception{};
+#define Dpp_TYPE(id) class id : protected Dpp_Object
+
+// Define a type with base class
+#define Dpp_TYPE_EX(id, base) class id : public base
 
 #endif // !_DPP_MACROS
