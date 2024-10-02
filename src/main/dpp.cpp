@@ -7,6 +7,7 @@
 #include "compiler.hpp"
 #include "vm.hpp"
 #include "modules.h"
+#include "dpp/api.h"
 
 #if defined (_DEBUG) || defined (DEBUG)
 #define TEST
@@ -33,7 +34,7 @@ int main(int argc, char *argv[] ) {
         opt::notify(vm);
 
         if (vm.count("help") || vm.empty()) {
-            OutputInformation();
+            dpp::output_information();
             std::cout << "\n\n";
 
             fmt::print("Usage: dpp [options]\n\n");
@@ -41,39 +42,40 @@ int main(int argc, char *argv[] ) {
             return 0;
         }
         else if(vm.count("run")) {
-            std::ifstream ifs;
             std::string filename = vm["run"].as<std::string>();
-            ifs.open(filename);
-            if (!ifs.is_open()) {
-                fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' source file\n", filename);
-                return 1;
-            }
-            FObject *fObj = compile(ifs);
-            ifs.close();
+            std::fstream ifs = dpp::open_file(filename, std::ios_base::in,
+                [](const std::string &filename, std::fstream &fs) {
+                    fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' source file\n", filename);
+                    exit(1);
+                });
 
-            int exit_code = VM_Run(fObj, false);
+            dpp::vm _vm = compile(ifs);
+            dpp::close_file(ifs);
+
+            int exit_code = dpp::run(_vm, false);
             exit(exit_code);
         }
         else if (vm.count("list")) {
-            OutputInformation();
+            dpp::output_information();
             std::cout << "\n\n";
 
             uint32_t i = 0;
             for (auto &it : vm["list"].as<std::vector<std::string>>()) {
                 fmt::print("[{}] {}", i, it);
 
-                std::ifstream ifs;
-                ifs.open(it);
-                if (!ifs.is_open()) {
+                std::fstream ifs;
+
+                try {
+                    ifs = dpp::open_file(it);
+                } catch(std::runtime_error &) {
                     fmt::print(fmt::fg(fmt::color::red), "error: cannot find {} source file\n", it);
                     continue;
                 }
                 fObj = compile(ifs);
-                ifs.close();
+                dpp::close_file(ifs);
 
-                OutputFObject(fObj, false);
-                delete fObj;
-                fObj = nullptr;
+                dpp::output_vm(fObj, false);
+                dpp::clean_vm();
 
                 std::cout << "\n\n";
                 ++i;
@@ -81,11 +83,11 @@ int main(int argc, char *argv[] ) {
         }
 #ifdef _COMPILE_TEST
         else if (vm.count("compile-test")) {
-            OutputInformation();
+            dpp::output_information();
             std::cout << "\n\n";
 
             std::vector<fs::path> files;
-            GetFiles(files, examples_path);
+            dpp::get_files(files, examples_path);
 
             FObject *fObj;
             uint32_t i = 1;
@@ -103,12 +105,12 @@ int main(int argc, char *argv[] ) {
                 fObj = compile(ifs);
                 ifs.close();
 
-                SetOstream(out);
+                dpp::switch_ostream(out.rdbuf());
                 VM_Run(fObj, true);
-                std::string str((std::istreambuf_iterator<char>(GetOstream())), std::istreambuf_iterator<char>());
+                std::string str = out.str();
                 std::cout << "Output result: " << str << "\n";
-                CheckTest(it.filename().string(), str);
-                RestoreOstream();
+                dpp::check_test(it.filename().string(), str);
+                dpp::switch_ostream(dpp::__stdout);
 
                 std::cout << "\n\n";
                 ++i;

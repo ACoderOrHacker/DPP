@@ -95,6 +95,7 @@ public:
 		Dpp_Object *operator ^(Dpp_Object *obj);
 		Dpp_Object *operator ~();
 		virtual bool print();
+        virtual bool is_true();
 		Dpp_Object *move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
 
@@ -125,7 +126,7 @@ public:
         bool isTypeObject = false;
 };
 
-DXX_API std::string to_string(Dpp_Object *obj);
+DXX_API std::string object_to_string(Dpp_Object *obj);
 
 class ObjectMapping {
 public:

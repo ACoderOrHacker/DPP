@@ -24,11 +24,8 @@
 
 #ifndef _DXX_RUNTIME_
 #define _DXX_RUNTIME_
-#include <iostream>
-#include <string>
 #include "error.hpp"
 #include "struct.hpp"
-#include "stdrt.hpp"
 
 #define theap (fObj->_theap)
 #define error (fObj->_error)

@@ -36,13 +36,29 @@ typedef bool STATUS;
 #define PLATFORM_LIB_EX ".so"
 #endif
 
-#define NAMESPACE_DPP_BEGIN namespace dpp {
-#define NAMESPACE_DPP_END }
-#define NAMESPACE_BASE_BEGIN namespace base {
-#define NAMESPACE_BASE_END }
+#define NAMESPACE_BEGIN(ns) namespace ns {
+#define NAMESPACE_END }
+#define NAMESPACE_DPP_BEGIN NAMESPACE_BEGIN(dpp)
+#define NAMESPACE_DPP_END NAMESPACE_END
+#define NAMESPACE_BASE_BEGIN NAMESPACE_BEGIN(base)
+#define NAMESPACE_BASE_END NAMESPACE_END
 
 #define Dpp_DEFINE_ERROR(id) class id : std::exception{};
 #define Dpp_TYPE(id) class id : protected Dpp_Object
+
+#define Dpp_REGISTER_TYPE(dpptype, cpptype)                  \
+NAMESPACE_DPP_BEGIN                                                                       \
+    bool is_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj) != nullptr; } \
+    cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
+NAMESPACE_DPP_END
+
+#define Dpp_REGISTER_TYPE_EX(dpptype, cpptype, valid)      \
+Dpp_REGISTER_TYPE(dpptype, cpptype)                        \
+NAMESPACE_DPP_BEGIN                                        \
+    auto get_##dpptype(dpp::object *obj) { return to_##dpptype(obj)->valid; } \
+    void set_##dpptype(dpp::object *obj, auto val) { to_dpptype(obj)->valid = val; } \
+    dpp::object *make_##dpptype(auto val) { return ((cpptype *)dpp::new_object<cpptype>())->valid = val; } \
+NAMESPACE_DPP_END
 
 // Define a type with base class
 #define Dpp_TYPE_EX(id, base) class id : public base

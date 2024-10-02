@@ -51,28 +51,7 @@ SOFTWARE.
 
 struct _LinkType;
 
-DXX_API RegType *GetReg(const std::type_info &type);
-
-// this function only can get the standard types
-template<typename T, typename VAL_T> Dpp_Object *mkConst(VAL_T val) {
-    Dpp_Object *ret = NewObject<T>();
-    SetObject<T, VAL_T>(ret, val);
-    RegType *reg = GetReg(typeid(VAL_T));
-
-    ret->reg = reg;
-    return ret;
-}
-
 DXX_API Dpp_Object *mkFunction(std::string id);
-
-template<typename T, typename VAL_T> Dpp_Object *mkConstEx(FObject *fObj, uint8_t typeval, VAL_T val) {
-    RegType *type = fObj->obj_map.get({ 0, typeval })->reg;
-    Dpp_Object *ret = NewObject(type->size);
-    SetObject<T, VAL_T>(ret, val);
-    ret->reg->type = typeval;
-    ret->reg = type;
-    return ret;
-}
 
 // for interger
 Dpp_Object *IntAdd(Dpp_Object *lval, Dpp_Object *rval);
@@ -103,7 +82,6 @@ bool StringPrint(Dpp_Object *print_obj);
 std::string StringToString(Dpp_Object *val);
 
 DXX_API void RegInit(FObject *fObj);
-inline void RegSet(Dpp_Object *obj, RegType *reg);
 
 void StdFree(Dpp_Object *obj);
 Dpp_Object *StdBigger(Dpp_Object *lval, Dpp_Object *rval);

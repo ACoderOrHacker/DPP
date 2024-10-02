@@ -63,6 +63,7 @@ DXX_API FObject *fObj = new FObject;
 DXX_API FObject *_compile(antlr4::ANTLRInputStream stream);
 DXX_API FObject *compile(std::string &code);
 DXX_API FObject *compile(std::ifstream &ifs);
+DXX_API FObject *compile(std::fstream &ifs);
 
 struct _Dpp_CObject;
 class RetTypeNeqError : std::exception {};

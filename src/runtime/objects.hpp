@@ -33,63 +33,12 @@ SOFTWARE.
 
 Dpp_DEFINE_ERROR(TypeNotRightError)
 
-Dpp_TYPE(IntObject) {
-public:
-    Integer val = 0; // integer value
-public:
-};
-
-Dpp_TYPE(FloatObject) {
-public:
-    FloatNum val = 0.0; // floating number value
-public:
-};
-
-Dpp_TYPE(StringObject) {
-public:
-    String val(); // string value
-public:
-};
-
-Dpp_TYPE(ClassObject) {
-public:
-    Heap<Dpp_Object *> members; // members of the class
-public:
-};
-
-Dpp_TYPE(FunctionObject) {
-public:
-    struct VMState state;
-};
-
-Dpp_TYPE_EX(ErrorObject, ClassObject) {
-public:
-    std::stack<FunctionObject *> handles;
-};
-
 /*
 struct BitObject {
 	OBJECT_HEAD
 	bit val; // bit value
 };
  */
-
-// create a object and return the object head
-
-DXX_API Dpp_Object *NewObject(size_t size);
-
-template<typename T> Dpp_Object *NewObject() {
-    return (Dpp_Object *)new T;
-
-	// return NewObject(sizeof(T));
-}
-void DeleteObject(Dpp_Object *obj) {
-    acassert(obj == nullptr || obj == Dpp_NullObject);
-
-    delete obj;
-    obj = Dpp_NullObject;
-
-}
 
 NAMESPACE_DPP_BEGIN
 
@@ -102,6 +51,7 @@ template<class T> forceinline Dpp_Object *new_object() {
 
 template<class T> forceinline Dpp_Object *delete_object(Dpp_Object *obj) {
     static_assert(std::is_base_of<T, Dpp_Object>::value, "<dpp::new_object>: T must base from Dpp_Object");
+    acassert(obj == nullptr || obj == Dpp_NullObject);
 
     delete obj;
     obj = Dpp_NullObject;
@@ -109,5 +59,51 @@ template<class T> forceinline Dpp_Object *delete_object(Dpp_Object *obj) {
 }
 
 NAMESPACE_DPP_END
+
+Dpp_TYPE(IntObject) {
+public:
+    Integer val = 0; // integer value
+public:
+};
+
+Dpp_REGISTER_TYPE_EX(int, IntObject, val)
+
+Dpp_TYPE(FloatObject) {
+public:
+    FloatNum val = 0.0; // floating number value
+public:
+};
+
+Dpp_REGISTER_TYPE_EX(float, FloatObject, val)
+
+Dpp_TYPE(StringObject) {
+public:
+    String val; // string value
+public:
+};
+
+Dpp_REGISTER_TYPE_EX(string, StringObject, val)
+
+Dpp_TYPE(ClassObject) {
+public:
+    Heap<Dpp_Object *> members; // members of the class
+public:
+};
+
+Dpp_REGISTER_TYPE(class, ClassObject)
+
+Dpp_TYPE(FunctionObject) {
+public:
+    struct VMState state;
+};
+
+Dpp_REGISTER_TYPE(function, FunctionObject)
+
+Dpp_TYPE_EX(ErrorObject, ClassObject) {
+public:
+    std::stack<FunctionObject *> handles;
+};
+
+Dpp_REGISTER_TYPE(error, ErrorObject)
 
 #endif // !DPPDEF_OBJECTS

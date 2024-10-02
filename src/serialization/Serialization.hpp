@@ -4,12 +4,17 @@
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <cstdio>
 #include "struct.hpp"
 
 struct FileHeader {
-    std::string MagicNumber = "";
-    Version version = getVersion();
-    Version LowestVersion = getVersion();
+    FileHeader() {
+        MagicNumber = "DPPO";
+    }
+
+    std::string MagicNumber;
+    Version version = dpp::get_version();
+    Version LowestVersion = dpp::get_version();
 };
 
 class S_FObject {
@@ -37,12 +42,12 @@ S_FObject *GetS_FObject(FObject *fObj) {
     return s_fObj;
 }
 
-namespace dpp {
-    namespace serialization {
+NAMESPACE_DPP_BEGIN
+    NAMESPACE_BEGIN(serialize)
         template<typename T> T *load(std::istream);
 
         template<typename T> STATUS save(std::ostream &, T *);
-    }
-}
+    NAMESPACE_END
+NAMESPACE_DPP_END
 
 #endif // !DPP_SERIALIZATION

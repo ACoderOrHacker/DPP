@@ -4,20 +4,17 @@
 
 #ifndef ACASSERT_H
 #define ACASSERT_H
-#include <cassert>
-#include <cstddef>
-#include <iostream>
 
 typedef void(*_ACASSERT_HANDLE)(int, const char*, const char*);
 
 void Dpp_AssertFailed(int line,
-    const char* file,
-    const char* expr);
+    const char *file,
+    const char *expr);
 
 void Dpp_Assert(int line,
-    const char* file,
+    const char *file,
     bool isFailed,
-    const char* expr,
+    const char *expr,
     _ACASSERT_HANDLE handle = &Dpp_AssertFailed);
 
 #if defined(_DEBUG)

@@ -25,42 +25,7 @@
 #include "register.hpp"
 #include "struct.hpp"
 
-DXX_API struct RegType IntType;
-struct RegType FloatType;
-struct RegType StringType;
-struct RegType ClassType;
-struct RegType ErrorType;
-struct RegType FunctionType;
 class NoType : std::exception {};
-
-struct _LinkType {
-	RegType reg;
-};
-
-DXX_API RegType *GetReg(const std::type_info &type) {
-
-    if (type == typeid(Interger)) {
-        return &IntType;
-    } else if (type == typeid(FloatNum)) {
-        return &FloatType;
-    } else if (type == typeid(String)) {
-        return &StringType;
-    } else {
-        throw NoType();
-    }
-}
-
-DXX_API Dpp_Object *mkFunction(std::string id) {
-    Dpp_Object *o = NewObject<FunctionObject>();
-    new(&o->name) std::string();
-    FunctionObject *func = (FunctionObject *)o;
-
-    o->name = id;
-    o->isTypeObject = false;
-    o->reg = &FunctionType;
-
-    return o;
-}
 
 Dpp_Object *IntAdd(Dpp_Object *lval, Dpp_Object *rval) {
 

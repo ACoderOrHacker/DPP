@@ -25,9 +25,15 @@
 /*
   This is an external library that contains all the export functions of the VM
  */
-#include "vm.hpp"
 #include <cstdlib>
+#include <stdexcept>
+#include <fmt/core.h>
+#include <fmt/color.h>
+#include "vm.hpp"
 #include "builtin.hpp"
+#include "native.hpp"
+#include "opcodes.hpp"
+#include "struct.hpp"
 
 const OpcodeFunc opcode_list[256] = {
     &_import,
@@ -104,84 +110,87 @@ const char *flag_name_list[8] = {
     "null"
 };
 
-forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id) {
+forceinline VM_API const char *dpp::get_opcode_name(unsigned char opcode_id) {
     return opcode_name_list[opcode_id - 1];
 }
 
-VM_API const char *GetFlagName(uint8_t i) {
+VM_API const char *dpp::get_flag_name(uint8_t i) {
     return flag_name_list[i - 1];
 }
 
-VM_API FObject *MakeVM() {
-	FObject *fObj = new FObject;
-    RegInit(fObj);
+VM_API dpp::vm create_vm() {
+	dpp::vm vm = new FObject;
+    RegInit(vm);
     initBuiltin();
-	return fObj;
+	return vm;
 }
 
-VM_API int VM_Run(FObject *fObj, bool noExit) {
+VM_API int dpp::run(dpp::vm vm, bool noExit) {
     uint32_t i = 0;
-    for (auto &it : fObj->modules) {
-        Module vm_module = OpenNativeLib((it + PLATFORM_LIB_EX).c_str());
-        if (vm_module == nullptr) {
-            SetError(fObj, Dpp_LibNoSymbolError, L"");
-            continue;
+    for (auto &it : vm->modules) {
+        dpp::native_module vm_module;
+        try {
+            vm_module = dpp::open(it);
+        } catch(std::runtime_error &) {
+            fmt::print(fmt::fg(fmt::color::red), "[dpp.startup] failed to load native module {}\n", it);
+            exit(1);
         }
-        fObj->NativeModules.write(i, vm_module);
+
+        vm->NativeModules.write(i, vm_module);
     }
 
-	while(fObj->state.vmopcodes.size() > fObj->state.runat) {
+	while(vm->state.vmopcodes.size() > vm->state.runat) {
 		OpCode opcode;
-		opcode = fObj->state.vmopcodes.GetData(fObj->state.runat); // get opcode from state
+		opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
 
 		// execute the opcode and get the error code(isfail variable)
-		bool isfail = Exec(opcode, fObj);
-        fObj->flags = NO_FLAG; // clear the flags
+		bool isfail = Exec(opcode, vm);
+        vm->flags = NO_FLAG; // clear the flags
 
-		if(isfail && fObj->_error != nullptr) {
+		if(isfail && vm->_error != nullptr) {
 			// the opcode has error
-			if(GetBit(fObj->flags, NO_OPCODE)) {
+			if(GetBit(vm->flags, NO_OPCODE)) {
 				// has a unknown opcode
-				SetBit0(fObj->flags, NO_OPCODE);
+				SetBit0(vm->flags, NO_OPCODE);
 				return EXIT_FAILURE; // Skip this opcode
 			}
 
-            CatchError(fObj);
+            CatchError(vm);
 		}
 
-        if (fObj->state.vmopcodes.size() == fObj->state.runat && !fObj->callstack.empty()) {
-            fObj->state = fObj->callstack.top();
-            fObj->callstack.pop();
-            fObj->obj_map.pop_mapping();
-            fObj->return_values.push(nullptr);
+        if (vm->state.vmopcodes.size() == vm->state.runat && !vm->callstack.empty()) {
+            vm->state = vm->callstack.top();
+            vm->callstack.pop();
+            vm->obj_map.pop_mapping();
+            vm->return_values.push(nullptr);
 
-            ++fObj->state.runat;
+            ++vm->state.runat;
             continue;
         }
 
-        if (opcode.opcode != OPCODE_CALL) ++fObj->state.runat;
+        if (opcode.opcode != OPCODE_CALL) ++vm->state.runat;
 	}
 
 	// exit
-	int exit_code = fObj->exit_code;
-	EnvClean(fObj);
+	int exit_code = vm->exit_code;
+	dpp::clean_vm();
 	if (!noExit) exit(exit_code);
-    else return exit_code;
+    return exit_code;
 }
 
-VM_API bool Exec(OpCode opcode, FObject *fObj) {
+VM_API bool Exec(OpCode opcode, vmect *vm) {
 	if(opcode.flag != NO_FLAG) {
-		fObj->flags = opcode.flag; // set the flags
+		vm->flags = opcode.flag; // set the flags
 	}
 
-	WriteTHeap(theap, &opcode.params); // write the params to the 'fObj->_theap' for the opcode
+	WriteTHeap(theap, &opcode.params); // write the params to the 'vm->_theap' for the opcode
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
-		opcode_list[opcode.opcode - 1](fObj); // call opcode
-		if(error == nullptr && fObj->sig->size() == 0) return EXEC_SUCCESS;
+		opcode_list[opcode.opcode - 1](vm); // call opcode
+		if(error == nullptr && vm->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
 	} else {
-		SetBit1(fObj->flags, NO_OPCODE);
+		SetBit1(vm->flags, NO_OPCODE);
 		return EXEC_FAILED; // failed
 	}
 }

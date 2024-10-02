@@ -66,12 +66,13 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS serialization program_options json)
+find_package(Boost REQUIRED COMPONENTS serialization program_options)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
 find_package(fmt CONFIG REQUIRED)
 find_package(antlr4-runtime CONFIG REQUIRED)
+find_package(jsoncpp CONFIG REQUIRED)
 
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
@@ -142,7 +143,7 @@ add_library(compiler SHARED ${COMPILER_FILES} ${ACASSERT_FILES})
 target_link_libraries(compiler antlr4_shared vm fmt::fmt-header-only)
 
 add_executable(dpp src/main/dpp.cpp ${ACASSERT_FILES})
-target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options Boost::json)
+target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options JsonCpp::JsonCpp)
 
 add_executable(debug src/main/debug.cpp src/main/modules.h ${ACASSERT_FILES})
-target_link_libraries(debug vm fmt::fmt-header-only Boost::json)
+target_link_libraries(debug vm fmt::fmt-header-only JsonCpp::JsonCpp)

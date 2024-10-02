@@ -28,19 +28,14 @@
 #ifndef _DPP_VM_H
 #define _DPP_VM_H
 
-#include <thread>
-#include "acoder/acassert/acassert.h"
-#include "builtin.hpp"
-#include "stdrt.hpp"
-#include "opcodes.hpp"
 #include "macros.hpp"
 #include "struct.hpp"
 #include "acdpp.h"
 
 #define EXEC_FAILED true
 #define EXEC_SUCCESS false
-#define vmswitch switch
-#define vmcase case
+// #define vmswitch switch // unused
+// #define vmcase case // unused
 #define VM_API DXX_API
 
 typedef void(* OpcodeFunc)(FObject *);
@@ -52,10 +47,14 @@ void InitVMLibrary() __attribute__((constructor));
 BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID);
 #endif // !_WIN32
 
-forceinline VM_API const char *GetOpcodeName(unsigned char opcode_id);
-forceinline VM_API const char *GetFlagName(uint8_t i);
-VM_API FObject *MakeVM();
-VM_API bool Exec(OpCode, FObject *);
-VM_API int VM_Run(FObject *fObj, bool noExit = false);
+NAMESPACE_DPP_BEGIN
+
+forceinline VM_API const char *get_opcode_name(unsigned char opcode_id);
+forceinline VM_API const char *get_flag_name(uint8_t i);
+VM_API dpp::vm create_vm();
+VM_API bool Exec(OpCode, dpp::vm);
+VM_API int run(FObject *fObj, bool noExit = false);
+
+NAMESPACE_DPP_END
 
 #endif //!_DPP_VM_H

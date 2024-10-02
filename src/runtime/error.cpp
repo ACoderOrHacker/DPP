@@ -1,19 +1,16 @@
+#include <iostream>
+#include "dpp/api.h"
+#include "objects.hpp"
 #include "error.hpp"
 
-bool isError(Dpp_Object *obj) {
-    // TODO: Bug return (obj->reg->type == ERROR_TYPE);
-    return true;
-}
-
-bool isFunction(Dpp_Object *obj) {
-    // TODO: Bug return (obj->reg->type == FUNCTION_TYPE);
-    return true;
-}
-
-DXX_API FunctionObject *getErrorHandle(Dpp_Object *obj) {
-    if (!isError(obj)) {
-        return nullptr;
-    }
+/**
+ * @brief Get the error handle
+ *
+ * @param obj
+ * @return FunctionObject *
+ */
+DXX_API FunctionObject *dpp::get_error_handle(Dpp_Object *obj) {
+    acassert(!dpp::is_error(obj));
 
     if (((ErrorObject *)obj)->handles.empty()) {
         return nullptr; // standard handle
@@ -21,34 +18,44 @@ DXX_API FunctionObject *getErrorHandle(Dpp_Object *obj) {
     return ((ErrorObject *)obj)->handles.top();
 }
 
-DXX_API void __StdErrorHandleCatch(FObject *fObj) {
+DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
+    acassert(vm == nullptr);
+
     std::wcout << L"An error throwed\n";
     std::wcout << L"    ";
     // TODO: The function not finish
 
-    EnvClean(fObj);
+    dpp::delete_vm(vm);
     exit(1);
 }
 
-DXX_API void CatchError(FObject *fObj) {
-    Dpp_Object *error = fObj->_error->err;
-    std::wstring &msg = fObj->_error->msg;
+/**
+ * @brief catch error from vm
+ *
+ * @param vm
+ * @return DXX_API
+ */
+DXX_API void dpp::catch_error(dpp::vm vm) {
+    acassert(vm == nullptr);
 
-    if (error == nullptr || !isError(error)) {
-        return;
+    dpp::object *error = vm->_error->err;
+    std::wstring &msg = vm->_error->msg;
+
+    acassert(!dpp::is_error(error));
+
+    if (error == nullptr) {
+        return; // no error
     }
 
-    FunctionObject *handle = getErrorHandle(error);
+    FunctionObject *handle = dpp::get_error_handle(error);
     // We need not to check
 
     if (handle == nullptr) {
         // standard handle
-        __StdErrorHandleCatch(fObj);
+        __StdErrorHandleCatch(vm);
     } else {
-        CallFunction(fObj, handle, 2, (fObj->_error->err), mkConst<StringObject, String>(msg));
+        dpp::call_function(vm, handle, 2, (vm->_error->err), dpp::make_string(msg));
     }
 
-    ClearError(fObj);
+    dpp::clear_error(vm);
 }
-
-

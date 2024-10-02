@@ -1,5 +1,6 @@
 #include "DXXLexer.h"
 #include "compiler.hpp"
+#include <fstream>
 
 DXX_API FObject *_compile(antlr4::ANTLRInputStream input) {
     DXXLexer lexer(&input);
@@ -20,5 +21,10 @@ DXX_API FObject *compile(std::string &code) {
 
 DXX_API FObject *compile(std::ifstream &ifs) {
     antlr4::ANTLRInputStream input(ifs);
+    return _compile(input);
+}
+
+DXX_API FObject *compile(std::fstream &ifs) {
+    antlr4::ANTLRInputStream input(dynamic_cast<std::ifstream &>(ifs));
     return _compile(input);
 }

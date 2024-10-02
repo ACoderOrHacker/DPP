@@ -1,36 +1,40 @@
 #ifndef DPP_MODULES_H
 #define DPP_MODULES_H
 
+#include <stdexcept>
+#include "macros.hpp"
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif // _MSC_VER
 
-#include "vm.hpp"
+#include <dpp/api.h>
 #include "serialization/Serialization.hpp"
+#include "configs/configs.h"
 #undef error
 #undef theap
 
-#include <filesystem>
-#include <boost/json.hpp>
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
-
-namespace fs = std::filesystem;
 
 fs::path root = fs::current_path().parent_path();
 const fs::path examples_path = root / "examples";
 
-auto *__stdout = std::cout.rdbuf();
-auto *__stdin = std::cin.rdbuf();
+NAMESPACE_DPP_BEGIN
 
-std::string GetCompileDate() {
+/**
+ * @brief Get the compile time
+ */
+std::string get_compile_time() {
     return fmt::format("{} {}", __DATE__, __TIME__);
 }
 
-std::string GetCompilerInfo() {
+/**
+ * @brief Get the compiler infos
+ *
+ * @return std::string
+ */
+std::string get_compiler_infos() {
 #ifdef __clang__
     return fmt::format("{}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
 #elif defined(__GNUC__)
@@ -42,7 +46,12 @@ std::string GetCompilerInfo() {
 #endif
 }
 
-const char *Get64BitOr32Bit() {
+/**
+ * @brief get the system is 32bit or 64bit
+ *
+ * @return const char *
+ */
+const char *get_system_32bits_or_64bits() {
 #if defined(__LP64__) || defined(_WIN64)
     return "64bit";
 #else
@@ -50,7 +59,12 @@ const char *Get64BitOr32Bit() {
 #endif
 }
 
-const char *GetPlatform() {
+/**
+ * @brief Get the platform infos
+ *
+ * @return const char*
+ */
+const char *get_platform() {
 #if defined(_WIN32)
     return "win32";
 #elif defined(__linux__)
@@ -60,37 +74,63 @@ const char *GetPlatform() {
 #endif
 }
 
-void OutputInformation() {
-    auto opt = fmt::format("D++ {} ({}) [{} {}] on {}\n",
+/**
+ * @brief output infos in command line
+ * like version, compiler, platform, etc.
+ * @return void
+ */
+void output_information() {
+    fmt::print("D++ {} ({}) [{} {}] on {}\n",
                             DXX_VERSION,
-                            GetCompileDate(),
-                            GetCompilerInfo(),
-                            Get64BitOr32Bit(),
-                            GetPlatform());
-
-    std::cout << opt;
+                            dpp::get_compile_time(),
+                            dpp::get_compiler_infos(),
+                            dpp::get_system_32bits_or_64bits(),
+                            dpp::get_platform());
 }
 
-std::string GetVersionString(Version ver) {
+/**
+ * @brief Get the version string
+ *
+ * @param ver the version structure
+ * @return std::string
+ */
+std::string get_version_string(Version ver) {
     return fmt::format("{}.{}", ver.ver.high, ver.ver.low);
 }
 
-std::string GetFileTypeFromMagicNumber(const std::string &MagicNumber) {
-    if(MagicNumber == "DPPO") {
+/**
+ * @brief Get the file type from magic number
+ *
+ * @param MagicNumber
+ * @return std::string
+ */
+std::string get_file_type(const std::string &magic_number) {
+    if(magic_number == "DPPO") {
         return "D++ Object File";
     } else {
         return "Unknown";
     }
 }
 
-void OutputFileHeader(const FileHeader &header) {
+/**
+ * @brief output file header to command line
+ *
+ * @param header the output file header
+ */
+void output_fileheader(const FileHeader &header) {
     fmt::print("FileHeader:\n");
-    fmt::print("    Type: {}", GetFileTypeFromMagicNumber(header.MagicNumber));
-    fmt::print("    Compile Version: {}", GetVersionString(header.version));
-    fmt::print("    Lowest Version: {}", GetVersionString(header.LowestVersion));
+    fmt::print("    Type: {}", dpp::get_file_type(header.MagicNumber));
+    fmt::print("    Compile Version: {}", dpp::get_version_string(header.version));
+    fmt::print("    Lowest Version: {}", dpp::get_version_string(header.LowestVersion));
 }
 
-std::string GetFlagsName(char flag) {
+/**
+ * @brief Get the flags name
+ *
+ * @param flag
+ * @return std::string
+ */
+std::string get_flags_name(char flag) {
     if(flag == NO_FLAG) {
         return "null";
     }
@@ -105,7 +145,13 @@ std::string GetFlagsName(char flag) {
     return s;
 }
 
-void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
+/**
+ * @brief output vm structure to command line
+ *
+ * @param s_fObj
+ * @param isOutputCopyright
+ */
+void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
     auto opt_state = [](struct VMState state) -> void {
         uint32_t i = 0;
         for(auto &it : state.vmopcodes) {
@@ -126,7 +172,7 @@ void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
                 // std::length_error: string too long
                 std::cout << std::string(s.size() + 10, ' ');
             }
-            fmt::print("flag: {}\n", GetFlagsName(it.flag));
+            fmt::print("flag: {}\n", dpp::get_flags_name(it.flag));
 
             ++i;
         }
@@ -134,7 +180,7 @@ void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("\n");
     if (isOutputCopyright) fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
 
-    OutputFileHeader(s_fObj->header);
+    dpp::output_fileheader(s_fObj->header);
 
     fmt::print("\n");
     fmt::print("Dependent modules: \n");
@@ -149,7 +195,7 @@ void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("\n");
     uint32_t i = 0;
     for (auto it : s_fObj->global_mapping) {
-        if (it != nullptr && it->reg != nullptr && it->name != "function" && it->reg->type == FUNCTION_TYPE) {
+        if (it != nullptr && it->name != "function" && dpp::is_function(it)) {
             fmt::print("Function: {} [Global, {}]\n", it->name.empty() ? "unknown" : it->name, i);
             opt_state(_cast(FunctionObject *, it)->state);
             fmt::print("\n");
@@ -161,71 +207,40 @@ void OutputS_FObject(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("Global Object Mapping:\n");
     for(uint32_t index = BUILTIN_END; index < s_fObj->global_mapping.size(); ++index) {
         Dpp_Object *obj = s_fObj->global_mapping[index];
-        fmt::print("    [{}] {}\n", index, to_string(obj));
+        fmt::print("    [{}] {}\n", index, object_to_string(obj));
     }
 }
 
-void OutputFObject(FObject *fObj, bool isOutputCopyright = true) {
-    OutputS_FObject(GetS_FObject(fObj), isOutputCopyright);
+/**
+ * @brief output vm structure to command line
+ *
+ * @param fObj
+ * @param isOutputCopyright
+ */
+void output_vm(FObject *fObj, bool isOutputCopyright = true) {
+    dpp::output_s_vm(GetS_FObject(fObj), isOutputCopyright);
 }
 
-bool GetFiles(std::vector<fs::path> &files, const fs::path &path) {
-    try {
-        files.clear();
-        for (const auto &it : fs::directory_iterator(path)) {
-            if (fs::is_directory(it.path()))
-                continue;
-
-            const fs::path &file = it.path();
-            files.push_back(file);
-        }
-        return true;
-    }
-    catch (const std::exception &e) {
-        std::cout << "error: " << e.what();
-    }
-    return false;
-}
-
-void SetOstream(const std::stringstream &stream) {
-    std::cout.rdbuf(stream.rdbuf());
-}
-
-auto *GetOstream() {
-    return std::cout.rdbuf();
-}
-
-void RestoreOstream() {
-    std::cout.rdbuf(__stdout);
-}
-
-void CheckTest(const std::string &id, const std::string &buf) {
-    std::ifstream file;
+void check_test(const std::string &id, const std::string &buf) {
     fs::path tests_path(examples_path / "tests.json");
-    file.open(tests_path.string());
-    if (!file.is_open()) {
-        fmt::print(fmt::fg(fmt::color::red), "\nerror: cannot find tests.json file\n");
-        exit(1);
-    }
-    boost::json::value jv = boost::json::parse(file);
-    boost::json::object &json = jv.as_object();
 
-    boost::json::array &tests = json["tests"].as_array();
-    for (auto &it : tests) {
-        boost::json::object &test = it.as_object();
-        const std::string &_id = test["id"].as_string().c_str();
-        if (_id == id) {
-            const std::string &_buf = test["buf"].as_string().c_str();
-            if (buf != _buf) {
-                fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' failed, result is wrong\n", id);
-                fmt::print("    Source buffer: {}\n", _buf);
-                fmt::print("    Buffer: {}\n", buf);
-                exit(1);
-            }
+    const dpp::tests &tests = dpp::load_tests(tests_path.string());
+    try {
+        const std::string &test_buf = tests.tests.at(id);
+        if (test_buf != buf) {
+            fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' failed, result is wrong\n", id);
+            fmt::print("    Source buffer: {}\n", test_buf);
+            fmt::print("    Buffer: {}\n", buf);
+            exit(1);
         }
+    } catch(std::out_of_range &e) {
+        fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' not found\n", id);
+        exit(1);
     }
 
     fmt::print(fmt::fg(fmt::color::green), "\nTest {} passed\n", id);
 }
+
+NAMESPACE_DPP_END
 
 #endif //DPP_MODULES_H
