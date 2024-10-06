@@ -15,16 +15,16 @@ struct tests {
 };
 
 struct tests load_tests(const std::string &path) {
-    std::fstream fs = dpp::open_file(path, std::ios_base::in,
-                        [](const std::string &, std::fstream &) -> void {
+    std::ifstream fs = dpp::open_file<std::ifstream>(path, std::ios_base::in,
+                        [](const std::string &, std::ifstream &) -> void {
                             fmt::print(fmt::fg(fmt::color::red), "\nerror: cannot find tests.json file\n");
                             exit(1);
                         });
     Json::Value root;
-    dynamic_cast<std::ifstream &>(fs) >> root;
+    fs >> root;
     struct tests tests;
     for (const auto &test : root["tests"]) {
-        tests.tests[test["id"].asString()] = test["buffer"].asString();
+        tests.tests[test["id"].asString()] = test["buf"].asString();
     }
 
     dpp::close_file(fs);

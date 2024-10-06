@@ -32,6 +32,7 @@
 #include "vm.hpp"
 #include "builtin.hpp"
 #include "native.hpp"
+#include "objects.hpp"
 #include "opcodes.hpp"
 #include "struct.hpp"
 
@@ -118,10 +119,29 @@ VM_API const char *dpp::get_flag_name(uint8_t i) {
     return flag_name_list[i - 1];
 }
 
-VM_API dpp::vm create_vm() {
-	dpp::vm vm = new FObject;
-    RegInit(vm);
+template<typename T>
+dpp::object *mk_type(const std::string &id) {
+    dpp::object *o = dpp::make_type(dpp::new_object<T>());
+    o->name = id;
+
+	return o;
+}
+
+VM_API dpp::vm dpp::create_vm() {
+
     initBuiltin();
+
+	dpp::vm vm = new FObject;
+	// TODO: null and error not supported
+    vm->obj_map.write({ true, BUILTIN::BUILTIN_NULL }, Dpp_NullObject);
+    vm->obj_map.write({ true, BUILTIN::BUILTIN_NULLPOINTER_ERROR }, Dpp_NullPointerError);
+    vm->obj_map.write({ true, BUILTIN::INT_TYPE }, mk_type<IntObject>("int"));
+    vm->obj_map.write({ true, BUILTIN::FLOAT_TYPE }, mk_type<FloatObject>("float"));
+    vm->obj_map.write({ true, BUILTIN::STRING_TYPE }, mk_type<StringObject>("string"));
+    vm->obj_map.write({ true, BUILTIN::CLASS_TYPE }, mk_type<ClassObject>("class"));
+    vm->obj_map.write({ true, BUILTIN::ERROR_TYPE }, mk_type<ErrorObject>("error"));
+    vm->obj_map.write({ true, BUILTIN::FUNCTION_TYPE }, mk_type<FunctionObject>("function"));
+
 	return vm;
 }
 
@@ -144,7 +164,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
 		opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
 
 		// execute the opcode and get the error code(isfail variable)
-		bool isfail = Exec(opcode, vm);
+		bool isfail = dpp::exec(opcode, vm);
         vm->flags = NO_FLAG; // clear the flags
 
 		if(isfail && vm->_error != nullptr) {
@@ -155,7 +175,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
 				return EXIT_FAILURE; // Skip this opcode
 			}
 
-            CatchError(vm);
+            dpp::catch_error(vm);
 		}
 
         if (vm->state.vmopcodes.size() == vm->state.runat && !vm->callstack.empty()) {
@@ -173,21 +193,21 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
 
 	// exit
 	int exit_code = vm->exit_code;
-	dpp::clean_vm();
+	dpp::delete_vm(vm);
 	if (!noExit) exit(exit_code);
     return exit_code;
 }
 
-VM_API bool Exec(OpCode opcode, vmect *vm) {
+VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
 	if(opcode.flag != NO_FLAG) {
 		vm->flags = opcode.flag; // set the flags
 	}
 
-	WriteTHeap(theap, &opcode.params); // write the params to the 'vm->_theap' for the opcode
+    *vm->_theap = opcode.params; // write the params to the 'vm->_theap' for the opcode
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
 		opcode_list[opcode.opcode - 1](vm); // call opcode
-		if(error == nullptr && vm->sig->size() == 0) return EXEC_SUCCESS;
+		if(vm->_error == nullptr && vm->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
 	} else {
 		SetBit1(vm->flags, NO_OPCODE);

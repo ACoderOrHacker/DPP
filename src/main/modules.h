@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include "macros.hpp"
+#include "vm.hpp"
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif // _MSC_VER
@@ -138,7 +139,7 @@ std::string get_flags_name(char flag) {
     std::string s;
     for(int i = 1; i <= 8; ++i) {
         if(GetBit(flag, i)) {
-            s += fmt::format("{} ", GetFlagName(i));
+            s += fmt::format("{} ", dpp::get_flag_name(i));
         }
     }
 
@@ -152,12 +153,12 @@ std::string get_flags_name(char flag) {
  * @param isOutputCopyright
  */
 void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
-    auto opt_state = [](struct VMState state) -> void {
+    auto opt_state = [](::VMState state) -> void {
         uint32_t i = 0;
         for(auto &it : state.vmopcodes) {
             std::string s;
 
-            s += fmt::format("    [{}] {} ", i, GetOpcodeName(it.opcode));
+            s += fmt::format("    [{}] {} ", i, dpp::get_opcode_name(it.opcode));
 
             for (auto &param : it.params) {
                 s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
@@ -207,7 +208,11 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("Global Object Mapping:\n");
     for(uint32_t index = BUILTIN_END; index < s_fObj->global_mapping.size(); ++index) {
         Dpp_Object *obj = s_fObj->global_mapping[index];
-        fmt::print("    [{}] {}\n", index, object_to_string(obj));
+        try {
+            fmt::print("    [{}] {}\n", index, object_to_string(obj));
+        } catch (NoOperatorError &) {
+            fmt::print("    [{}] {}\n", index, "unknown");
+        }
     }
 }
 
@@ -233,7 +238,7 @@ void check_test(const std::string &id, const std::string &buf) {
             fmt::print("    Buffer: {}\n", buf);
             exit(1);
         }
-    } catch(std::out_of_range &e) {
+    } catch(std::out_of_range &) {
         fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' not found\n", id);
         exit(1);
     }

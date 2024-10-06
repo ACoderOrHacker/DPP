@@ -27,37 +27,35 @@
 #include "error.hpp"
 #include "struct.hpp"
 
-#define theap (fObj->_theap)
-#define error (fObj->_error)
-
-void _import(FObject *fObj);
-void _add(FObject *fObj);
-void _sub(FObject *fObj);
-void _mul(FObject *fObj);
-void _div(FObject *fObj);
-void _mod(FObject *fObj);
-void _bneg(FObject *fObj);
-void _band(FObject *fObj);
-void _bor(FObject *fObj);
-void _bxor(FObject *fObj);
-void _shl(FObject *fObj);
-void _shr(FObject *fObj);
-void _not(FObject *fObj);
-void _eq(FObject *fObj);
-void _bigger(FObject *fObj);
-void _smaller(FObject *fObj);
-void _and(FObject *fObj);
-void _or(FObject *fObj);
-void _jmp(FObject *fObj);
-void _call(FObject *fObj);
-void _getret(FObject *fObj);
-void _calln(FObject *fObj);
-void _ret(FObject *fObj);
-void _sign(FObject *fObj);
-void _new(FObject *fObj);
-void _del(FObject *fObj);
-void _mov(FObject *fObj);
-void _method(FObject *fObj);
-void _exit(FObject *fObj);
+forceinline bool is_true(dpp::object *obj);
+void _import(dpp::vm vm);
+void _add(dpp::vm vm);
+void _sub(dpp::vm vm);
+void _mul(dpp::vm vm);
+void _div(dpp::vm vm);
+void _mod(dpp::vm vm);
+void _bneg(dpp::vm vm);
+void _band(dpp::vm vm);
+void _bor(dpp::vm vm);
+void _bxor(dpp::vm vm);
+void _shl(dpp::vm vm);
+void _shr(dpp::vm vm);
+void _not(dpp::vm vm);
+void _eq(dpp::vm vm);
+void _bigger(dpp::vm vm);
+void _smaller(dpp::vm vm);
+void _and(dpp::vm vm);
+void _or(dpp::vm vm);
+void _jmp(dpp::vm vm);
+void _call(dpp::vm vm);
+void _getret(dpp::vm vm);
+void _calln(dpp::vm vm);
+void _ret(dpp::vm vm);
+void _sign(dpp::vm vm);
+void _new(dpp::vm vm);
+void _del(dpp::vm vm);
+void _mov(dpp::vm vm);
+void _method(dpp::vm vm);
+void _exit(dpp::vm vm);
 
 #endif // !_DXX_RUNTIME

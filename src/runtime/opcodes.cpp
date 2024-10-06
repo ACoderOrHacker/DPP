@@ -22,543 +22,588 @@
   SOFTWARE.
  */
 
-#include "opcodes.hpp"
 #include <cstdint>
+#include "opcodes.hpp"
+#include "builtin.hpp"
+#include "macros.hpp"
+#include "objects.hpp"
 #include "struct.hpp"
 
 struct Version version; // Runtime Machine Version
 
-void _add(FObject *fObj) {
+void _add(dpp::vm vm) {
 
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj + robj;
+    dpp::object *_c = nullptr;
+	try {
+        _c = *lobj + robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
 
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	vm->obj_map.write(to, _c, true);
 }
 
-void _sub(FObject *fObj) {
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+void _sub(dpp::vm vm) {
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj - robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = nullptr;
+	try {
+        _c = *lobj - robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _mul(FObject *fObj) {
+void _mul(dpp::vm vm) {
 #ifdef __TEST
 	std::cout << "add" << std::endl;
 #endif
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj * robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = nullptr;
+	try {
+        _c = *lobj * robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _div(FObject *fObj) {
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+void _div(dpp::vm vm) {
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
-
-
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
-		return;
-	}
-
-	Dpp_Object *_c = nullptr;
-	_c = *lobj / robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
-}
-
-void _mod(FObject *fObj) {
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
-
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj % robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = nullptr;
+	try {
+        _c = *lobj / robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    } catch (DivideZeroError &) {
+        dpp::set_error(vm, Dpp_DivideZeroError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _bneg(FObject *fObj) {
-	Object _obj = theap->PopFront();
-	Object to = theap->PopFront();
+void _mod(dpp::vm vm) {
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *obj = fObj->obj_map.get(_obj);
-	Dpp_Object *_c = ~(*obj);
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
+
+
+	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
+		return;
 	}
-	fObj->obj_map.write(to, _c, true);
+
+	dpp::object *_c = nullptr;
+	try {
+        _c = *lobj % robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    } catch (DivideZeroError &) {
+        dpp::set_error(vm, Dpp_DivideZeroError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _band(FObject *fObj) {
-	Object _lnum = theap->PopFront();
-	Object _rnum = theap->PopFront();
-	Object to = theap->PopFront();
+void _bneg(dpp::vm vm) {
+	Object _obj = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lnum = fObj->obj_map.get(_lnum);
-	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
+	dpp::object *obj = vm->obj_map.get(_obj);
+
+    dpp::object *_c = nullptr;
+    try {
+        _c = ~(*obj);
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
+}
+
+void _band(dpp::vm vm) {
+	Object _lnum = vm->_theap->PopFront();
+	Object _rnum = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
+
+	dpp::object *lnum = vm->obj_map.get(_lnum);
+	dpp::object *rnum = vm->obj_map.get(_rnum);
 
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = *lnum & rnum;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-		return;
-	}
+	dpp::object *_c = nullptr;
+    try {
+        _c = *lnum & rnum;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
 
-	fObj->obj_map.write(to, _c, true);
+	vm->obj_map.write(to, _c, true);
 }
 
-void _bor(FObject *fObj) {
-	Object _lnum = theap->PopFront();
-	Object _rnum = theap->PopFront();
-	Object to = theap->PopFront();
+void _bor(dpp::vm vm) {
+	Object _lnum = vm->_theap->PopFront();
+	Object _rnum = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lnum = fObj->obj_map.get(_lnum);
-	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
+	dpp::object *lnum = vm->obj_map.get(_lnum);
+	dpp::object *rnum = vm->obj_map.get(_rnum);
 
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = *lnum | rnum;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-		return;
-	}
+	dpp::object *_c = nullptr;
+    try {
+        _c = *lnum | rnum;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
 
-	fObj->obj_map.write(to, _c, true);
+	vm->obj_map.write(to, _c, true);
 }
 
-void _bxor(FObject *fObj) {
-	Object _lnum = theap->PopFront();
-	Object _rnum = theap->PopFront();
-	Object to = theap->PopFront();
+void _bxor(dpp::vm vm) {
+	Object _lnum = vm->_theap->PopFront();
+	Object _rnum = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lnum = fObj->obj_map.get(_lnum);
-	Dpp_Object *rnum = fObj->obj_map.get(_rnum);
+	dpp::object *lnum = vm->obj_map.get(_lnum);
+	dpp::object *rnum = vm->obj_map.get(_rnum);
 
 	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = *lnum ^ rnum;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-		return;
-	}
+	dpp::object *_c = nullptr;
+    try {
+        _c = *lnum ^ rnum;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
 
-	fObj->obj_map.write(to, _c, true);
+	vm->obj_map.write(to, _c, true);
 }
 
-void _shl(FObject *fObj) {
-	Object _num = theap->PopFront();
-	Object _shl_count = theap->PopFront();
-	Object to = theap->PopFront();
+void _shl(dpp::vm vm) {
+	Object _num = vm->_theap->PopFront();
+	Object _shl_count = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *num = fObj->obj_map.get(_num);
-	Dpp_Object *shl_count = fObj->obj_map.get(_shl_count);
+	dpp::object *num = vm->obj_map.get(_num);
+	dpp::object *shl_count = vm->obj_map.get(_shl_count);
 
 	if(num == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = *num << shl_count;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-		return;
-	}
+	dpp::object *_c = nullptr;
+    try {
+        _c = *num << shl_count;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
 
-	fObj->obj_map.write(to, _c, true);
+	vm->obj_map.write(to, _c, true);
 }
 
-void _shr(FObject *fObj) {
-	Object _num = theap->PopFront();
-	Object _shr_count = theap->PopFront();
-	Object to = theap->PopFront();
+void _shr(dpp::vm vm) {
+	Object _num = vm->_theap->PopFront();
+	Object _shr_count = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *num = fObj->obj_map.get(_num);
-	Dpp_Object *shr_count = fObj->obj_map.get(_shr_count);
+	dpp::object *num = vm->obj_map.get(_num);
+	dpp::object *shr_count = vm->obj_map.get(_shr_count);
 
 	if(num == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = *num >> shr_count;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-		return;
-	}
+	dpp::object *_c = nullptr;
+    try {
+        _c = *num >> shr_count;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
 
-	fObj->obj_map.write(to, _c, true);
+	vm->obj_map.write(to, _c, true);
 }
 
-void _not(FObject *fObj) {
-	Object _obj = theap->PopFront();
-	Object to = theap->PopFront();
+void _not(dpp::vm vm) {
+	Object _obj = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *obj = fObj->obj_map.get(_obj);
-	Dpp_Object *_c = !(*obj);
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *obj = vm->obj_map.get(_obj);
+	dpp::object *_c = nullptr;
+    try {
+        _c = ~(*obj);
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _eq(FObject *fObj) {
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+void _eq(dpp::vm vm) {
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj == robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = nullptr;
+    try {
+        _c = *lobj == robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _bigger(FObject *fObj) {
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+void _bigger(dpp::vm vm) {
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj > robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = nullptr;
+	try {
+        _c = *lobj > robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _smaller(FObject *fObj) {
-	Object _lval = theap->PopFront();
-	Object _rval = theap->PopFront();
-	Object to = theap->PopFront();
+void _smaller(dpp::vm vm) {
+	Object _lval = vm->_theap->PopFront();
+	Object _rval = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lval);
-	Dpp_Object *robj = fObj->obj_map.get(_rval);
+	dpp::object *lobj = vm->obj_map.get(_lval);
+	dpp::object *robj = vm->obj_map.get(_rval);
 
 
 	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		SetError(fObj, Dpp_NullPointerError, L"");
+		dpp::set_error(vm, Dpp_NullPointerError, L"");
 		return;
 	}
 
-	Dpp_Object *_c = nullptr;
-	_c = *lobj < robj;
-	if(_c == nullptr) {
-		SetError(fObj, Dpp_DataCantOperatorError, L"");
-	}
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = nullptr;
+	try {
+        _c = *lobj < robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
+        return;
+    }
+
+	vm->obj_map.write(to, _c, true);
 }
 
-void _and(FObject *fObj) {
-	Object _lobj = theap->PopFront();
-	Object _robj = theap->PopFront();
-	Object to = theap->PopFront();
+void _and(dpp::vm vm) {
+	Object _lobj = vm->_theap->PopFront();
+	Object _robj = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lobj);
-	Dpp_Object *robj = fObj->obj_map.get(_robj);
+	dpp::object *lobj = vm->obj_map.get(_lobj);
+	dpp::object *robj = vm->obj_map.get(_robj);
 
-	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) && isTrue(robj));
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = dpp::make_int(dpp::is_true(lobj) && dpp::is_true(robj));
+	vm->obj_map.write(to, _c, true);
 }
 
-void _or(FObject *fObj) {
-	Object _lobj = theap->PopFront();
-	Object _robj = theap->PopFront();
-	Object to = theap->PopFront();
+void _or(dpp::vm vm) {
+	Object _lobj = vm->_theap->PopFront();
+	Object _robj = vm->_theap->PopFront();
+	Object to = vm->_theap->PopFront();
 
-	Dpp_Object *lobj = fObj->obj_map.get(_lobj);
-	Dpp_Object *robj = fObj->obj_map.get(_robj);
+	dpp::object *lobj = vm->obj_map.get(_lobj);
+	dpp::object *robj = vm->obj_map.get(_robj);
 
-	Dpp_Object *_c = mkConst<IntObject, Interger>(isTrue(lobj) || isTrue(robj));
-	fObj->obj_map.write(to, _c, true);
+	dpp::object *_c = dpp::make_int(dpp::is_true(lobj) || dpp::is_true(robj));
+	vm->obj_map.write(to, _c, true);
 }
 
-void _jmp(FObject *fObj) {
-	Object _jmpto = theap->PopFront();
+void _jmp(dpp::vm vm) {
+	Object _jmpto = vm->_theap->PopFront();
 
-    if (GetBit(fObj->flags, JMP_TRUE) == 1) {
-        if (isTrue(fObj->obj_map.get(theap->PopFront()))) {
-            fObj->state.runat = _jmpto.id;
+    if (GetBit(vm->flags, JMP_TRUE) == 1) {
+        if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
+            vm->state.runat = _jmpto.id;
         }
         return;
-    } else if (GetBit(fObj->flags, JMP_FALSE) == 1) {
-        if (!isTrue(fObj->obj_map.get(theap->PopFront()))) {
-            fObj->state.runat = _jmpto.id;
+    } else if (GetBit(vm->flags, JMP_FALSE) == 1) {
+        if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
+            vm->state.runat = _jmpto.id;
         }
         return;
     }
-	fObj->state.runat = _jmpto.id;
+	vm->state.runat = _jmpto.id;
 }
 
-void _call(FObject *fObj) {
-	Object _func = theap->PopFront();
-    FunctionObject *func = (FunctionObject *)fObj->obj_map.get(_func);
+void _call(dpp::vm vm) {
+	Object _func = vm->_theap->PopFront();
+    FunctionObject *func = (FunctionObject *)vm->obj_map.get(_func);
 
-    uint32_t func_mapping_id = fObj->obj_map.getLastCreateID();
-    fObj->obj_map.create_mapping(func_mapping_id);
+    uint32_t func_mapping_id = vm->obj_map.getLastCreateID();
+    vm->obj_map.create_mapping(func_mapping_id);
 
     uint32_t i = 0;
-    while (!theap->isEmpty()) {
-        const Object &param = theap->PopFront();
-        fObj->obj_map.write({ false, i }, fObj->obj_map.get(param, func_mapping_id - 1));
+    while (!vm->_theap->isEmpty()) {
+        const Object &param = vm->_theap->PopFront();
+        vm->obj_map.write({ false, i }, vm->obj_map.get(param, func_mapping_id - 1));
     }
-    fObj->callstack.push(fObj->state);
-    fObj->state = func->state;
+    vm->callstack.push(vm->state);
+    vm->state = func->state;
 }
 
-void _ret(FObject *fObj) {
+void _ret(dpp::vm vm) {
     // TODO: _ret cannot use like null object
-    Dpp_Object *val = nullptr;
-    if (!theap->isEmpty()) {
-        val = fObj->obj_map.get(theap->PopFront());
+    dpp::object *val = nullptr;
+    if (!vm->_theap->isEmpty()) {
+        val = vm->obj_map.get(vm->_theap->PopFront());
     }
 
-	fObj->state = fObj->callstack.top();
-    fObj->callstack.pop();
-    fObj->obj_map.pop_mapping();
+	vm->state = vm->callstack.top();
+    vm->callstack.pop();
+    vm->obj_map.pop_mapping();
 
-    fObj->return_values.push(val);
+    vm->return_values.push(val);
 }
 
-void _getret(FObject *fObj) {
-    Object to = theap->PopFront();
+void _getret(dpp::vm vm) {
+    Object to = vm->_theap->PopFront();
 
-    Dpp_Object *val = fObj->return_values.top();
+    dpp::object *val = vm->return_values.top();
     if (val != nullptr) {
-        fObj->obj_map.write(to, val, true);
+        vm->obj_map.write(to, val, true);
     }
-    fObj->return_values.pop();
+    vm->return_values.pop();
 }
 
-void _calln(FObject *fObj) {
+void _calln(dpp::vm vm) {
 	// call native function
-	Object _lib = theap->PopFront();
-	Object _func = theap->PopFront();
+	Object _lib = vm->_theap->PopFront();
+	Object _func = vm->_theap->PopFront();
 
-	Dpp_Object *call_func = fObj->obj_map.get(_func);
+	dpp::object *call_func = vm->obj_map.get(_func);
 
-	if(IS_TYPE_EQUAL(GetObjectType(call_func), STRING_TYPE)) {
-		String _native_func = GetObjectData<StringObject, String>(call_func);
+	if(dpp::is_string(call_func)) {
+		String _native_func = dpp::get_string(call_func);
 
 		std::string native_func = WStrToPChar(_native_func);
-		NativeProc proc = GetNativeProc(fObj->NativeModules[_lib.id], native_func.c_str());
+		NativeProc proc = GetNativeProc(vm->NativeModules[_lib.id], native_func.c_str());
 		if(proc == nullptr) {
-            SetError(fObj, Dpp_LibNoSymbolError, L"");
+            dpp::set_error(vm, Dpp_LibNoSymbolError, L"");
 			return;
 		}
 		NATIVE_FUNC func = (NATIVE_FUNC)proc;
-		Dpp_Object *ret = func(fObj);
+		dpp::object *ret = func(vm);
         if (ret != nullptr) {
-            Object _to = theap->PopFront();
-            fObj->obj_map.write(_to, ret, true);
+            Object _to = vm->_theap->PopFront();
+            vm->obj_map.write(_to, ret, true);
         }
     } else {
-        SetError(fObj, Dpp_TypeNotRightError, L"");
+        dpp::set_error(vm, Dpp_TypeNotRightError, L"");
     }
 }
 
-void _import(FObject *fObj) {
+void _import(dpp::vm vm) {
 
 }
 
-void _sign(FObject *fObj) {
+void _sign(dpp::vm vm) {
 
 }
 /*
-void _sign(FObject *fObj) {
-	Object _signal = theap->PopFront();
+void _sign(dpp::vm vm) {
+	Object _signal = vm->_theap->PopFront();
 #ifdef __TEST
-	std::cout << GetBit(fObj->flags, 0) << " " << GetBit(fObj->flags, 1) << std::endl;
+	std::cout << GetBit(vm->flags, 0) << " " << GetBit(vm->flags, 1) << std::endl;
 #endif
-	if(GetBit(fObj->flags, 0) == 1) {
-		// error bit
-		if(GetBit(fObj->flags, 1) == 1) {
-			// set error function
-			fObj->error_accept.write(_signal.id, theap->PopFront());
+	if(GetBit(vm->flags, 0) == 1) {
+		// vm->_error bit
+		if(GetBit(vm->flags, 1) == 1) {
+			// set vm->_error function
+			vm->vm->_error_accept.write(_signal.id, vm->_theap->PopFront());
 		} else {
-			// throw error
-			error->PushData(_signal);
+			// throw vm->_error
+			vm->_error->PushData(_signal);
 		}
 	} else {
 		// signal bit
-		if(GetBit(fObj->flags, 1) == 1) {
+		if(GetBit(vm->flags, 1) == 1) {
 
 			// set signal function
-			fObj->signal_accept.write(_signal.id, theap->PopFront());
+			vm->signal_accept.write(_signal.id, vm->_theap->PopFront());
 		} else {
 			// push a signal to signal pool
-			fObj->sig->PushData((SIGNAL)_signal.id);
+			vm->sig->PushData((SIGNAL)_signal.id);
 		}
 	}
 }
 */
-void _new(FObject *fObj) {
-	Object _type = theap->PopFront();
-	Object _to = theap->PopFront();
+void _new(dpp::vm vm) {
+	Object _type = vm->_theap->PopFront();
+	Object _to = vm->_theap->PopFront();
 
-    Dpp_Object *type = fObj->obj_map.get(_type);
+    dpp::object *type = vm->obj_map.get(_type);
 
-	Dpp_Object *obj = nullptr;
+	dpp::object *obj = nullptr;
 	try {
-		obj = NewObject(type->reg->size + sizeof(Dpp_Object));
-        obj->reg = new RegType;
-        *obj->reg = *type->reg;
-        obj->reg->init(obj);
+		obj = type->new_object();
 	} catch(std::bad_alloc &) {
-        SetError(fObj, Dpp_NoMemoryError, L"");
-		return;
-	} catch(TypeNotRightError &) {
-        SetError(fObj, Dpp_TypeNotRightError, L"");
+        dpp::set_error(vm, Dpp_NoMemoryError, L"");
 		return;
 	}
 
-	fObj->obj_map.write(_to, obj, true);
+	vm->obj_map.write(_to, obj, true);
 }
 
-void _del(FObject *fObj) {
-    Object _obj = theap->PopFront();
+void _del(dpp::vm vm) {
+    Object _obj = vm->_theap->PopFront();
 
-    Dpp_Object *obj = fObj->obj_map.get(_obj);
+    dpp::object *obj = vm->obj_map.get(_obj);
 
     DeleteObject(obj);
 }
 
-void _mov(FObject *fObj) {
-	Object _src = theap->PopFront();
-	Object _to = theap->PopFront();
+void _mov(dpp::vm vm) {
+	Object _src = vm->_theap->PopFront();
+	Object _to = vm->_theap->PopFront();
 
-	Dpp_Object *src = fObj->obj_map.get(_src);
-	Dpp_Object *to = fObj->obj_map.get(_to);
+	dpp::object *src = vm->obj_map.get(_src);
+	dpp::object *to = vm->obj_map.get(_to);
 
     if(src == nullptr || to == nullptr) {
-        SetError(fObj, Dpp_NullPointerError, L"");
+        dpp::set_error(vm, Dpp_NullPointerError, L"");
         return;
     }
 
-	Dpp_Object *status = src->move(to);
+	dpp::object *status = src->move(to);
 	if(status == nullptr) {
 		// failed
-        SetError(fObj, Dpp_TypeNotRightError, L"");
+        dpp::set_error(vm, Dpp_TypeNotRightError, L"");
 	}
 
-    fObj->obj_map.write(_to, status, true);
+    vm->obj_map.write(_to, status, true);
 }
 
-void _method(FObject *fObj) {
-    Object _container = theap->PopFront();
-    Object _method = theap->PopFront();
+void _method(dpp::vm vm) {
+    Object _container = vm->_theap->PopFront();
+    Object _method = vm->_theap->PopFront();
 
     // TODO: Not Success
 }
 
-void _exit(FObject *fObj) {
-	Object _exitcode = theap->PopFront();
+void _exit(dpp::vm vm) {
+	Object _exitcode = vm->_theap->PopFront();
 
-	fObj->exit_code = (int)_exitcode.id;
-	fObj->sig->PushData(EXIT);
+	vm->exit_code = (int)_exitcode.id;
+	vm->sig->PushData(EXIT);
 }
 /*
-  void _convert(FObject *fObj,
-  ErrorPool *error,
-  Tmp_Heap *theap) {
-  Object convert_id = theap->PopFront(); // convert_id is the 'pConvertList' id
-  Object _obj = theap->PopFront();
-  Object to = theap->PopFront();
+  void _convert(dpp::vm vm,
+  vm->_errorPool *vm->_error,
+  Tmp_Heap *vm->_theap) {
+  Object convert_id = vm->_theap->PopFront(); // convert_id is the 'pConvertList' id
+  Object _obj = vm->_theap->PopFront();
+  Object to = vm->_theap->PopFront();
 
-  Dpp_Object *obj = fObj->obj_map.get(_obj);
+  dpp::object *obj = vm->obj_map.get(_obj);
 
-  Dpp_Object *rtn = fObj->pConvertList[convert_id.id](error, obj);
-  fObj->obj_map.write(to.id, rtn);
+  dpp::object *rtn = vm->pConvertList[convert_id.id](vm->_error, obj);
+  vm->obj_map.write(to.id, rtn);
   }
  */

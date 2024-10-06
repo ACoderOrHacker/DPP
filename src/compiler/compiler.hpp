@@ -38,6 +38,8 @@
 #include "enum.hpp"
 #include "acdpp.h"
 #include "vm.hpp"
+#include "acoder/acassert/acassert.h"
+#include "objects.hpp"
 #include "builtin.hpp"
 #include "metadata.h"
 
@@ -295,7 +297,7 @@ class DXXVisitor : public DXXParserBaseVisitor {
 public:
     explicit DXXVisitor(FObject *_fObj = nullptr) {
         if (_fObj != nullptr) fObj = _fObj;
-        else fObj = MakeVM();
+        else fObj = dpp::create_vm();
 
         loop_end = 0;
         block_end = 0;
@@ -635,11 +637,11 @@ public:
     std::any visitEnum(DXXParser::EnumContext *ctx) override {
         Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString(), false, true);
         enum_object->type = CLASS_TYPE;
-        Interger _idata_it = 0;
+        Integer _idata_it = 0;
 
         for(auto it: ctx->enumSub()) {
             std::string id = it->ID()->toString();
-            Interger _idata = _idata_it;
+            Integer _idata = _idata_it;
             antlr4::tree::TerminalNode* node = it->IntegerData();
             if (node != nullptr) {
                 _idata = std::stoll(node->toString());
@@ -1413,7 +1415,7 @@ private:
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
         _co->id = obj->name;
-        _co->type = obj->reg->type;
+        _co->type = obj->type;
 
         if (!obj->name.empty()) {
             globalNamespace->RemoveObject(_co);
@@ -1442,9 +1444,9 @@ private:
     Dpp_CObject *MakeString(const std::string &s) {
         String wstr = stringToWstring(s);
         Object o = allocMapping(true);
-        Dpp_Object *obj = mkConst<StringObject, String>(wstr);
+        Dpp_Object *obj = dpp::make_string(wstr);
         obj->name = s;
-        obj->reg->type = STRING_TYPE;
+        obj->type = STRING_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;
@@ -1455,11 +1457,11 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of IntegerObject
      * And Push the string constant to the object pool
      */
-    Dpp_CObject *MakeInteger(Interger idata) {
+    Dpp_CObject *MakeInteger(Integer idata) {
         Object o = allocMapping(true);
-        Dpp_Object *obj = mkConst<IntObject, Interger>(idata);
+        Dpp_Object *obj = dpp::make_int(idata);
         obj->name = std::to_string(idata);
-        obj->reg->type = INT_TYPE;
+        obj->type = INT_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;
@@ -1470,11 +1472,11 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of IntegerObject
      * And Push the string constant to the object pool
      */
-    Dpp_CObject* MakeFloating(FloatNum idata) {
+    Dpp_CObject* MakeFloating(FloatNum data) {
         Object o = allocMapping(true);
-        Dpp_Object* obj = mkConst<FloatObject, FloatNum>(idata);
-        obj->name = std::to_string(idata);
-        obj->reg->type = FLOAT_TYPE;
+        Dpp_Object* obj = dpp::make_float(data);
+        obj->name = std::to_string(data);
+        obj->type = FLOAT_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;
@@ -1555,7 +1557,10 @@ private:
      * Make a function object(run-time)
      */
     static Dpp_Object *MakeFunctionObject(const std::string &id) {
-        return mkFunction(id);
+        Dpp_Object *func = dpp::new_object<FunctionObject>();
+        func->name = id;
+
+        return func;
     }
 
     /*

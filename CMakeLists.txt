@@ -114,6 +114,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # disable warning C4275: <derived>: '<base>' : dependent name is not a type
 endif()
 
+add_compile_definitions(_DXX_EXPORT)
+
 # Make shared library
 file(GLOB VM_FILES src/runtime/*.cpp src/runtime/*.hpp src/runtime/*.h)
 if (BUILD_VM_SERIALIZATION)
@@ -122,8 +124,10 @@ if (BUILD_VM_SERIALIZATION)
     file(GLOB SERIALIZATION_FILES src/serialization/*.cpp)
     add_library(vm SHARED ${VM_FILES} ${ACASSERT_FILES} ${SERIALIZATION_FILES})
     target_link_libraries(vm Boost::serialization)
+    target_link_libraries(vm fmt::fmt-header-only)
 else ()
     add_library(vm SHARED ${VM_FILES} ${ACASSERT_FILES})
+    target_link_libraries(vm fmt::fmt-header-only)
 endif ()
 
 set(GRAMMAR_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/)

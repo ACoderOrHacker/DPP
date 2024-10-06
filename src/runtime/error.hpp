@@ -4,6 +4,23 @@
 
 NAMESPACE_DPP_BEGIN
 
+bool call_function(dpp::vm vm,
+    FunctionObject *func,
+    uint32_t _paramnum,
+    ...);
+
+/**
+ * @brief clean the vm
+ *
+ * @param vm
+ */
+forceinline void delete_vm(dpp::vm vm) {
+    acassert(vm == nullptr);
+
+	delete vm;
+	vm = nullptr;
+}
+
 template<typename T> VMError _set_error(dpp::object *err,
     T msg = nullptr) {
     VMError error;
@@ -26,17 +43,17 @@ forceinline VMError SetError(Dpp_Object *err,
 forceinline void set_error(FObject *fObj,
     Dpp_Object *err,
     const String &msg = L"") {
-    auto error = set_error(err, msg);
+    auto error = new VMError(set_error(err, msg));
 
-    fObj->_error = &error;
+    fObj->_error = error;
 }
 
 forceinline void set_error(FObject *fObj,
     Dpp_Object *err,
     const wchar_t *msg = L"") {
-    auto error = SetError(err, msg);
+    auto *error = new VMError(SetError(err, msg));
 
-    fObj->_error = &error;
+    fObj->_error = error;
 }
 
 forceinline void clear_error(FObject *fObj) {

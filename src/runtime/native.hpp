@@ -30,13 +30,7 @@ NAMESPACE_DPP_BEGIN
 
 NAMESPACE_BASE_BEGIN
 
-std::string to_module_id(const std::string &lib) {
-#ifdef _WIN32
-    return lib + ".dll";
-#elif defined(__linux__)
-    return "lib" + lib + ".so";
-#endif
-}
+DXX_API std::string to_module_id(const std::string &lib);
 
 NAMESPACE_BASE_END
 
@@ -45,30 +39,9 @@ NAMESPACE_BASE_END
 using native_module = Module;
 using proc = NativeProc;
 
-dpp::native_module open(const std::string &lib) {
-    dpp::native_module m;
-    if ((m = OpenNativeLib(dpp::base::to_module_id(lib).c_str())) == nullptr) {
-        throw std::runtime_error("Failed to open native library: " + lib);
-    }
-
-    return m;
-}
-
-dpp::proc get_proc(dpp::native_module m, const std::string &proc_id) {
-
-    dpp::proc _proc;
-    if ((_proc = GetNativeProc(m, proc_id.c_str())) == nullptr) {
-        throw std::runtime_error("Failed to get native proc address: " + proc_id);
-    }
-
-    return _proc;
-}
-
-void close(dpp::native_module m) {
-    if (!FreeNativeLib(m)) {
-        throw std::runtime_error("Failed to close native library.");
-    }
-}
+DXX_API dpp::native_module open(const std::string &lib);
+DXX_API dpp::proc get_proc(dpp::native_module m, const std::string &proc_id);
+DXX_API void close(dpp::native_module m);
 
 forceinline std::string to_pchar(const std::wstring &wstr) {
     return WStrToPChar(wstr);

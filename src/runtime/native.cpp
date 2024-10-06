@@ -71,3 +71,36 @@ DXX_API std::string WStrToPChar(std::wstring wstr) {
 DXX_API std::wstring stringToWstring(std::string str) {
 	return std::wstring(str.begin(), str.end());
 }
+
+DXX_API std::string dpp::base::to_module_id(const std::string &lib) {
+#ifdef _WIN32
+    return lib + ".dll";
+#elif defined(__linux__)
+    return "lib" + lib + ".so";
+#endif
+}
+
+dpp::native_module dpp::open(const std::string &lib) {
+    dpp::native_module m;
+    if ((m = OpenNativeLib(dpp::base::to_module_id(lib).c_str())) == nullptr) {
+        throw std::runtime_error("Failed to open native library: " + lib);
+    }
+
+    return m;
+}
+
+DXX_API dpp::proc dpp::get_proc(dpp::native_module m, const std::string &proc_id) {
+
+    dpp::proc _proc;
+    if ((_proc = GetNativeProc(m, proc_id.c_str())) == nullptr) {
+        throw std::runtime_error("Failed to get native proc address: " + proc_id);
+    }
+
+    return _proc;
+}
+
+DXX_API void dpp::close(dpp::native_module m) {
+    if (!FreeNativeLib(m)) {
+        throw std::runtime_error("Failed to close native library.");
+    }
+}

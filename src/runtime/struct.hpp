@@ -32,8 +32,11 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4267)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 #endif // _MSC_VER
 
+#include "acoder/acassert/acassert.h"
 #include "acdpp.h"
 #include "macros.hpp"
 #include "array.hpp"
@@ -74,7 +77,7 @@ Dpp_Object *StdSmaller(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdEqual(Dpp_Object *, Dpp_Object *);
 Dpp_Object *StdNot(Dpp_Object *);
 
-class Dpp_Object {
+class DXX_API Dpp_Object {
 public:
     virtual ~Dpp_Object() = default; // virtual destructor
 
@@ -94,39 +97,71 @@ public:
 		Dpp_Object *operator &(Dpp_Object *obj);
 		Dpp_Object *operator ^(Dpp_Object *obj);
 		Dpp_Object *operator ~();
-		virtual bool print();
-        virtual bool is_true();
+        virtual bool is_true() { throw NoOperatorError(); }
+        virtual Dpp_Object *new_object() {
+            return new Dpp_Object;
+        }
 		Dpp_Object *move(Dpp_Object *obj); // move object to object
 		bool moveref(Dpp_Object *obj); // move the ref to the object
 
-    protected:
-        virtual Dpp_Object *add(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *sub(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *mul(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *div(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *mod(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *shl(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *shr(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *band(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *bor(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *bxor(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *bneg(Dpp_Object *) = 0;
-        virtual Dpp_Object *bigger(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *smaller(Dpp_Object *, Dpp_Object *) = 0;
-        virtual Dpp_Object *equal(Dpp_Object *, Dpp_Object *) = 0;
+    public:
+        virtual Dpp_Object *add(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *sub(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *mul(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *div(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *mod(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *shl(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *shr(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *band(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *bor(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *bxor(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *bneg(Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *bigger(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *smaller(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *equal(Dpp_Object *, Dpp_Object *) {
+            throw NoOperatorError();
+        }
 
-        virtual std::string to_string(Dpp_Object *) = 0;
-        virtual Dpp_Object *notval(Dpp_Object *) = 0;
-
-        virtual void mem_free(Dpp_Object *) = 0;
+        virtual std::string to_string(Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual Dpp_Object *notval(Dpp_Object *) {
+            throw NoOperatorError();
+        }
 
 	public:
 		std::string name;
+        uint32_t type;
 		char info = 0; // see doc/object/info.md
-        bool isTypeObject = false;
 };
 
-DXX_API std::string object_to_string(Dpp_Object *obj);
+forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }
 
 class ObjectMapping {
 public:
@@ -271,5 +306,9 @@ forceinline Version get_version() {
     return ver;
 }
 NAMESPACE_DPP_END
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif // _MSC_VER
 
 #endif // !_STRUCT_H

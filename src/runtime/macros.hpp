@@ -44,23 +44,32 @@ typedef bool STATUS;
 #define NAMESPACE_BASE_END NAMESPACE_END
 
 #define Dpp_DEFINE_ERROR(id) class id : std::exception{};
-#define Dpp_TYPE(id) class id : protected Dpp_Object
+#define Dpp_TYPE(id) class DXX_API id : public Dpp_Object
+#define Dpp_TYPE_REGISTER_METHOD(id) \
+    public: \
+    forceinline dpp::object *new_object() override { return (dpp::object *)new id; } \
+    bool is_true(dpp::object *); \
+
+
 
 #define Dpp_REGISTER_TYPE(dpptype, cpptype)                  \
 NAMESPACE_DPP_BEGIN                                                                       \
-    bool is_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj) != nullptr; } \
-    cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
+    forceinline bool is_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj) != nullptr; } \
+    forceinline cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
 NAMESPACE_DPP_END
 
 #define Dpp_REGISTER_TYPE_EX(dpptype, cpptype, valid)      \
 Dpp_REGISTER_TYPE(dpptype, cpptype)                        \
 NAMESPACE_DPP_BEGIN                                        \
-    auto get_##dpptype(dpp::object *obj) { return to_##dpptype(obj)->valid; } \
-    void set_##dpptype(dpp::object *obj, auto val) { to_dpptype(obj)->valid = val; } \
-    dpp::object *make_##dpptype(auto val) { return ((cpptype *)dpp::new_object<cpptype>())->valid = val; } \
+    forceinline auto get_##dpptype(dpp::object *obj) { return to_##dpptype(obj)->valid; } \
+    forceinline void set_##dpptype(dpp::object *obj, auto val) { to_##dpptype(obj)->valid = val; } \
+    forceinline dpp::object *make_##dpptype(auto val) { \
+        cpptype *obj = (cpptype *)dpp::new_object<cpptype>(); \
+        obj->valid = val; \
+        return obj; } \
 NAMESPACE_DPP_END
 
-// Define a type with base class
-#define Dpp_TYPE_EX(id, base) class id : public base
+Dpp_DEFINE_ERROR(NoOperatorError)
+Dpp_DEFINE_ERROR(DivideZeroError)
 
 #endif // !_DPP_MACROS

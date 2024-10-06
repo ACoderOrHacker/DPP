@@ -89,37 +89,22 @@ Dpp_Object *Dpp_Object::operator ~() {
 	return bneg(this);
 }
 
-bool Dpp_Object::print() {
-	std::cout << to_string(this);
-
-    return true;
-}
-
+// TODO: there are 3 functions no define
 Dpp_Object *Dpp_Object::move(Dpp_Object *obj) {
-	if(obj == nullptr || obj->reg == nullptr || reg == nullptr) {
-		return nullptr; // object is null, we cannot know its type
-	}
-
-	if(this->reg->type != obj->reg->type) {
-		return nullptr; // cannot move data
-	}
-
-    Dpp_Object *tmp = NewObject(sizeof(Dpp_Object) + obj->reg->size);
-    if (tmp == nullptr) {
+    if (typeid(this) != typeid(obj)) {
         return nullptr;
     }
 
-    tmp->reg = reg;
-    tmp->info = info;
-    tmp->isTypeObject = isTypeObject;
-    if(obj->reg->move != nullptr) {
-        tmp->reg->move(this, tmp);
-    }
-    DeleteObject(obj);
-	return tmp;
+    dpp::_delete_object(obj);
+    obj = this->new_object();
+    *obj = *this;
+
+    return obj;
 }
 
 bool Dpp_Object::moveref(Dpp_Object *obj) {
+    return true;
+    /*
 	if(this->reg->type != obj->reg->type) {
 		return false; // cannot move ref data
 	}
@@ -131,10 +116,12 @@ bool Dpp_Object::moveref(Dpp_Object *obj) {
 
 	obj = this;
 
-	return true; // success
+	return true; // success*/
 }
 
 DXX_API std::string to_string(Dpp_Object *obj) {
+    return std::string("");
+    /*
     if (obj == nullptr) {
         return "unknown";
     }
@@ -147,5 +134,5 @@ DXX_API std::string to_string(Dpp_Object *obj) {
         return obj->reg->name;
     }
 
-    return obj->reg->to_string(obj);
+    return obj->reg->to_string(obj);*/
 }

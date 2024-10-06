@@ -9,7 +9,7 @@
 #define DXX_VERSION "0.1"
 
 #ifdef _MSC_VER // for MSVC
-#ifdef _DXX_API
+#ifndef _DXX_EXPORT
 #define DXX_API __declspec(dllimport)
 #else
 #define DXX_API __declspec(dllexport)

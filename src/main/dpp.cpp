@@ -43,14 +43,14 @@ int main(int argc, char *argv[] ) {
         }
         else if(vm.count("run")) {
             std::string filename = vm["run"].as<std::string>();
-            std::fstream ifs = dpp::open_file(filename, std::ios_base::in,
-                [](const std::string &filename, std::fstream &fs) {
+            std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in,
+                [](const std::string &filename, std::ifstream &fs) {
                     fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' source file\n", filename);
                     exit(1);
                 });
 
             dpp::vm _vm = compile(ifs);
-            dpp::close_file(ifs);
+            dpp::close_file<std::ifstream>(ifs);
 
             int exit_code = dpp::run(_vm, false);
             exit(exit_code);
@@ -63,10 +63,10 @@ int main(int argc, char *argv[] ) {
             for (auto &it : vm["list"].as<std::vector<std::string>>()) {
                 fmt::print("[{}] {}", i, it);
 
-                std::fstream ifs;
+                std::ifstream ifs;
 
                 try {
-                    ifs = dpp::open_file(it);
+                    ifs = dpp::open_file<std::ifstream>(it);
                 } catch(std::runtime_error &) {
                     fmt::print(fmt::fg(fmt::color::red), "error: cannot find {} source file\n", it);
                     continue;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[] ) {
                 dpp::close_file(ifs);
 
                 dpp::output_vm(fObj, false);
-                dpp::clean_vm();
+                dpp::delete_vm(fObj);
 
                 std::cout << "\n\n";
                 ++i;
@@ -106,9 +106,8 @@ int main(int argc, char *argv[] ) {
                 ifs.close();
 
                 dpp::switch_ostream(out.rdbuf());
-                VM_Run(fObj, true);
+                dpp::run(fObj, true);
                 std::string str = out.str();
-                std::cout << "Output result: " << str << "\n";
                 dpp::check_test(it.filename().string(), str);
                 dpp::switch_ostream(dpp::__stdout);
 
