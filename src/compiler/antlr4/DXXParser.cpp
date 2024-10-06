@@ -58,7 +58,7 @@ void dxxparserParserInitialize() {
       "callParamList", "throwtable", "varDefine", "varDefineNoSet", "varSet", 
       "withStatement", "withIf", "withIfExtends", "withIfExtendsSub", "withSwitchStatement", 
       "caseStatement", "defaultStatement", "whileLoop", "doWhileLoop", "foreachLoop", 
-      "goto", "gotoLabelDefine", "enum", "enumSub", "class", "interface", 
+      "goto", "gotoLabelDefine", "enum", "enumSub", "class", "interface_", 
       "classMethods", "interfaceMethods", "operatorDefine", "block", "try", 
       "throw", "theType", "theTypeSub", "idEx", "info", "native", "assigns", 
       "allOperators"
@@ -83,7 +83,7 @@ void dxxparserParserInitialize() {
       "", "Asm", "Bool", "Break", "Case", "Catch", "Char", "Class", "Compiletime", 
       "Continue", "Default", "Delete", "Do", "Enum", "Extends", "False", 
       "Final", "Finally", "Float", "Foreach", "Goto", "If", "Import", "Inline", 
-      "Int", "Implements", "Interface", "Long", "Native", "New", "Null", 
+      "Int", "Implements", "Interface_", "Long", "Native", "New", "Null", 
       "Object", "Operator", "Override", "Private", "Protected", "Public", 
       "Return", "Short", "Static", "String", "Super", "Switch", "Template", 
       "This", "Throw", "True", "Try", "Type", "Using", "Virtual", "Void", 
@@ -453,8 +453,8 @@ std::any DXXParser::GSemiExprContext::accept(tree::ParseTreeVisitor *visitor) {
 }
 //----------------- InterfaceExprContext ------------------------------------------------------------------
 
-DXXParser::InterfaceContext* DXXParser::InterfaceExprContext::interface() {
-  return getRuleContext<DXXParser::InterfaceContext>(0);
+DXXParser::Interface_Context* DXXParser::InterfaceExprContext::interface_() {
+  return getRuleContext<DXXParser::Interface_Context>(0);
 }
 
 DXXParser::InterfaceExprContext::InterfaceExprContext(GExpressionsContext *ctx) { copyFrom(ctx); }
@@ -638,7 +638,7 @@ DXXParser::GExpressionsContext* DXXParser::gExpressions() {
       _localctx = _tracker.createInstance<DXXParser::InterfaceExprContext>(_localctx);
       enterOuterAlt(_localctx, 7);
       setState(118);
-      interface();
+      interface_();
       break;
     }
 
@@ -4678,72 +4678,72 @@ DXXParser::ClassContext* DXXParser::class_() {
   return _localctx;
 }
 
-//----------------- InterfaceContext ------------------------------------------------------------------
+//----------------- Interface_Context ------------------------------------------------------------------
 
-DXXParser::InterfaceContext::InterfaceContext(ParserRuleContext *parent, size_t invokingState)
+DXXParser::Interface_Context::Interface_Context(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* DXXParser::InterfaceContext::Interface() {
-  return getToken(DXXParser::Interface, 0);
+tree::TerminalNode* DXXParser::Interface_Context::Interface_() {
+  return getToken(DXXParser::Interface_, 0);
 }
 
-tree::TerminalNode* DXXParser::InterfaceContext::ID() {
+tree::TerminalNode* DXXParser::Interface_Context::ID() {
   return getToken(DXXParser::ID, 0);
 }
 
-tree::TerminalNode* DXXParser::InterfaceContext::LeftBrace() {
+tree::TerminalNode* DXXParser::Interface_Context::LeftBrace() {
   return getToken(DXXParser::LeftBrace, 0);
 }
 
-tree::TerminalNode* DXXParser::InterfaceContext::RightBrace() {
+tree::TerminalNode* DXXParser::Interface_Context::RightBrace() {
   return getToken(DXXParser::RightBrace, 0);
 }
 
-tree::TerminalNode* DXXParser::InterfaceContext::Implements() {
+tree::TerminalNode* DXXParser::Interface_Context::Implements() {
   return getToken(DXXParser::Implements, 0);
 }
 
-std::vector<DXXParser::InterfaceMethodsContext *> DXXParser::InterfaceContext::interfaceMethods() {
+std::vector<DXXParser::InterfaceMethodsContext *> DXXParser::Interface_Context::interfaceMethods() {
   return getRuleContexts<DXXParser::InterfaceMethodsContext>();
 }
 
-DXXParser::InterfaceMethodsContext* DXXParser::InterfaceContext::interfaceMethods(size_t i) {
+DXXParser::InterfaceMethodsContext* DXXParser::Interface_Context::interfaceMethods(size_t i) {
   return getRuleContext<DXXParser::InterfaceMethodsContext>(i);
 }
 
-std::vector<DXXParser::IdExContext *> DXXParser::InterfaceContext::idEx() {
+std::vector<DXXParser::IdExContext *> DXXParser::Interface_Context::idEx() {
   return getRuleContexts<DXXParser::IdExContext>();
 }
 
-DXXParser::IdExContext* DXXParser::InterfaceContext::idEx(size_t i) {
+DXXParser::IdExContext* DXXParser::Interface_Context::idEx(size_t i) {
   return getRuleContext<DXXParser::IdExContext>(i);
 }
 
-std::vector<tree::TerminalNode *> DXXParser::InterfaceContext::Comma() {
+std::vector<tree::TerminalNode *> DXXParser::Interface_Context::Comma() {
   return getTokens(DXXParser::Comma);
 }
 
-tree::TerminalNode* DXXParser::InterfaceContext::Comma(size_t i) {
+tree::TerminalNode* DXXParser::Interface_Context::Comma(size_t i) {
   return getToken(DXXParser::Comma, i);
 }
 
 
-size_t DXXParser::InterfaceContext::getRuleIndex() const {
-  return DXXParser::RuleInterface;
+size_t DXXParser::Interface_Context::getRuleIndex() const {
+  return DXXParser::RuleInterface_;
 }
 
 
-std::any DXXParser::InterfaceContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any DXXParser::Interface_Context::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<DXXParserVisitor*>(visitor))
-    return parserVisitor->visitInterface(this);
+    return parserVisitor->visitInterface_(this);
   else
     return visitor->visitChildren(this);
 }
 
-DXXParser::InterfaceContext* DXXParser::interface() {
-  InterfaceContext *_localctx = _tracker.createInstance<InterfaceContext>(_ctx, getState());
-  enterRule(_localctx, 76, DXXParser::RuleInterface);
+DXXParser::Interface_Context* DXXParser::interface_() {
+  Interface_Context *_localctx = _tracker.createInstance<Interface_Context>(_ctx, getState());
+  enterRule(_localctx, 76, DXXParser::RuleInterface_);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -4757,7 +4757,7 @@ DXXParser::InterfaceContext* DXXParser::interface() {
     size_t alt;
     enterOuterAlt(_localctx, 1);
     setState(456);
-    match(DXXParser::Interface);
+    match(DXXParser::Interface_);
     setState(457);
     match(DXXParser::ID);
     setState(470);
@@ -4827,8 +4827,8 @@ DXXParser::ClassContext* DXXParser::ClassMethodsContext::class_() {
   return getRuleContext<DXXParser::ClassContext>(0);
 }
 
-DXXParser::InterfaceContext* DXXParser::ClassMethodsContext::interface() {
-  return getRuleContext<DXXParser::InterfaceContext>(0);
+DXXParser::Interface_Context* DXXParser::ClassMethodsContext::interface_() {
+  return getRuleContext<DXXParser::Interface_Context>(0);
 }
 
 DXXParser::FunctionContext* DXXParser::ClassMethodsContext::function() {
@@ -4881,7 +4881,7 @@ DXXParser::ClassMethodsContext* DXXParser::classMethods() {
     case 2: {
       enterOuterAlt(_localctx, 2);
       setState(482);
-      interface();
+      interface_();
       break;
     }
 
@@ -4934,8 +4934,8 @@ DXXParser::VarDefineNoSetContext* DXXParser::InterfaceMethodsContext::varDefineN
   return getRuleContext<DXXParser::VarDefineNoSetContext>(0);
 }
 
-DXXParser::InterfaceContext* DXXParser::InterfaceMethodsContext::interface() {
-  return getRuleContext<DXXParser::InterfaceContext>(0);
+DXXParser::Interface_Context* DXXParser::InterfaceMethodsContext::interface_() {
+  return getRuleContext<DXXParser::Interface_Context>(0);
 }
 
 DXXParser::SemiContext* DXXParser::InterfaceMethodsContext::semi() {
@@ -4987,7 +4987,7 @@ DXXParser::InterfaceMethodsContext* DXXParser::interfaceMethods() {
     case 3: {
       enterOuterAlt(_localctx, 3);
       setState(490);
-      interface();
+      interface_();
       break;
     }
 

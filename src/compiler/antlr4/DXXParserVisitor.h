@@ -193,7 +193,7 @@ public:
 
     virtual std::any visitClass(DXXParser::ClassContext *context) = 0;
 
-    virtual std::any visitInterface(DXXParser::InterfaceContext *context) = 0;
+    virtual std::any visitInterface_(DXXParser::Interface_Context *context) = 0;
 
     virtual std::any visitClassMethods(DXXParser::ClassMethodsContext *context) = 0;
 

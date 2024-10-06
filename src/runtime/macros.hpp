@@ -48,6 +48,7 @@ typedef bool STATUS;
 #define Dpp_TYPE_REGISTER_METHOD(id) \
     public: \
     forceinline dpp::object *new_object() override { return (dpp::object *)new id; } \
+    forceinline dpp::object *move(dpp::object *obj) override { dpp::_delete_object(obj); id *_o = dynamic_cast<id *>(this->new_object()); *_o = *(id *)this; return (dpp::object *)_o; } \
     bool is_true(dpp::object *); \
 
 

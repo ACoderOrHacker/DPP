@@ -2,6 +2,7 @@
 #include "compiler.hpp"
 #include <fstream>
 
+#include "export.h"
 DXX_API FObject *_compile(antlr4::ANTLRInputStream input) {
     DXXLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);

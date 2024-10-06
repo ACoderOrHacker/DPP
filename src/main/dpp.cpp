@@ -119,8 +119,10 @@ int main(int argc, char *argv[] ) {
         }
 #endif
     } catch (std::exception &e) {
+#ifndef _DEBUG
         std::cerr << "error: " << e.what();
         return 1;
+#endif
     }
     return 0;
 }

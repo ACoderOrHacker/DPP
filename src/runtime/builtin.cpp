@@ -20,8 +20,9 @@ DXX_API dpp::object *Dpp_LibNoSymbolError;
 
 DXX_API dpp::object *Dpp_DivideZeroError;
 
-dpp::object *newErrorObject() {
+dpp::object *newErrorObject(const std::string &id) {
     dpp::object *error = dpp::new_object<ErrorObject>();
+	error->name = id;
 
     return error;
 }
@@ -29,17 +30,17 @@ dpp::object *newErrorObject() {
 void initBuiltin() {
     Dpp_NullObject = new dpp::object;
 
-    Dpp_BaseError = dpp::new_object<ClassObject>();
+    Dpp_BaseError = newErrorObject("BaseError");
 
-    Dpp_NullPointerError = newErrorObject();
+    Dpp_NullPointerError = newErrorObject("NullPointerError");
 
-    Dpp_DataCantOperatorError = newErrorObject();
+    Dpp_DataCantOperatorError = newErrorObject("NoOperatorError");
 
-    Dpp_TypeNotRightError = newErrorObject();
+    Dpp_TypeNotRightError = newErrorObject("TypeNotRightError");
 
-    Dpp_NoMemoryError = newErrorObject();
+    Dpp_NoMemoryError = newErrorObject("NoMemoryError");
 
-    Dpp_LibNoSymbolError = newErrorObject();
+    Dpp_LibNoSymbolError = newErrorObject("NoSymbolError");
 
-    Dpp_DivideZeroError = newErrorObject();
+    Dpp_DivideZeroError = newErrorObject("DivideZeroError");
 }

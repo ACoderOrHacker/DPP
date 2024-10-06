@@ -15,7 +15,7 @@ gExpressions:
 	| varDefine			# varDefineExpr // Done
 	| enum				# enumExpr // Done
 	| class				# classExpr
-	| interface			# interfaceExpr
+	| interface_	    # interfaceExpr
 	| semi				# gSemiExpr // Done
 	| typedef			# typedefExpr ; // Done
 
@@ -146,12 +146,12 @@ class:
 		Implements (idEx (Comma idEx))?
 	)? LeftBrace classMethods* RightBrace;
 
-interface:
-	Interface ID (Implements (idEx Comma)* idEx?)? LeftBrace interfaceMethods* RightBrace;
+interface_:
+	Interface_ ID (Implements (idEx Comma)* idEx?)? LeftBrace interfaceMethods* RightBrace;
 
-classMethods: class | interface | function | varDefine | semi;
+classMethods: class | interface_ | function | varDefine | semi;
 
-interfaceMethods: function | varDefineNoSet | interface | semi;
+interfaceMethods: function | varDefineNoSet | interface_ | semi;
 
 operatorDefine:
 	Operator allOperators LeftParen paramList? RightParen Arrow theType block?;

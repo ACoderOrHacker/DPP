@@ -131,16 +131,27 @@ VM_API dpp::vm dpp::create_vm() {
 
     initBuiltin();
 
+	std::vector<Dpp_Object *> builtins = {
+		Dpp_NullObject,
+        Dpp_BaseError,
+		Dpp_NullPointerError,
+		Dpp_DataCantOperatorError,
+		Dpp_TypeNotRightError,
+		Dpp_NoMemoryError,
+		Dpp_LibNoSymbolError,
+		Dpp_DivideZeroError,
+		mk_type<IntObject>("int"),
+		mk_type<FloatObject>("float"),
+		mk_type<StringObject>("string"),
+		mk_type<ClassObject>("class"),
+		mk_type<ErrorObject>("error"),
+		mk_type<FunctionObject>("function")
+	};
+
 	dpp::vm vm = new FObject;
-	// TODO: null and error not supported
-    vm->obj_map.write({ true, BUILTIN::BUILTIN_NULL }, Dpp_NullObject);
-    vm->obj_map.write({ true, BUILTIN::BUILTIN_NULLPOINTER_ERROR }, Dpp_NullPointerError);
-    vm->obj_map.write({ true, BUILTIN::INT_TYPE }, mk_type<IntObject>("int"));
-    vm->obj_map.write({ true, BUILTIN::FLOAT_TYPE }, mk_type<FloatObject>("float"));
-    vm->obj_map.write({ true, BUILTIN::STRING_TYPE }, mk_type<StringObject>("string"));
-    vm->obj_map.write({ true, BUILTIN::CLASS_TYPE }, mk_type<ClassObject>("class"));
-    vm->obj_map.write({ true, BUILTIN::ERROR_TYPE }, mk_type<ErrorObject>("error"));
-    vm->obj_map.write({ true, BUILTIN::FUNCTION_TYPE }, mk_type<FunctionObject>("function"));
+	for(uint32_t i = 0; i < BUILTIN::BUILTIN_END; ++i) {
+		vm->obj_map.write({ true, i }, builtins.at(i));
+	}
 
 	return vm;
 }

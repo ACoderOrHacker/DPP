@@ -21,6 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
  */
+
 #ifndef _COMPILER_H
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
@@ -35,6 +36,7 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
+#undef _DXX_EXPORT
 #include "enum.hpp"
 #include "acdpp.h"
 #include "vm.hpp"
@@ -42,6 +44,7 @@
 #include "objects.hpp"
 #include "builtin.hpp"
 #include "metadata.h"
+#include "export.h"
 
 #define VOID_TYPE UINT_MAX
 #define OBJECT_TYPE (UINT_MAX - 1)
@@ -293,6 +296,7 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
     return _op;
 }
 
+#include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
     explicit DXXVisitor(FObject *_fObj = nullptr) {
@@ -305,17 +309,13 @@ public:
         // init the globalNamespace
         uint32_t builtin_it = 0;
         for (; builtin_it < BUILTIN_END; ++builtin_it) {
-            if (builtin_it != BUILTIN::BUILTIN_OUT) {
-                Object o{ true, builtin_it };
-                Dpp_Object *obj = fObj->obj_map.get(o);
-                Dpp_CObject *co = new Dpp_CObject;
+            Object o{ true, builtin_it };
+            Dpp_Object *obj = fObj->obj_map.get(o);
+            Dpp_CObject *co = new Dpp_CObject;
 
-                co->id = obj->name;
-                co->object = o;
-                globalNamespace->objects.write(co);
-            }
-
-
+            co->id = obj->name;
+            co->object = o;
+            globalNamespace->objects.write(co);
         }
 
         auto make_type = [=, this](const std::string &id, uint32_t type_id) {
@@ -916,7 +916,7 @@ public:
         return co;
     }
 
-    forceinline bool __check_call_params(Dpp_CObject *func,
+    static forceinline bool __check_call_params(Dpp_CObject *func,
         Heap<Dpp_CObject *> *params,
         Heap<Dpp_CObject *> *call_params,
         Heap<Dpp_CObject *> *autovalues) {
@@ -1726,7 +1726,7 @@ private:
 
     static struct INFOS GetInfoFromID(const std::string &id,
                                       const std::string &native_lib,
-                                      std::string native_func) {
+                                      const std::string &native_func) {
         struct INFOS infos;
 
         if(id == "compiletime") {
@@ -1738,8 +1738,8 @@ private:
         } else if(id == "final") {
             infos.is_final = true;
         } else if(id == "native") {
-            infos.native_function = std::move(native_func);
-            infos.native_library = std::string(LIB_PREFIX) + native_lib;
+            infos.native_function = native_func;
+            infos.native_library = native_lib;
         } else if(id == "constructor") {
             infos.is_constructor = true;
         } else if(id == "destructor") {

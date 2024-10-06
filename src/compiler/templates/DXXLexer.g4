@@ -56,7 +56,7 @@ Int: 'int';
 
 Implements: 'implements';
 
-Interface: 'interface';
+Interface_: 'interface';
 
 Long: 'long';
 

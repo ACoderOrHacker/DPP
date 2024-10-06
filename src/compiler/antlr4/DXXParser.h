@@ -16,7 +16,7 @@ public:
     Compiletime = 8, Continue = 9, Default = 10, Delete = 11, Do = 12, Enum = 13, 
     Extends = 14, False = 15, Final = 16, Finally = 17, Float = 18, Foreach = 19, 
     Goto = 20, If = 21, Import = 22, Inline = 23, Int = 24, Implements = 25, 
-    Interface = 26, Long = 27, Native = 28, New = 29, Null = 30, Object = 31, 
+    Interface_ = 26, Long = 27, Native = 28, New = 29, Null = 30, Object = 31, 
     Operator = 32, Override = 33, Private = 34, Protected = 35, Public = 36, 
     Return = 37, Short = 38, Static = 39, String = 40, Super = 41, Switch = 42, 
     Template = 43, This = 44, Throw = 45, True = 46, Try = 47, Type = 48, 
@@ -44,7 +44,7 @@ public:
     RuleWithIfExtends = 25, RuleWithIfExtendsSub = 26, RuleWithSwitchStatement = 27, 
     RuleCaseStatement = 28, RuleDefaultStatement = 29, RuleWhileLoop = 30, 
     RuleDoWhileLoop = 31, RuleForeachLoop = 32, RuleGoto = 33, RuleGotoLabelDefine = 34, 
-    RuleEnum = 35, RuleEnumSub = 36, RuleClass = 37, RuleInterface = 38, 
+    RuleEnum = 35, RuleEnumSub = 36, RuleClass = 37, RuleInterface_ = 38, 
     RuleClassMethods = 39, RuleInterfaceMethods = 40, RuleOperatorDefine = 41, 
     RuleBlock = 42, RuleTry = 43, RuleThrow = 44, RuleTheType = 45, RuleTheTypeSub = 46, 
     RuleIdEx = 47, RuleInfo = 48, RuleNative = 49, RuleAssigns = 50, RuleAllOperators = 51
@@ -105,7 +105,7 @@ public:
   class EnumContext;
   class EnumSubContext;
   class ClassContext;
-  class InterfaceContext;
+  class Interface_Context;
   class ClassMethodsContext;
   class InterfaceMethodsContext;
   class OperatorDefineContext;
@@ -161,7 +161,7 @@ public:
   public:
     InterfaceExprContext(GExpressionsContext *ctx);
 
-    InterfaceContext *interface();
+    Interface_Context *interface_();
 
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -1248,11 +1248,11 @@ public:
 
   ClassContext* class_();
 
-  class  InterfaceContext : public antlr4::ParserRuleContext {
+  class  Interface_Context : public antlr4::ParserRuleContext {
   public:
-    InterfaceContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    Interface_Context(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Interface();
+    antlr4::tree::TerminalNode *Interface_();
     antlr4::tree::TerminalNode *ID();
     antlr4::tree::TerminalNode *LeftBrace();
     antlr4::tree::TerminalNode *RightBrace();
@@ -1269,14 +1269,14 @@ public:
    
   };
 
-  InterfaceContext* interface();
+  Interface_Context* interface_();
 
   class  ClassMethodsContext : public antlr4::ParserRuleContext {
   public:
     ClassMethodsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ClassContext *class_();
-    InterfaceContext *interface();
+    Interface_Context *interface_();
     FunctionContext *function();
     VarDefineContext *varDefine();
     SemiContext *semi();
@@ -1294,7 +1294,7 @@ public:
     virtual size_t getRuleIndex() const override;
     FunctionContext *function();
     VarDefineNoSetContext *varDefineNoSet();
-    InterfaceContext *interface();
+    Interface_Context *interface_();
     SemiContext *semi();
 
 

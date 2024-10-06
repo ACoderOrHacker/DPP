@@ -16,7 +16,7 @@ public:
     Compiletime = 8, Continue = 9, Default = 10, Delete = 11, Do = 12, Enum = 13, 
     Extends = 14, False = 15, Final = 16, Finally = 17, Float = 18, Foreach = 19, 
     Goto = 20, If = 21, Import = 22, Inline = 23, Int = 24, Implements = 25, 
-    Interface = 26, Long = 27, Native = 28, New = 29, Null = 30, Object = 31, 
+    Interface_ = 26, Long = 27, Native = 28, New = 29, Null = 30, Object = 31, 
     Operator = 32, Override = 33, Private = 34, Protected = 35, Public = 36, 
     Return = 37, Short = 38, Static = 39, String = 40, Super = 41, Switch = 42, 
     Template = 43, This = 44, Throw = 45, True = 46, Try = 47, Type = 48, 

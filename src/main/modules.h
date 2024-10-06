@@ -208,6 +208,8 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("Global Object Mapping:\n");
     for(uint32_t index = BUILTIN_END; index < s_fObj->global_mapping.size(); ++index) {
         Dpp_Object *obj = s_fObj->global_mapping[index];
+		if (obj == nullptr) fmt::print("    [{}] {}\n", index, "unknown");
+
         try {
             fmt::print("    [{}] {}\n", index, object_to_string(obj));
         } catch (NoOperatorError &) {

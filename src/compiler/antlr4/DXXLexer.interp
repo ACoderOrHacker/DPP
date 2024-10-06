@@ -137,7 +137,7 @@ Import
 Inline
 Int
 Implements
-Interface
+Interface_
 Long
 Native
 New
@@ -248,7 +248,7 @@ Import
 Inline
 Int
 Implements
-Interface
+Interface_
 Long
 Native
 New

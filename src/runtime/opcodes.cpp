@@ -307,7 +307,7 @@ void _not(dpp::vm vm) {
 	dpp::object *obj = vm->obj_map.get(_obj);
 	dpp::object *_c = nullptr;
     try {
-        _c = ~(*obj);
+        _c = !(*obj);
     } catch (NoOperatorError &) {
         dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
         return;

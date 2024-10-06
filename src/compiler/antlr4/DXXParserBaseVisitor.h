@@ -363,7 +363,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitInterface(DXXParser::InterfaceContext *ctx) override {
+  virtual std::any visitInterface_(DXXParser::Interface_Context *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -7,8 +7,13 @@
 
 enum BUILTIN : uint32_t {
     BUILTIN_NULL = 0,
+	BUILTIN_BASE_ERROR, /* BaseError */
     BUILTIN_NULLPOINTER_ERROR, /* NullPointerError */
-    BUILTIN_OUT, // 'out' function in builtin
+	BUILTIN_NO_OPERATOR_ERROR, /* NoOperatorError */
+	BUILTIN_TYPE_NOT_RIGHT_ERROR, /* TypeNotRightError */
+	BUILTIN_NO_MEMORY_ERROR, /* NoMemoryError */
+	BUILTIN_LIB_NO_SYMBOL_ERROR, /* NoSymbolError */
+	BUILTIN_DIVIDE_ZERO_ERROR, /* DivideZeroError */
     INT_TYPE,
     FLOAT_TYPE,
     STRING_TYPE,

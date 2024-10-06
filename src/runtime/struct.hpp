@@ -101,7 +101,14 @@ public:
         virtual Dpp_Object *new_object() {
             return new Dpp_Object;
         }
-		Dpp_Object *move(Dpp_Object *obj); // move object to object
+		virtual Dpp_Object *move(Dpp_Object *obj) {
+            delete obj;
+            obj = nullptr;
+            obj = this->new_object();
+            *obj = *this;
+
+            return obj;
+        }
 		bool moveref(Dpp_Object *obj); // move the ref to the object
 
     public:

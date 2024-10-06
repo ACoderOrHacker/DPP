@@ -137,7 +137,7 @@ Import
 Inline
 Int
 Implements
-Interface
+Interface_
 Long
 Native
 New
@@ -261,7 +261,7 @@ gotoLabelDefine
 enum
 enumSub
 class
-interface
+interface_
 classMethods
 interfaceMethods
 operatorDefine
