@@ -41,3 +41,6 @@ __pycache__
 /NOTES
 
 /.VSCodeCounter/
+
+# D++ Object Files
+*.dppo
