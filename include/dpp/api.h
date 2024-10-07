@@ -41,7 +41,8 @@ const auto __stderr = std::cerr.rdbuf();
 template<typename FSTREAM = std::fstream>
 forceinline FSTREAM open_file(const std::string &file, std::ios_base::openmode openmode = std::ios_base::in,
                         void(* failed)(const std::string &, FSTREAM &) =
-                                        [](const std::string &, FSTREAM &) -> void{}) {
+                                        [](const std::string &, FSTREAM &) -> void{
+                                        }) {
     FSTREAM fs;
     fs.open(file, openmode);
 

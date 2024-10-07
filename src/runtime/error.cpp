@@ -12,7 +12,7 @@ bool dpp::call_function(dpp::vm vm,
 
     uint32_t create_frame = vm->obj_map.getLastCreateID();
     ::VMState jmp_state = func->state;
-    vm->obj_map.create_mapping(create_frame, jmp_state.isLambda);
+    vm->obj_map.create_mapping(create_frame);
 
     // Save the last state
     ::VMState state = vm->state;

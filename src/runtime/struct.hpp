@@ -29,6 +29,7 @@
 #include <stack>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
+#include <boost/serialization/stack.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4267)
@@ -58,6 +59,11 @@ public:
 
 	bool operator ==(_Object o) const { return (this->id == o.id &&
                                         this->isInGlobal == o.isInGlobal); }
+
+Dpp_SERIALIZE {
+    ar & isInGlobal;
+    ar & id;
+}
 } Object;
 
 struct _Version {
@@ -71,11 +77,6 @@ struct Version {
 		short version;
 	};
 }; // D++ Version structure
-
-Dpp_Object *StdBigger(Dpp_Object *, Dpp_Object *);
-Dpp_Object *StdSmaller(Dpp_Object *, Dpp_Object *);
-Dpp_Object *StdEqual(Dpp_Object *, Dpp_Object *);
-Dpp_Object *StdNot(Dpp_Object *);
 
 class DXX_API Dpp_Object {
 public:
@@ -166,22 +167,24 @@ public:
 		std::string name;
         uint32_t type;
 		char info = 0; // see doc/object/info.md
+
+Dpp_SERIALIZE {
+    ar & name;
+    ar & type;
+    ar & info;
+}
 };
 
 forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }
 
 class ObjectMapping {
 public:
-	ObjectMapping() {
-        Array<Dpp_Object *> *global = new Array<Dpp_Object *>;
-        this->mappings.write(*global);
-		this->is_lambda.write(0, false); // global mapping
-	}
+	ObjectMapping() = default;
+    ~ObjectMapping() = default;
 
 public:
 	uint32_t getLastCreateObjectID() {
-		Array<Dpp_Object *> mapping = mappings[mappings.size()];
-		return mapping.size() + 1;
+        return mappings.size() == 0 ? global.size() + 1 : mappings[mappings.size()].size() + 1;
 	}
 
 	uint32_t getLastCreateID() { return mappings.size() + 1; }
@@ -205,10 +208,9 @@ public:
         }
 	}
 
-	void create_mapping(uint32_t mapping_id, bool is_lambda = false) {
+	void create_mapping(uint32_t mapping_id) {
 		Array<Dpp_Object *> *mapping = new Array<Dpp_Object *>;
 		this->mappings.write(mapping_id, *mapping);
-		this->is_lambda.write(mapping_id, is_lambda);
 	}
 
     void pop_mapping() {
@@ -216,26 +218,30 @@ public:
     }
 
     Array<Dpp_Object *> getGlobalMapping() {
-        return mappings[0];
+        return global;
     }
 
 private:
+    Array<Dpp_Object *> global;
 	Array<Array<Dpp_Object *>> mappings;
-	Array<bool> is_lambda;
 
 	Array<Dpp_Object *> getMapping(Object &_o) {
 		if (_o.isInGlobal) {
-			return mappings[0];
+			return global;
 		}
 		return *(--mappings.end());
 	}
 
     Array<Dpp_Object *> getMapping(Object &_o, uint32_t mapping_id) {
 		if (_o.isInGlobal) {
-			return mappings[0];
+			return global;
 		}
-		return *(mappings.begin() + mapping_id);
+		return *(mappings.begin() + mapping_id - 1);
 	}
+
+Dpp_SERIALIZE {
+    ar & global;
+}
 };
 
 typedef struct _VMError {
@@ -247,6 +253,12 @@ typedef struct _OpCode {
     rt_opcode opcode = OPCODE_START;
 	char flag = NO_FLAG;
     Heap<Object> params;
+
+Dpp_SERIALIZE {
+    ar & opcode;
+    ar & flag;
+    ar & params;
+}
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
@@ -259,7 +271,10 @@ typedef Dpp_Object *(*ConvertFunction)(ErrorPool *, Dpp_Object *);
 struct VMState {
 	Heap<OpCode> vmopcodes;
 	uint32_t runat = 0;
-	bool isLambda = false;
+
+Dpp_SERIALIZE {
+    ar & vmopcodes;
+}
 };
 
 typedef struct _FObject {
@@ -289,6 +304,12 @@ public:
 	struct VMState state;
 	char flags = NO_FLAG;
 	int exit_code = EXIT_SUCCESS;
+
+Dpp_SERIALIZE {
+    ar & modules;
+    ar & obj_map;
+    ar & state;
+}
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);

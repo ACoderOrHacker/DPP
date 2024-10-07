@@ -44,9 +44,21 @@ S_FObject *GetS_FObject(FObject *fObj) {
 
 NAMESPACE_DPP_BEGIN
     NAMESPACE_BEGIN(serialize)
-        template<typename T> T *load(std::istream);
+        template<typename T> T load(std::istream &istream) {
+            boost::archive::binary_iarchive archive(istream);
+            T object;
+            archive >> object;
 
-        template<typename T> STATUS save(std::ostream &, T *);
+            return object;
+        }
+
+        template<typename T> STATUS save(std::ostream &fs, T &object) {
+            boost::archive::binary_oarchive archive(fs);
+
+            archive << object;
+
+            return STATUS_SUCCESS;
+        }
     NAMESPACE_END
 NAMESPACE_DPP_END
 

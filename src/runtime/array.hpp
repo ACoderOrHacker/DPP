@@ -8,6 +8,8 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include <boost/serialization/vector.hpp>
+#include "macros.hpp"
 
 template<typename T> class Array {
 	public:
@@ -62,6 +64,10 @@ template<typename T> class Array {
         }
 	private:
 		std::vector<T> *array;
+
+Dpp_SERIALIZE {
+    ar & array;
+}
 };
 
 #endif // !_ARRAY_H

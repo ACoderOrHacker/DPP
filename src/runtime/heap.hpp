@@ -4,10 +4,10 @@
 */
 #ifndef _HEAP_H
 #define _HEAP_H
-#include <stdint.h>
 #include <cstdint>
 #include <deque>
-#include <algorithm>
+#include <boost/serialization/deque.hpp>
+#include "macros.hpp"
 
 #define to_iterator(list, index) (list.begin() + index)
 
@@ -126,5 +126,9 @@ template<typename T, typename container = std::deque<T>> class Heap {
         Heap<T> get(uint32_t start, uint32_t end) {
             return (Heap<T>(Data.begin()+start, Data.begin()+end));
         }
+
+Dpp_SERIALIZE {
+    ar & Data;
+}
 };
 #endif // !_HEAP_H

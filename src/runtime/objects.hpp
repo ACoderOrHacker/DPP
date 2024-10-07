@@ -26,6 +26,7 @@ SOFTWARE.
 #define DPPDEF_OBJECTS
 
 #include <type_traits>
+#include <boost/serialization/stack.hpp>
 #include "builtin.hpp"
 #include "struct.hpp"
 #include "macros.hpp"
@@ -87,6 +88,11 @@ public:
     dpp::object *bigger(dpp::object *, dpp::object *) override;
     dpp::object *smaller(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+    ar & val;
+}
 };
 
 Dpp_REGISTER_TYPE_EX(int, IntObject, val)
@@ -106,6 +112,11 @@ public:
     dpp::object *bigger(dpp::object *, dpp::object *) override;
     dpp::object *smaller(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+    ar & val;
+}
 };
 
 Dpp_REGISTER_TYPE_EX(float, FloatObject, val)
@@ -121,6 +132,11 @@ public:
     dpp::object *notval(dpp::object *) override;
     dpp::object *equal(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+    ar & val;
+}
 };
 
 Dpp_REGISTER_TYPE_EX(string, StringObject, val)
@@ -129,7 +145,11 @@ Dpp_TYPE(ClassObject) {
 Dpp_TYPE_REGISTER_METHOD(ClassObject)
 public:
     Heap<Dpp_Object *> members; // members of the class
-public:
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+    ar & members;
+}
 };
 
 Dpp_REGISTER_TYPE(class, ClassObject)
@@ -138,6 +158,11 @@ Dpp_TYPE(FunctionObject) {
 Dpp_TYPE_REGISTER_METHOD(FunctionObject)
 public:
     struct VMState state;
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+    ar & state;
+}
 };
 
 Dpp_REGISTER_TYPE(function, FunctionObject)
@@ -146,6 +171,10 @@ Dpp_TYPE(ErrorObject) {
 Dpp_TYPE_REGISTER_METHOD(ErrorObject)
 public:
     std::stack<FunctionObject *> handles;
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+}
 };
 
 Dpp_REGISTER_TYPE(error, ErrorObject)
@@ -156,6 +185,11 @@ public:
     TypeObject() { type = nullptr; }
     ~TypeObject() override { delete type; type = nullptr; }
     dpp::object *type;
+
+Dpp_SERIALIZE {
+    Dpp_OBJECT_SERIALIZE
+    ar & type;
+}
 };
 
 Dpp_REGISTER_TYPE_EX(type, TypeObject, type)

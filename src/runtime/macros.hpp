@@ -2,6 +2,9 @@
 #define _DPP_MACROS
 
 #include <exception> // std::exception
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/export.hpp>
+#include <boost/serialization/base_object.hpp>
 
 /*
  * The Status Code
@@ -52,12 +55,22 @@ typedef bool STATUS;
     bool is_true(dpp::object *); \
 
 
+#define Dpp_SERIALIZE \
+    private: \
+    friend class boost::serialization::access; \
+    template <typename Archive> \
+    void serialize(Archive &ar, const unsigned int version)
 
-#define Dpp_REGISTER_TYPE(dpptype, cpptype)                  \
+#define Dpp_OBJECT_SERIALIZE ar & boost::serialization::base_object<dpp::object>(*this);
+
+
+#define Dpp_REGISTER_TYPE(dpptype, cpptype) \
 NAMESPACE_DPP_BEGIN                                                                       \
     forceinline bool is_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj) != nullptr; } \
     forceinline cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
 NAMESPACE_DPP_END
+
+#define Dpp_REGISTER_SERIALIZE(type) BOOST_CLASS_EXPORT(type)
 
 #define Dpp_REGISTER_TYPE_EX(dpptype, cpptype, valid)      \
 Dpp_REGISTER_TYPE(dpptype, cpptype)                        \
