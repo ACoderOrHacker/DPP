@@ -88,8 +88,8 @@ set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${Boost_INCLUDE_DIRS}/)
 
 #if(DEFINED CMAKE_TOOLCHAIN_FILE AND CMAKE_TOOLCHAIN_FILE STREQUAL "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
-#    message(STATUS "Found vcpkg, add include directory: ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4")
-#    set(${INC_DIRS} ${INC_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4)
+#   message(STATUS "Found vcpkg, add include directory: ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4")
+set(${INC_DIRS} ${INC_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4)
 #endif()
 
 include_directories(PUBLIC ${INC_DIRS})
