@@ -79,17 +79,17 @@ find_package(antlr4-runtime CONFIG REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/
-        ${Boost_INCLUDE_DIRS}/)
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 #if(DEFINED CMAKE_TOOLCHAIN_FILE AND CMAKE_TOOLCHAIN_FILE STREQUAL "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
 #   message(STATUS "Found vcpkg, add include directory: ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4")
-set(${INC_DIRS} ${INC_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4)
+#set(${INC_DIRS} ${INC_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4)
 #endif()
 
 include_directories(PUBLIC ${INC_DIRS})
