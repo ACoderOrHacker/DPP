@@ -556,7 +556,7 @@ void _del(dpp::vm vm) {
 
     dpp::object *obj = vm->obj_map.get(_obj);
 
-    DeleteObject(obj);
+    dpp::_delete_object(obj);
 }
 
 void _mov(dpp::vm vm) {

@@ -20,6 +20,7 @@ enum BUILTIN : uint32_t {
     CLASS_TYPE,
     ERROR_TYPE,
     FUNCTION_TYPE,
+    TYPE_TYPE,
 
     BUILTIN_END // the builtin list end
 };

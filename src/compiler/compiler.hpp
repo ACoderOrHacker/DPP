@@ -48,7 +48,6 @@
 
 #define VOID_TYPE UINT_MAX
 #define OBJECT_TYPE (UINT_MAX - 1)
-#define TYPE_TYPE (UINT_MAX - 2)
 
 #define THROW(msg) {                                                          \
     fmt::print_error("\nerror: ", msg, "\n");                                 \

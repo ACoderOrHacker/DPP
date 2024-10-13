@@ -144,7 +144,8 @@ VM_API dpp::vm dpp::create_vm() {
 		mk_type<StringObject>("string"),
 		mk_type<ClassObject>("class"),
 		mk_type<ErrorObject>("error"),
-		mk_type<FunctionObject>("function")
+		mk_type<FunctionObject>("function"),
+        mk_type<TypeObject>("type")
 	};
 
 	dpp::vm vm = new FObject;
