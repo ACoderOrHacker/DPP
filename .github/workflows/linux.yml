@@ -33,7 +33,7 @@ jobs:
       uses: johnwason/vcpkg-action@v6
       id: vcpkg
       with:
-        pkgs: boost-json boost-serialization boost-program-options antlr4 fmt
+        pkgs: boost-serialization boost-program-options antlr4 jsoncpp termcolor
         token: ${{ github.token }}
         triplet: x64-linux
         github-binarycache: true
