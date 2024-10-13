@@ -27,10 +27,9 @@
  */
 #include <cstdlib>
 #include <stdexcept>
-#include <fmt/core.h>
-#include <fmt/color.h>
 #include "vm.hpp"
 #include "builtin.hpp"
+#include "fmt.h"
 #include "native.hpp"
 #include "objects.hpp"
 #include "opcodes.hpp"
@@ -163,7 +162,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
         try {
             vm_module = dpp::open(it);
         } catch(std::runtime_error &) {
-            fmt::print(fmt::fg(fmt::color::red), "[dpp.startup] failed to load native module {}\n", it);
+            fmt::print_error("[dpp.startup] failed to load native module", it, "\n");
             exit(1);
         }
 

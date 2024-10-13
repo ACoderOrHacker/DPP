@@ -1,12 +1,11 @@
 #include <fstream>
-#include <fmt/core.h>
-#include <fmt/color.h>
 #include <process.h>
 #include <boost/program_options.hpp>
 #include <ios>
 #include <ostream>
 
 #include "compiler.hpp"
+#include "fmt.h"
 #include "serialization/Serialization.hpp"
 #include "vm.hpp"
 #include "modules.h"
@@ -19,7 +18,9 @@
 namespace opt = boost::program_options;
 
 int main(int argc, char *argv[] ) {
+#ifndef _DEBUG
     try {
+#endif // !_DEBUG
         opt::options_description desc;
         desc.add_options()
             ("help,h", "Produce help message")
@@ -54,7 +55,7 @@ int main(int argc, char *argv[] ) {
                 try {
                     ifs = dpp::open_file<std::ifstream>(it);
                 } catch(std::runtime_error &) {
-                    fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' source file\n", it);
+                    fmt::print_error("error: cannot find '", it, "' source file\n");
                     exit(1);
                 }
                 dpp::vm _vm = compile(ifs);
@@ -70,7 +71,7 @@ int main(int argc, char *argv[] ) {
             std::string filename = vm["run"].as<std::string>();
             std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in,
                 [](const std::string &filename, std::ifstream &fs) -> void {
-                    fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' source file\n", filename);
+                    fmt::print_error("error: cannot find '", filename, "' source file\n");
                     exit(1);
                 });
 
@@ -86,7 +87,7 @@ int main(int argc, char *argv[] ) {
             std::string filename = vm["run"].as<std::string>();
             std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::binary | std::ios_base::in,
                 [](const std::string &filename, std::ifstream &fs) -> void {
-                    fmt::print(fmt::fg(fmt::color::red), "error: cannot find '{}' binary file\n", filename);
+                    fmt::print_error("error: cannot find '", filename, "' binary file\n");
                     exit(1);
                 });
             _vm = dpp::serialize::load<dpp::vm>(dynamic_cast<std::istream &>(const_cast<std::ifstream &>(ifs)));
@@ -99,14 +100,14 @@ int main(int argc, char *argv[] ) {
 
             uint32_t i = 0;
             for (auto &it : vm["list"].as<std::vector<std::string>>()) {
-                fmt::print("[{}] {}", i, it);
+                fmt::print("[", i, "]", " ", it);
 
                 std::ifstream ifs;
 
                 try {
                     ifs = dpp::open_file<std::ifstream>(it);
                 } catch(std::runtime_error &) {
-                    fmt::print(fmt::fg(fmt::color::red), "error: cannot find {} source file\n", it);
+                    fmt::print_error("error: cannot find '", it, "' source file\n");
                     continue;
                 }
                 fObj = compile(ifs);
@@ -135,7 +136,7 @@ int main(int argc, char *argv[] ) {
                 }
 
 
-                fmt::print("[{}] {}\n", i, it.filename().string());
+                fmt::print("[", i, "] ", it.filename().string(), "\n");
 
                 std::stringstream out;
                 std::ifstream ifs;
@@ -147,24 +148,20 @@ int main(int argc, char *argv[] ) {
                 dpp::run(fObj, true);
                 std::string str = out.str();
                 dpp::check_test(it.filename().string(), str);
-                dpp::switch_ostream(dpp::__stdout);
+
 
                 std::cout << "\n\n";
                 ++i;
             }
 
-            fmt::print(fmt::fg(fmt::color::green), "\nAll tests passed\n");
+            fmt::print_success("All tests passed\n");
         }
 #endif
-    } catch (std::exception &
 #ifndef _DEBUG
-    e
-#endif
-    ) {
-#ifndef _DEBUG
+    } catch (std::exception &e) {
         std::cerr << "error: " << e.what();
         return 1;
-#endif
     }
+#endif
     return 0;
 }

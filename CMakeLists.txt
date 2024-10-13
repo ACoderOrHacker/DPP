@@ -26,7 +26,8 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Debug Mode")
-    add_definitions(-D_COMPILE_TEST)
+    add_compile_definitions(_DEBUG)
+    add_compile_definitions(DEBUG)
 else()
     message(STATUS "Release Mode")
 endif()
@@ -40,6 +41,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # use the unicode
+    add_compile_definitions(UNICODE)
+    add_compile_definitions(_UNICODE)
+endif()
 
 # D++ Configurations
 set(DXX_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/)
@@ -58,8 +65,6 @@ if(CLION_IDE)
     cmake_policy(SET CMP6666 NEW)
 endif()
 
-set(ANTLR4_JAR ${CMAKE_CURRENT_SOURCE_DIR}/antlr4.13.1-complete.jar)
-
 cmake_policy(SET CMP0074 NEW)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.27)
     cmake_policy(SET CMP0144 NEW)
@@ -70,7 +75,6 @@ find_package(Boost REQUIRED COMPONENTS serialization program_options)
 message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
-find_package(fmt CONFIG REQUIRED)
 find_package(antlr4-runtime CONFIG REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 
@@ -82,8 +86,6 @@ set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/
         ${Boost_INCLUDE_DIRS}/)
-
-file(GLOB ACASSERT_FILES include/acoder/acassert/*.cpp)
 
 include_directories(PUBLIC ${INC_DIRS})
 
@@ -122,20 +124,18 @@ if (BUILD_VM_SERIALIZATION)
     message(STATUS "Build The Serialization")
 
     file(GLOB SERIALIZATION_FILES src/serialization/*.cpp)
-    add_library(vm SHARED ${VM_FILES} ${ACASSERT_FILES} ${SERIALIZATION_FILES})
+    add_library(vm SHARED ${VM_FILES} ${SERIALIZATION_FILES})
     target_link_libraries(vm Boost::serialization)
-    target_link_libraries(vm fmt::fmt-header-only)
 else ()
-    add_library(vm SHARED ${VM_FILES} ${ACASSERT_FILES})
-    target_link_libraries(vm fmt::fmt-header-only)
+    add_library(vm SHARED ${VM_FILES})
 endif ()
 
-set(GRAMMAR_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/)
-message(STATUS "Starting build grammar, Working directory: ${GRAMMAR_WORKING_DIR}")
-add_custom_target(BUILD_GRAMMAR
-        COMMAND java -jar ${ANTLR4_JAR} %* -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o /antlr4/
-        WORKING_DIRECTORY ${GRAMMAR_WORKING_DIR})
-message(STATUS "Ending build grammar")
+# set(GRAMMAR_WORKING_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/)
+# message(STATUS "Starting build grammar, Working directory: ${GRAMMAR_WORKING_DIR}")
+# add_custom_target(BUILD_GRAMMAR
+#         COMMAND java -jar ${ANTLR4_JAR} %* -visitor -no-listener templates/DXXLexer.g4 templates/DXXParser.g4 -o /antlr4/
+#         WORKING_DIRECTORY ${GRAMMAR_WORKING_DIR})
+# message(STATUS "Ending build grammar")
 
 file(GLOB COMPILER_FILES src/compiler/*.cpp
         src/compiler/*.hpp
@@ -143,11 +143,11 @@ file(GLOB COMPILER_FILES src/compiler/*.cpp
         src/compiler/antlr4/*.cpp
         src/compiler/antlr4/*.hpp
         src/compiler/antlr4/*.h)
-add_library(compiler SHARED ${COMPILER_FILES} ${ACASSERT_FILES})
-target_link_libraries(compiler antlr4_shared vm fmt::fmt-header-only)
+add_library(compiler SHARED ${COMPILER_FILES})
+target_link_libraries(compiler antlr4_shared vm)
 
-add_executable(dpp src/main/dpp.cpp ${ACASSERT_FILES})
-target_link_libraries(dpp vm compiler fmt::fmt-header-only Boost::program_options JsonCpp::JsonCpp)
+add_executable(dpp src/main/dpp.cpp)
+target_link_libraries(dpp vm compiler Boost::program_options JsonCpp::JsonCpp)
 
-add_executable(debug src/main/debug.cpp src/main/modules.h ${ACASSERT_FILES})
-target_link_libraries(debug vm fmt::fmt-header-only JsonCpp::JsonCpp)
+add_executable(debug src/main/debug.cpp src/main/modules.h)
+target_link_libraries(debug vm JsonCpp::JsonCpp)

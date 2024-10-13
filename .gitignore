@@ -44,3 +44,6 @@ __pycache__
 
 # D++ Object Files
 *.dppo
+
+# Package Folder
+/pack/

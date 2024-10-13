@@ -4,18 +4,29 @@
 
 #ifndef ACASSERT_H
 #define ACASSERT_H
+#include <iostream>
+#include "acdpp.h"
 
 typedef void(*_ACASSERT_HANDLE)(int, const char*, const char*);
 
-void Dpp_AssertFailed(int line,
+forceinline void Dpp_AssertFailed(int line,
     const char *file,
-    const char *expr);
+    const char *expr) {
+    std::cout << "Assertion Failed!\n";
+    std::cout << "At " << file << ":" << line << ":\n";
+    std::cout << "  " << expr;
+}
 
-void Dpp_Assert(int line,
+forceinline void Dpp_Assert(int line,
     const char *file,
     bool isFailed,
     const char *expr,
-    _ACASSERT_HANDLE handle = &Dpp_AssertFailed);
+    _ACASSERT_HANDLE handle = &Dpp_AssertFailed) {
+    if (isFailed) {
+        handle(line, file, expr);
+        exit(EXIT_FAILURE);
+    }
+}
 
 #if defined(_DEBUG)
 #define acassert(expression) Dpp_Assert(__LINE__, __FILE__, !!(expression), #expression)

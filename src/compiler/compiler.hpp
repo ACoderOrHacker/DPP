@@ -28,19 +28,19 @@
 
 #include <cstdint>
 #include <string>
+#include <format>
 #include <fstream>
 #include <any>
 #include <unordered_map>
 #include <stack>
 #include <initializer_list>
-#include <fmt/core.h>
-#include <fmt/color.h>
 
 #undef _DXX_EXPORT
 #include "enum.hpp"
 #include "acdpp.h"
 #include "vm.hpp"
 #include "acoder/acassert/acassert.h"
+#include "fmt.h"
 #include "objects.hpp"
 #include "builtin.hpp"
 #include "metadata.h"
@@ -51,17 +51,19 @@
 #define TYPE_TYPE (UINT_MAX - 2)
 
 #define THROW(msg) {                                                          \
-    fmt::print(fmt::fg(fmt::color::red), "\nerror: {}\n", msg);               \
+    fmt::print_error("\nerror: ", msg, "\n");                                 \
     exit(1);                                                                  \
 }
 
 #define WARNING(msg) {                                                          \
-    fmt::print(fmt::fg(fmt::color::yellow), "\nwarning: {}\n", msg);            \
+    fmt::print_error("\nwarning: ", msg, "\n");                                 \
 }
 
 #define MESSAGE(msg) {                                                          \
-    fmt::print("\nmessage: {}\n", msg);            \
+    fmt::print("\nmessage: ", msg, "\n");                                       \
 }
+
+namespace fmt = dpp::fmt;
 
 DXX_API FObject *fObj = new FObject;
 
@@ -344,7 +346,7 @@ public:
             THROW("main is not a function");
         }
         if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
-            THROW(fmt::format("main function has much than 0 paramter"));
+            THROW(std::format("main function has much than 0 paramter"));
         }
         LoadOpcode(OPCODE_CALL, NO_FLAG, {main->object});
 
@@ -378,7 +380,7 @@ public:
             const std::string &id = it.first;
             Dpp_CObject *label = FindObject(id, true);
             if (label == nullptr) {
-                THROW(fmt::format("cannot find '{}' label", id));
+                THROW(std::format("cannot find '{}' label", id));
             }
 
             uint32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
@@ -520,7 +522,7 @@ public:
                 // type is always in global namespace
                 co = FindObject(id, true);
                 if (co == nullptr) {
-                    THROW(fmt::format("no type named '{}'", id));
+                    THROW(std::format("no type named '{}'", id));
                 }
 
                 co->infos |= GetInfos(&infos);
@@ -546,7 +548,7 @@ public:
         to->type = type->object.id;
         Dpp_CObject *result = FindObject(to);
         if (result != nullptr) {
-            THROW(fmt::format("{} was defined", id));
+            THROW(std::format("{} was defined", id));
         }
         thisNamespace->objects.write(to);
 
@@ -589,16 +591,16 @@ public:
         const std::string &_container = (*idex.begin())->toString();
         Dpp_CObject *container = FindObject(_container);
         if (container == nullptr) {
-            THROW(fmt::format("cannot find object {}", _container));
+            THROW(std::format("cannot find object {}", _container));
         }
         Dpp_CObject *co = container;
         Object o = container->object;
         if (container == nullptr) {
-            THROW(fmt::format("cannot find object {}", _container));
+            THROW(std::format("cannot find object {}", _container));
         }
         if (idex.size() == 1) goto END;
         if (container->type != FUNCTION_TYPE) {
-            THROW(fmt::format("object {} was not a container", _container));
+            THROW(std::format("object {} was not a container", _container));
         }
 
         for (auto it = idex.begin() + 1; it != idex.end(); ++it) {
@@ -606,7 +608,7 @@ public:
             Dpp_CObject *method = MakeString(_method);
             Dpp_CObject *sub = FindSubObject(container, _method);
             if (sub == nullptr) {
-                THROW(fmt::format("the '{}' did not have '{}' method", co->id, _method));
+                THROW(std::format("the '{}' did not have '{}' method", co->id, _method));
             }
             Object tmp = allocMapping();
 
@@ -862,11 +864,11 @@ public:
 
 
         if(func->type != FUNCTION_TYPE && func->infos.native_function.empty()) {
-            THROW(fmt::format("cannot call '{}' because it is not a function", func->id));
+            THROW(std::format("cannot call '{}' because it is not a function", func->id));
         }
 
         if(func->isNone && func->infos.native_function.empty()) {
-            THROW(fmt::format("function {} was not defined", func->id));
+            THROW(std::format("function {} was not defined", func->id));
         }
 
         // TODO: the autovalue cannot be a function paramter, the code not write it
@@ -882,7 +884,7 @@ public:
             _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::PARAMS]),
             &param_list,
             _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::AUTOVALUES]))) {
-            THROW(fmt::format("'{}' has different paramters", func->id));
+            THROW(std::format("'{}' has different paramters", func->id));
         }
 
 
@@ -902,7 +904,7 @@ public:
             }
 
             if (!isFound) {
-                THROW(fmt::format("cannot find '{}' library", func->infos.native_library));
+                THROW(std::format("cannot find '{}' library", func->infos.native_library));
             }
 
             LoadOpcode(OPCODE_CALLN, NO_FLAG, params);
@@ -921,7 +923,7 @@ public:
         Heap<Dpp_CObject *> *call_params,
         Heap<Dpp_CObject *> *autovalues) {
         if (params->size() < call_params->size()) {
-            THROW(fmt::format("too many parameters to provide in '{}'", func->id));
+            THROW(std::format("too many parameters to provide in '{}'", func->id));
         }
 
         for (uint32_t i = 0; i < params->size(); ++i) {
@@ -929,7 +931,7 @@ public:
             if (call_params->size() <= i) {
                 Dpp_CObject *autovalue = autovalues->GetData(i);
                 if (autovalue == nullptr) {
-                    THROW(fmt::format("too few parameters to provide in '{}'", func->id));
+                    THROW(std::format("too few parameters to provide in '{}'", func->id));
                 }
                 call_arg = autovalue;
             }
@@ -942,11 +944,11 @@ public:
                 THROW("argument is void");
             }
             if (call_arg->type == OBJECT_TYPE && arg->type != OBJECT_TYPE) {
-                MESSAGE(fmt::format("object value to not object type value maybe error"));
+                MESSAGE(std::format("object value to not object type value maybe error"));
             }
             if (call_arg->type != arg->type && arg->type != OBJECT_TYPE) {
                 // TODO: there need two types
-                THROW(fmt::format("cannot convert from type to other type"));
+                THROW(std::format("cannot convert from type to other type"));
             }
         }
 
@@ -1511,12 +1513,12 @@ private:
             result = FindObject(co);
         }
         catch (RetTypeNeqError &) {
-            THROW(fmt::format("{} was defined", result->id));
+            THROW(std::format("{} was defined", result->id));
         }
 
         if(result != nullptr) {
             if (!result->isNone || co->isNone) {
-                THROW(fmt::format("{} was defined", result->id));
+                THROW(std::format("{} was defined", result->id));
             }
 
             //*result = *co;

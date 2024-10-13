@@ -2,10 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <json/json.h>
-#include <fmt/core.h>
-#include <fmt/color.h>
 
 #include "dpp/api.h"
+#include "fmt.h"
 #include "macros.hpp"
 
 NAMESPACE_DPP_BEGIN
@@ -17,7 +16,7 @@ struct tests {
 struct tests load_tests(const std::string &path) {
     std::ifstream fs = dpp::open_file<std::ifstream>(path, std::ios_base::in,
                         [](const std::string &, std::ifstream &) -> void {
-                            fmt::print(fmt::fg(fmt::color::red), "\nerror: cannot find tests.json file\n");
+                            fmt::print_error("\nerror: cannot open tests.json file\n");
                             exit(1);
                         });
     Json::Value root;

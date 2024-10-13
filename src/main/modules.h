@@ -1,7 +1,9 @@
 #ifndef DPP_MODULES_H
 #define DPP_MODULES_H
 
+#include <iostream>
 #include <stdexcept>
+#include <format>
 #include "macros.hpp"
 #include "vm.hpp"
 #ifdef _MSC_VER
@@ -11,12 +13,11 @@
 #include <dpp/api.h>
 #include "serialization/Serialization.hpp"
 #include "configs/configs.h"
+#include "fmt.h"
 #undef error
 #undef theap
 
-#include <fmt/core.h>
-#include <fmt/color.h>
-#include <iostream>
+namespace fmt = dpp::fmt;
 
 fs::path root = fs::current_path().parent_path();
 const fs::path examples_path = root / "examples";
@@ -27,7 +28,7 @@ NAMESPACE_DPP_BEGIN
  * @brief Get the compile time
  */
 std::string get_compile_time() {
-    return fmt::format("{} {}", __DATE__, __TIME__);
+    return std::format("{}.{}", __DATE__, __TIME__);
 }
 
 /**
@@ -37,11 +38,11 @@ std::string get_compile_time() {
  */
 std::string get_compiler_infos() {
 #ifdef __clang__
-    return fmt::format("{}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
+    return std::format("{}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
 #elif defined(__GNUC__)
-    return fmt::format("{}.{}.{}", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    return std::format("{}.{}.{}", __GNUC__,  __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #elif defined(_MSC_VER)
-    return fmt::format("MSC .v{}", _MSC_VER);
+    return std::format("MSC .v{}", _MSC_VER);
 #else
     return "Unknown";
 #endif
@@ -81,12 +82,7 @@ const char *get_platform() {
  * @return void
  */
 void output_information() {
-    fmt::print("D++ {} ({}) [{} {}] on {}\n",
-                            DXX_VERSION,
-                            dpp::get_compile_time(),
-                            dpp::get_compiler_infos(),
-                            dpp::get_system_32bits_or_64bits(),
-                            dpp::get_platform());
+    fmt::print("D++ ", DXX_VERSION, "(", dpp::get_compile_time(), ") ", "[", dpp::get_compiler_infos(), "] on ", dpp::get_platform());
 }
 
 /**
@@ -96,7 +92,7 @@ void output_information() {
  * @return std::string
  */
 std::string get_version_string(Version ver) {
-    return fmt::format("{}.{}", ver.ver.high, ver.ver.low);
+    return std::format("{}.{}", ver.ver.high, ver.ver.low);
 }
 
 /**
@@ -120,9 +116,9 @@ std::string get_file_type(const std::string &magic_number) {
  */
 void output_fileheader(const FileHeader &header) {
     fmt::print("FileHeader:\n");
-    fmt::print("    Type: {}", dpp::get_file_type(header.MagicNumber));
-    fmt::print("    Compile Version: {}", dpp::get_version_string(header.version));
-    fmt::print("    Lowest Version: {}", dpp::get_version_string(header.LowestVersion));
+    fmt::print("    Type: ", dpp::get_file_type(header.MagicNumber));
+    fmt::print("    Compile Version: ", dpp::get_version_string(header.version));
+    fmt::print("    Lowest Version: ", dpp::get_version_string(header.LowestVersion));
 }
 
 /**
@@ -139,7 +135,7 @@ std::string get_flags_name(char flag) {
     std::string s;
     for(int i = 1; i <= 8; ++i) {
         if(GetBit(flag, i)) {
-            s += fmt::format("{} ", dpp::get_flag_name(i));
+            s += std::format("{} ", dpp::get_flag_name(i));
         }
     }
 
@@ -158,10 +154,10 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
         for(auto &it : state.vmopcodes) {
             std::string s;
 
-            s += fmt::format("    [{}] {} ", i, dpp::get_opcode_name(it.opcode));
+            s += std::format("[{}] ",i , dpp::get_opcode_name(it.opcode), " ");
 
             for (auto &param : it.params) {
-                s += fmt::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
+                s += std::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
             }
             std::cout << s;
             size_t space_num = 100 - s.size();
@@ -173,7 +169,7 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
                 // std::length_error: string too long
                 std::cout << std::string(s.size() + 10, ' ');
             }
-            fmt::print("flag: {}\n", dpp::get_flags_name(it.flag));
+            fmt::print("flag: ", dpp::get_flags_name(it.flag), "\n");
 
             ++i;
         }
@@ -186,7 +182,7 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("\n");
     fmt::print("Dependent modules: \n");
     for(auto &it: s_fObj->modules) {
-        fmt::print("    {}\n", it);
+        fmt::print("    ", it, "\n");
     }
 
     fmt::print("\n");
@@ -197,7 +193,7 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
     uint32_t i = 0;
     for (auto it : s_fObj->global_mapping) {
         if (it != nullptr && it->name != "function" && dpp::is_function(it)) {
-            fmt::print("Function: {} [Global, {}]\n", it->name.empty() ? "unknown" : it->name, i);
+            fmt::print("Function: ", it->name.empty() ? "unknown" : it->name, " [Global, ", i, "]\n");
             opt_state(_cast(FunctionObject *, it)->state);
             fmt::print("\n");
         }
@@ -208,12 +204,12 @@ void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
     fmt::print("Global Object Mapping:\n");
     for(uint32_t index = BUILTIN_END; index < s_fObj->global_mapping.size(); ++index) {
         Dpp_Object *obj = s_fObj->global_mapping[index];
-		if (obj == nullptr) fmt::print("    [{}] {}\n", index, "unknown");
+		if (obj == nullptr) fmt::print("    [", index, "] ", "unknown\n");
 
         try {
-            fmt::print("    [{}] {}\n", index, object_to_string(obj));
+            fmt::print("    [", index, "] ", object_to_string(obj), "\n");
         } catch (NoOperatorError &) {
-            fmt::print("    [{}] {}\n", index, "unknown");
+            fmt::print("    [", index, "] ", "unknown", "\n");
         }
     }
 }
@@ -229,23 +225,25 @@ void output_vm(FObject *fObj, bool isOutputCopyright = true) {
 }
 
 void check_test(const std::string &id, const std::string &buf) {
+    dpp::switch_ostream(dpp::__stdout);
+
     fs::path tests_path(examples_path / "tests.json");
 
     const dpp::tests &tests = dpp::load_tests(tests_path.string());
     try {
         const std::string &test_buf = tests.tests.at(id);
         if (test_buf != buf) {
-            fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' failed, result is wrong\n", id);
-            fmt::print("    Source buffer: {}\n", test_buf);
-            fmt::print("    Buffer: {}\n", buf);
+            fmt::print_error("\nerror: test '", id, "' failed, result is wrong\n");
+            fmt::print("    Source buffer: ", test_buf, "\n");
+            fmt::print("    Buffer: ", buf, "\n");
             exit(1);
         }
     } catch(std::out_of_range &) {
-        fmt::print(fmt::fg(fmt::color::red), "\nerror: test '{}' not found\n", id);
+        fmt::print_error("\nerror: test '", id, "' not found\n");
         exit(1);
     }
 
-    fmt::print(fmt::fg(fmt::color::green), "\nTest {} passed\n", id);
+    fmt::print_success("\nTest ", id, " passed\n");
 }
 
 NAMESPACE_DPP_END
