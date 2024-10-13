@@ -76,6 +76,7 @@ message(STATUS "Found Boost Headers: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Found Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
 find_package(antlr4-runtime CONFIG REQUIRED)
+# find_package(antlr4-generator REQUIRED)
 find_package(jsoncpp CONFIG REQUIRED)
 
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
@@ -85,12 +86,7 @@ set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/)
-
-#if(DEFINED CMAKE_TOOLCHAIN_FILE AND CMAKE_TOOLCHAIN_FILE STREQUAL "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake")
-#   message(STATUS "Found vcpkg, add include directory: ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4")
-#set(${INC_DIRS} ${INC_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4)
-#endif()
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/
 
 include_directories(PUBLIC ${INC_DIRS})
 
