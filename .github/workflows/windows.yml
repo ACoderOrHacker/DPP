@@ -42,7 +42,18 @@ jobs:
     - name: Build project
       run: |
         cd tools
-        python build.py --debug --no-vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
+        python build.py --release --no-vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
+
+    - name: Package project
+      run: |
+        cd tools
+        python pack.py
+
+
+    - name: Compile .ISS to .EXE Installer
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+      with:
+        path: tools/setup/setup.iss
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3

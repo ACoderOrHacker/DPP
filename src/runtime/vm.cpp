@@ -127,9 +127,6 @@ dpp::object *mk_type(const std::string &id) {
 }
 
 VM_API dpp::vm dpp::create_vm() {
-
-    initBuiltin();
-
 	std::vector<Dpp_Object *> builtins = {
 		Dpp_NullObject,
         Dpp_BaseError,
