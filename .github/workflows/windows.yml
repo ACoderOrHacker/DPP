@@ -35,10 +35,10 @@ jobs:
       with:
         python-version: '3.8'
 
-    - name: Install NSIS
-      uses: repolevedavaj/install-nsis@v1.0.1
+    - name: Choco help
+      uses: crazy-max/ghaction-chocolatey@v3
       with:
-        nsis-version: 3.08
+        args: install nsis
 
     - name: vcpkg build
       uses: johnwason/vcpkg-action@v6
