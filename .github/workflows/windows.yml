@@ -54,13 +54,12 @@ jobs:
         cd tools
         python build.py --release --no-vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
 
-    - name: Package project
-      run: |
-        cd tools
-        python pack.py
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+    - name: Create Release and Upload Release Asset
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
-        name: built-project
-        path: ${{github.workspace}}/pack/
+          body: New Release.
+          draft: false
+          prerelease: false
+          files: |
+            packs/**/*
