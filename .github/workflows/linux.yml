@@ -29,6 +29,11 @@ jobs:
       with:
         compiler: gcc
 
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
     - name: vcpkg build
       uses: johnwason/vcpkg-action@v6
       id: vcpkg

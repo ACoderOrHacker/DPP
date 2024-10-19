@@ -30,6 +30,16 @@ jobs:
         compiler: msvc
         vcvarsall: ${{contains(matrix.os, 'windows')}}
 
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
+    - name: Install NSIS
+      uses: repolevedavaj/install-nsis@v1.0.1
+      with:
+        nsis-version: 3.08
+
     - name: vcpkg build
       uses: johnwason/vcpkg-action@v6
       id: vcpkg
@@ -59,4 +69,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: built-project
-        path: ${{github.workspace}}/
+        path: ${{github.workspace}}/pack/

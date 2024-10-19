@@ -49,7 +49,6 @@ if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # D++ Configurations
-set(DXX_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/antlr4/)
 set(DXX_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${DXX_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${DXX_BINARY_DIR})
@@ -86,7 +85,7 @@ set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 include_directories(PUBLIC ${INC_DIRS})
 
@@ -152,3 +151,44 @@ target_link_libraries(dpp vm compiler Boost::program_options JsonCpp::JsonCpp)
 
 add_executable(debug src/main/debug.cpp src/main/modules.h)
 target_link_libraries(debug vm JsonCpp::JsonCpp)
+
+###
+### Install
+###
+
+include(InstallRequiredSystemLibraries) # Install system libraries
+
+set(CPACK_PACKAGE_NAME "DPP")
+set(CPACK_PACKAGE_VERSION "0.1")
+set(CPACK_PACKAGE_DESCRIPTION "A Programming Language")
+set(CPACK_PACKAGE_CONTACT "sgy2788@163.com")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "DPP")
+set(CPACK_PACKAGE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packs/)
+set(CPACK_SOURCE_GENERATOR "ZIP;TGZ;7Z;TBZ2;TXZ")
+set(CPACK_GENERATOR "ZIP;TGZ;7Z;TBZ2;TXZ")
+set(CPACK_SOURCE_IGNORE_FILES "${DXX_BINARY_DIR};/.git/;__pycache__;/examples/Waitlist/;/NOTES;/packs/;/.vscode/;/build/;/__build__/;build_compile_commands;.*\.dppo$")
+
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+list(APPEND CPACK_GENERATOR "NSIS")
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+set(CPACK_NSIS_PACKAGE_NAME "D++")
+set(CPACK_NSIS_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_NSIS_PACKAGE_DESCRIPTION "A Programming Language")
+set(CPACK_NSISDISPLAY_NAME "D++")
+set(CPACK_NSIS_HELP_LINK "https://www.ACoderOrHacker.github.io/DPP")
+set(CPACK_NSIS_PACKAGE_URL "https://www.ACoderOrHacker.github.io")
+
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+set(CPACK_NSIS_MODIFY_PATH ON)
+endif()
+
+message(STATUS "CPack generators: ${CPACK_GENERATOR}")
+
+install(TARGETS dpp debug vm compiler DESTINATION bin)
+install(DIRECTORY include DESTINATION ./)
+install(DIRECTORY docs DESTINATION ./)
+install(DIRECTORY examples DESTINATION ./)
+install(FILES CHANGELOG LICENSE README.md DESTINATION ./)
+
+include(CPack)

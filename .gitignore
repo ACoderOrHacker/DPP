@@ -35,7 +35,7 @@ __pycache__
 /gen/
 
 # Waitlist
-/example/compiler/Waitlist/
+/example/Waitlist/
 
 # NOTES
 /NOTES
@@ -46,4 +46,4 @@ __pycache__
 *.dppo
 
 # Package Folder
-/pack/
+/packs/
