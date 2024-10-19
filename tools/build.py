@@ -55,7 +55,6 @@ def build():
 	:rtype: None
 	"""
 
-    global gen_ret
     path: str = "../"
     cmake: str = "cmake ../ -G\"{}\" ".format(get_makefile_type())
     cmake_build_args: str = ""
