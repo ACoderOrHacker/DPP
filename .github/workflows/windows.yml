@@ -63,5 +63,6 @@ jobs:
           body: New Release.
           draft: true
           fail_on_unmatched_files: true
+          if: startsWith(github.ref, 'refs/tags/')
           files: |
             packs/**/*
