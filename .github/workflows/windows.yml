@@ -9,6 +9,9 @@ on:
     branches:
       - main
   workflow_dispatch:
+  release:
+    types: [published]
+
 
 
 jobs:
@@ -57,8 +60,6 @@ jobs:
     - name: Create Release and Upload Release Asset
       uses: softprops/action-gh-release@v1
       with:
-          name: "Release 0.1"
-          tag_name: "v0.1"
           body: New Release.
           draft: true
           fail_on_unmatched_files: true
