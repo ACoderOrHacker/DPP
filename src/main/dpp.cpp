@@ -2,11 +2,12 @@
 #include <process.h>
 #include <boost/program_options.hpp>
 #include <ios>
+#include <memory>
 #include <ostream>
 
 #include "compiler.hpp"
 #include "fmt.h"
-#include "serialization/Serialization.hpp"
+#include "serialize.hpp"
 #include "vm.hpp"
 #include "modules.h"
 #include "dpp/api.h"
@@ -64,7 +65,7 @@ int main(int argc, char *argv[] ) {
                 auto filename = std::filesystem::path(it).filename().string();
                 const std::fstream &fs = dpp::open_file((filename + ".dppo"),
                                                         std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-                dpp::serialize::save<dpp::vm>(dynamic_cast<std::ostream &>(const_cast<std::fstream &>(fs)), _vm);
+                dpp::serialize::save<std::unique_ptr<FObject>>(dynamic_cast<std::ostream &>(const_cast<std::fstream &>(fs)), std::unique_ptr<FObject>(_vm));
             }
         }
         else if(vm.count("run-script")) {
@@ -90,7 +91,7 @@ int main(int argc, char *argv[] ) {
                     fmt::print_error("error: cannot find '", filename, "' binary file\n");
                     exit(1);
                 });
-            _vm = dpp::serialize::load<dpp::vm>(dynamic_cast<std::istream &>(const_cast<std::ifstream &>(ifs)));
+            _vm = dpp::serialize::load<std::unique_ptr<FObject>>(dynamic_cast<std::istream &>(const_cast<std::ifstream &>(ifs))).get();
 
             dpp::run(_vm);
         }

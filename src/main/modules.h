@@ -11,7 +11,7 @@
 #endif // _MSC_VER
 
 #include <dpp/api.h>
-#include "serialization/Serialization.hpp"
+#include "serialize.hpp"
 #include "configs/configs.h"
 #include "fmt.h"
 #undef error

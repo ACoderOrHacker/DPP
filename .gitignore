@@ -47,3 +47,5 @@ __pycache__
 
 # Package Folder
 /packs/
+
+/.xmake/

@@ -80,9 +80,7 @@ find_package(jsoncpp CONFIG REQUIRED)
 
 set(INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/
         ${CMAKE_CURRENT_SOURCE_DIR}/include/antlr4/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/antlr4/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Serialization/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/)

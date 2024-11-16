@@ -2,9 +2,9 @@
 #define _DPP_MACROS
 
 #include <exception> // std::exception
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/base_object.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/access.hpp>
 
 /*
  * The Status Code
@@ -55,13 +55,14 @@ typedef bool STATUS;
     bool is_true(dpp::object *); \
 
 
-#define Dpp_SERIALIZE \
+#define Dpp_SERIALIZE(...) \
     private: \
-    friend class boost::serialization::access; \
+    friend class cereal::access; \
     template <typename Archive> \
-    void serialize(Archive &ar, const unsigned int version)
+    void serialize(Archive &ar) { ar(__VA_ARGS__); }
 
-#define Dpp_OBJECT_SERIALIZE ar & boost::serialization::base_object<dpp::object>(*this);
+#define Dpp_OBJECT_SERIALIZE(...) Dpp_SERIALIZE(cereal::base_class<dpp::object>(this), __VA_ARGS__)
+#define Dpp_EMPTY_OBJECT_SERIALIZE() Dpp_SERIALIZE(cereal::base_class<dpp::object>(this))
 
 
 #define Dpp_REGISTER_TYPE(dpptype, cpptype) \
@@ -70,17 +71,17 @@ NAMESPACE_DPP_BEGIN                                                             
     forceinline cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
 NAMESPACE_DPP_END
 
-#define Dpp_REGISTER_SERIALIZE(type) BOOST_CLASS_EXPORT(type)
+#define Dpp_REGISTER_SERIALIZE(type) CEREAL_REGISTER_TYPE(type)
 
 #define Dpp_REGISTER_TYPE_EX(dpptype, cpptype, valid)      \
 Dpp_REGISTER_TYPE(dpptype, cpptype)                        \
 NAMESPACE_DPP_BEGIN                                        \
     forceinline auto get_##dpptype(dpp::object *obj) { return to_##dpptype(obj)->valid; } \
-    forceinline void set_##dpptype(dpp::object *obj, auto val) { to_##dpptype(obj)->valid = val; } \
+    forceinline void set_##dpptype(dpp::object *obj, auto val) { const auto &_obj = to_##dpptype(obj); _obj->valid = val; } \
     forceinline dpp::object *make_##dpptype(auto val) { \
         cpptype *obj = (cpptype *)dpp::new_object<cpptype>(); \
         obj->valid = val; \
-        return obj; } \
+        return (dpp::object *)obj; } \
 NAMESPACE_DPP_END
 
 Dpp_DEFINE_ERROR(NoOperatorError)

@@ -27,9 +27,6 @@
 #include <cstdint>
 #include <string>
 #include <stack>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/serialization/stack.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4267)
@@ -60,10 +57,7 @@ public:
 	bool operator ==(_Object o) const { return (this->id == o.id &&
                                         this->isInGlobal == o.isInGlobal); }
 
-Dpp_SERIALIZE {
-    ar & isInGlobal;
-    ar & id;
-}
+Dpp_SERIALIZE(isInGlobal, id)
 } Object;
 
 struct _Version {
@@ -168,11 +162,7 @@ public:
         uint32_t type;
 		char info = 0; // see doc/object/info.md
 
-Dpp_SERIALIZE {
-    ar & name;
-    ar & type;
-    ar & info;
-}
+Dpp_SERIALIZE(name, type, info)
 };
 
 forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }
@@ -239,9 +229,7 @@ private:
 		return *(mappings.begin() + mapping_id - 1);
 	}
 
-Dpp_SERIALIZE {
-    ar & global;
-}
+Dpp_SERIALIZE(global)
 };
 
 typedef struct _VMError {
@@ -254,11 +242,7 @@ typedef struct _OpCode {
 	char flag = NO_FLAG;
     Heap<Object> params;
 
-Dpp_SERIALIZE {
-    ar & opcode;
-    ar & flag;
-    ar & params;
-}
+Dpp_SERIALIZE(opcode, flag, params)
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
@@ -272,9 +256,7 @@ struct VMState {
 	Heap<OpCode> vmopcodes;
 	uint32_t runat = 0;
 
-Dpp_SERIALIZE {
-    ar & vmopcodes;
-}
+Dpp_SERIALIZE(vmopcodes)
 };
 
 typedef struct _FObject {
@@ -305,11 +287,7 @@ public:
 	char flags = NO_FLAG;
 	int exit_code = EXIT_SUCCESS;
 
-Dpp_SERIALIZE {
-    ar & modules;
-    ar & obj_map;
-    ar & state;
-}
+Dpp_SERIALIZE(modules, obj_map, state)
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);

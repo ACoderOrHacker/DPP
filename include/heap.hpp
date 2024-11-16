@@ -6,7 +6,7 @@
 #define _HEAP_H
 #include <cstdint>
 #include <deque>
-#include <boost/serialization/deque.hpp>
+#include <cereal/types/deque.hpp>
 #include "macros.hpp"
 
 #define to_iterator(list, index) (list.begin() + index)
@@ -17,7 +17,7 @@
 template<typename T, typename container = std::deque<T>> class Heap {
 	public:
 		Heap() = default;
-		Heap(container &c) {
+		explicit Heap(container &c) {
 			Data = c;
 		}
         Heap(std::initializer_list<T> l) {
@@ -120,15 +120,13 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		bool operator ==(Heap<T> data) {
 			return (this->Data == data.Data);
 		}
-		void operator =(container &c) {
+		Heap<T> &operator =(container &c) {
 			Data = c;
 		}
         Heap<T> get(uint32_t start, uint32_t end) {
             return (Heap<T>(Data.begin()+start, Data.begin()+end));
         }
 
-Dpp_SERIALIZE {
-    ar & Data;
-}
+Dpp_SERIALIZE(Data)
 };
 #endif // !_HEAP_H

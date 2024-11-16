@@ -1,10 +1,9 @@
 #ifndef DPP_SERIALIZATION
 #define DPP_SERIALIZATION
 
-#include <boost/archive/basic_archive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <cstdio>
+#include <cereal/archives/binary.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/memory.hpp>
 #include "struct.hpp"
 
 struct FileHeader {
@@ -45,17 +44,16 @@ S_FObject *GetS_FObject(FObject *fObj) {
 NAMESPACE_DPP_BEGIN
     NAMESPACE_BEGIN(serialize)
         template<typename T> T load(std::istream &istream) {
-            boost::archive::binary_iarchive archive(istream);
-            T object;
-            archive >> object;
+            cereal::BinaryInputArchive archive(istream);
+            T object{};
+            archive(object);
 
             return object;
         }
 
-        template<typename T> STATUS save(std::ostream &fs, T &object) {
-            boost::archive::binary_oarchive archive(fs);
-
-            archive << object;
+        template<typename T> STATUS save(std::ostream &fs, const T &object) {
+            cereal::BinaryOutputArchive archive(fs);
+            archive(object);
 
             return STATUS_SUCCESS;
         }
