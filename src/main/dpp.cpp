@@ -1,24 +1,57 @@
 #include <fstream>
 #include <process.h>
-#include <boost/program_options.hpp>
+#include <CLI/CLI.hpp>
+#include <CLI/App.hpp>
+#include <CLI/Config.hpp>
+#include <CLI/Formatter.hpp>
 #include <ios>
 #include <memory>
 #include <ostream>
 
-#include "compiler.hpp"
 #include "fmt.h"
+/*
+#include "CLI/CLI.hpp"
+#include "compiler.hpp"
+
 #include "serialize.hpp"
 #include "vm.hpp"
 #include "modules.h"
 #include "dpp/api.h"
-
+*/
 #if defined (_DEBUG) || defined (DEBUG)
 #define TEST
 #endif
 
-namespace opt = boost::program_options;
+/**
+ * @brief the main application class
+ */
+class application {
+public:
+    application() = default;
+    ~application() = default;
+    int run(int argc, char *argv[]) {
+        // initialize the command line parser
+        std::vector<std::string> compile_files;
+        app.add_option("-c,--compile", compile_files, "compile single or more file")->check(CLI::ExistingFile);
+
+        std::string run_file;
+        app.add_option("-r,--run", run_file, "run a compiled file")->check(CLI::ExistingFile);
+
+        try {
+            app.parse(argc, argv);
+        } catch(const CLI::ParseError &e) {
+            fmt::print_error("error: ", e.what(), "\n");
+            return app.exit(e);
+        }
+        return 0;
+    }
+
+private:
+    CLI::App app{"D++ Programming Language\nCopyright (c) 2023 ACoderOrHacker, All rights reserved.\n"};
+};
 
 int main(int argc, char *argv[] ) {
+/*
 #ifndef _DEBUG
     try {
 #endif // !_DEBUG
@@ -164,5 +197,8 @@ int main(int argc, char *argv[] ) {
         return 1;
     }
 #endif
-    return 0;
+    return 0;*/
+
+    application app;
+    return app.run(argc, argv);
 }

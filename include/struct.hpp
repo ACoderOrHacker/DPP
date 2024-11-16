@@ -180,49 +180,69 @@ public:
 	uint32_t getLastCreateID() { return mappings.size() + 1; }
 
     Dpp_Object *get(Object o, uint32_t mapping_id) {
-        Array<Dpp_Object *> func_mapping = this->getMapping(o, mapping_id);
-		return func_mapping[o.id];
+        Array<Dpp_Object> func_mapping = this->getMapping(o, mapping_id);
+        Dpp_Object obj = func_mapping[o.id];
+
+        // this object is not at stack if running at vm
+		return &obj;
     }
 
 	Dpp_Object *get(Object o) {
-		Array<Dpp_Object *> func_mapping = this->getMapping(o);
-		return func_mapping[o.id];
+		Array<Dpp_Object> func_mapping = getMapping(o);
+        Dpp_Object obj = func_mapping[o.id];
+
+        // this object is not at stack if running at vm
+		return &obj;
 	}
 
 	void write(Object o, Dpp_Object *obj, bool isRewrite = false) {
-		Array<Dpp_Object *> func_mapping = this->getMapping(o);
+		Array<Dpp_Object> func_mapping = this->getMapping(o);
 		if(!isRewrite) {
-            func_mapping.write(o.id, obj);
+            func_mapping.write(o.id, *obj);
         } else {
-            func_mapping.rewrite(o.id, obj);
+            func_mapping.rewrite(o.id, *obj);
         }
 	}
 
 	void create_mapping(uint32_t mapping_id) {
-		Array<Dpp_Object *> *mapping = new Array<Dpp_Object *>;
-		this->mappings.write(mapping_id, *mapping);
+		Array<Dpp_Object> *mapping = new Array<Dpp_Object>;
+		mappings.write(mapping_id, *mapping);
 	}
 
     void pop_mapping() {
         mappings.pop();
     }
 
+    /**
+     * @brief Get the Global Mapping
+     *
+     * @return Array<Dpp_Object *>
+     */
     Array<Dpp_Object *> getGlobalMapping() {
-        return global;
+        Array<Dpp_Object *> convert;
+
+        uint32_t i = 0;
+        for(auto &it : global) {
+            // Dpp_Object * is a dynamic pointer (new Dpp_Object)
+            convert.write(i, &it);
+            ++i;
+        }
+
+        return convert;
     }
 
 private:
-    Array<Dpp_Object *> global;
-	Array<Array<Dpp_Object *>> mappings;
+    Array<Dpp_Object> global;
+	Array<Array<Dpp_Object>> mappings;
 
-	Array<Dpp_Object *> getMapping(Object &_o) {
+	Array<Dpp_Object> getMapping(Object &_o) {
 		if (_o.isInGlobal) {
 			return global;
 		}
 		return *(--mappings.end());
 	}
 
-    Array<Dpp_Object *> getMapping(Object &_o, uint32_t mapping_id) {
+    Array<Dpp_Object> getMapping(Object &_o, uint32_t mapping_id) {
 		if (_o.isInGlobal) {
 			return global;
 		}

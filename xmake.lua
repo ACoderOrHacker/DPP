@@ -3,17 +3,21 @@
 set_project("DPP")
 set_xmakever("2.2.2")
 
--- debug mode and release mode
-add_rules("mode.debug", "mode.release")
-set_languages("c++20")
+add_rules("mode.debug", "mode.release") -- debug mode and release mode
+set_languages("c++20") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
 -- requires
---add_requires("nlohmann_json", "termcolor", "antlr4-runtime", "gtest", "benchmark")
+--add_requires("cli11") , "antlr4-runtime"
+add_requires("cli11", "nlohmann_json", "termcolor", "vcpkg::antlr4")
+
+if is_mode("debug") then
+    -- for tests and benchmarks
+    add_requires("gtest", "benchmark")
+end
 
 -- include directories
-add_includedirs("include", "include/antlr4", "src", "src/compiler/antlr4",  "src/main")
-add_includedirs("D:\\vcpkg\\installed\\x64-windows\\include")
+add_includedirs("include", "src", "src/compiler/antlr4",  "src/main")
 
 set_optimize("fastest")
 
@@ -31,6 +35,7 @@ target_end()
 target("dpp")
     set_kind("binary")
     add_files("src/main/dpp.cpp")
+    add_packages("cli11")
     add_deps("compiler", "vm")
 target_end()
 
