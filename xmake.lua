@@ -11,8 +11,7 @@ set_languages("c++20") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
 -- requires
-add_requires("cereal", "cli11", "nlohmann_json", "termcolor")
-add_requires("vcpkg::antlr4", {configs = {shared = true}})
+add_requires("cereal", "cli11", "nlohmann_json", "termcolor", "antlr4-runtime")
 
 if is_mode("debug") then
     -- for tests and benchmarks
@@ -20,7 +19,7 @@ if is_mode("debug") then
 end
 
 -- include directories
-add_includedirs("include", "src", "src/compiler/antlr4",  "src/main", "include/antlr4")
+add_includedirs("include", "src", "src/compiler/antlr4",  "src/main")
 
 set_optimize("fastest")
 
@@ -36,7 +35,7 @@ target("compiler")
     add_files("src/compiler/*.cpp", "src/compiler/antlr4/*.cpp")
 
     add_deps("vm")
-    add_packages("vcpkg::antlr4", "cereal", "termcolor")
+    add_packages("antlr4-runtime", "cereal", "termcolor")
 target_end()
 
 target("dpp")
