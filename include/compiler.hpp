@@ -39,7 +39,7 @@
 #include "enum.hpp"
 #include "acdpp.h"
 #include "vm.hpp"
-#include "acoder/acassert/acassert.h"
+#include "acassert.h"
 #include "fmt.h"
 #include "objects.hpp"
 #include "builtin.hpp"

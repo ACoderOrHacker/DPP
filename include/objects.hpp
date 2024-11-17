@@ -30,7 +30,7 @@ SOFTWARE.
 #include "builtin.hpp"
 #include "struct.hpp"
 #include "macros.hpp"
-#include "acoder/acassert/acassert.h"
+#include "acassert.h"
 
 Dpp_DEFINE_ERROR(TypeNotRightError)
 

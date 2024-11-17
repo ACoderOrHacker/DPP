@@ -24,38 +24,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up cmake
-      uses: lukka/get-cmake@latest
-
-    - name: Setup Cpp
-      uses: aminya/setup-cpp@v1
-      with:
-        compiler: msvc
-        vcvarsall: ${{contains(matrix.os, 'windows')}}
-
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.8'
-
-    - name: Choco help
-      uses: crazy-max/ghaction-chocolatey@v3
-      with:
-        args: install nsis
-
-    - name: vcpkg build
-      uses: johnwason/vcpkg-action@v6
-      id: vcpkg
-      with:
-        pkgs: boost-serialization boost-program-options antlr4 jsoncpp termcolor
-        token: ${{ github.token }}
-        triplet: x64-windows
-        github-binarycache: true
-
     - name: Build project
       run: |
-        cd tools
-        python build.py --release --no-vcpkg-root ${{steps.vcpkg.outputs.vcpkg-cmake-config}} --build
+        xmake build -y
+
+    - name: Package project
+      run: |
+        xmake pack -y
 
     - name: Create Release and Upload Release Asset
       uses: softprops/action-gh-release@v1

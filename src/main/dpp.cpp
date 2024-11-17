@@ -30,6 +30,11 @@ public:
     application() = default;
     ~application() = default;
     int run(int argc, char *argv[]) {
+        if (argc == 1) {
+            fmt::print("dpp: try 'dpp --help' for more information");
+            return 0;
+        }
+
         // initialize the command line parser
         std::vector<std::string> compile_files;
         app.add_option("-c,--compile", compile_files, "compile single or more file")->check(CLI::ExistingFile);
@@ -37,12 +42,7 @@ public:
         std::string run_file;
         app.add_option("-r,--run", run_file, "run a compiled file")->check(CLI::ExistingFile);
 
-        try {
-            app.parse(argc, argv);
-        } catch(const CLI::ParseError &e) {
-            fmt::print_error("error: ", e.what(), "\n");
-            return app.exit(e);
-        }
+        CLI11_PARSE(app, argc, argv);
         return 0;
     }
 
