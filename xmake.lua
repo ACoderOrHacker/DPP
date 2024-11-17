@@ -52,6 +52,18 @@ target("debug")
     add_deps("compiler", "vm")
 target_end()
 
+target("test")
+    add_files("src/tests/*.cpp")
+
+    add_packages("gtest")
+target_end()
+
+target("benchmark")
+    add_files("src/benchmarks/*.cpp")
+
+    add_packages("benchmark")
+target_end()
+
 xpack("DPP")
     -- set formats
     if is_os("windows") then
@@ -72,6 +84,8 @@ xpack("DPP")
     add_targets("dpp", "debug", "vm", "compiler")
     add_installfiles("include/*", {prefixdir = "include"})
     add_installfiles("include/acoder/*", {prefixdir = "include/acoder"})
-    add_installfiles("include/dpp/*", {prefixdir = "include/dpp"})    --[[
-    add_installfiles("include/antlr")--]]
+    add_installfiles("include/dpp/*", {prefixdir = "include/dpp"})
+    add_installfiles("CHANGELOG")
+    add_installfiles("LICENSE")
+    add_installfiles("README.md")
 xpack_end()
