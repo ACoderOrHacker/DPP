@@ -21,10 +21,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Setup Cpp
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: llvm-18
+
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
+
+    - name: Set toolchain to llvm
+      run: |
+        xmake f --toolchain=clang -c
 
     - name: Build project
       run: |
