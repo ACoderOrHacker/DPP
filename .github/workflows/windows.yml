@@ -39,10 +39,10 @@ jobs:
 
     - name: Create Release and Upload Release Asset
       uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
           body: New Release.
           draft: true
           fail_on_unmatched_files: true
-          if: startsWith(github.ref, 'refs/tags/')
           files: |
-            packs/**/*
+            build/xpack/**
