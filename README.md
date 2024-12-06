@@ -21,21 +21,12 @@ Refer to their respective `README.md` for more in-depth information.
 |------------------------------------------|--------------------------------------------------|
 | [changelog](CHANGELOG)                   | changelog entries for the upcoming release       |
 | [src/compiler](src/compiler)             | source code, build system and build instructions |
-| [docs](doc/compiler/index.md)            | man pages and internal documentation             |                       |
+| [docs]()            | man pages and internal documentation             |                       |
 | [runtime](src/runtime/)                  | root of runtime                                  |
 
 ### Build
-
-#### Windows(MSVC)
 ```
-cd tools
-python build.py --msvc
-```
-
-#### Linux
-```
-cd tools
-python build.py
+xmake build -y
 ```
 
 ### IDES
