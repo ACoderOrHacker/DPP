@@ -33,7 +33,7 @@ jobs:
 
     - name: Set toolchain to llvm
       run: |
-        xmake f --toolchain=clang -c
+        xmake f --toolchain=clang -c -y
 
     - name: Build project
       run: |
