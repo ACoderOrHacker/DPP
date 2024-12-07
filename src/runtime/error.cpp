@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdarg>
 #include "objects.hpp"
 #include "error.hpp"
 
