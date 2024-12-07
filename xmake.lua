@@ -7,7 +7,7 @@ set_version("0.1.0")
 includes("@builtin/xpack")
 
 add_rules("mode.debug", "mode.release") -- debug mode and release mode
-set_languages("c++17") -- set c++ standard
+set_languages("c++2b") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
 -- requires
