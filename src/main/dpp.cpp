@@ -1,5 +1,4 @@
 #include <fstream>
-#include <process.h>
 #include <CLI/CLI.hpp>
 #include <CLI/App.hpp>
 #include <CLI/Config.hpp>
