@@ -181,7 +181,7 @@ public:
 
     Dpp_Object *get(Object o, uint32_t mapping_id) {
         Array<Dpp_Object> func_mapping = this->getMapping(o, mapping_id);
-        Dpp_Object obj = func_mapping[o.id];
+        static Dpp_Object obj = func_mapping[o.id];
 
         // this object is not at stack if running at vm
 		return &obj;
@@ -189,7 +189,7 @@ public:
 
 	Dpp_Object *get(Object o) {
 		Array<Dpp_Object> func_mapping = getMapping(o);
-        Dpp_Object obj = func_mapping[o.id];
+        static Dpp_Object obj = func_mapping[o.id];
 
         // this object is not at stack if running at vm
 		return &obj;
