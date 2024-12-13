@@ -15,7 +15,7 @@ add_requires("cereal", "cli11", "nlohmann_json", "termcolor", "antlr4-runtime")
 
 if is_mode("debug") then
     -- for tests and benchmarks
-    add_requires("gtest", "benchmark")
+    add_requires("catch2")
 end
 
 -- include directories
@@ -55,13 +55,7 @@ target_end()
 target("test")
     add_files("src/tests/*.cpp")
 
-    add_packages("gtest")
-target_end()
-
-target("benchmark")
-    add_files("src/benchmarks/*.cpp")
-
-    add_packages("benchmark")
+    add_packages("catch2")
 target_end()
 
 xpack("DPP")
