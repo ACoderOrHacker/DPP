@@ -11,7 +11,7 @@ set_languages("c++20") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
 -- requires
-add_requires("cereal", "cli11", "nlohmann_json", "termcolor", "antlr4-runtime")
+add_requires("cereal", "cxxopts", "nlohmann_json", "termcolor", "antlr4-runtime")
 
 if is_mode("debug") then
     -- for tests and benchmarks

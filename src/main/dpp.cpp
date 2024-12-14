@@ -1,12 +1,9 @@
 #include <fstream>
-#include <CLI/CLI.hpp>
-#include <CLI/App.hpp>
-#include <CLI/Config.hpp>
-#include <CLI/Formatter.hpp>
 #include <ios>
 #include <memory>
 #include <ostream>
 
+#include "cxxopts.hpp"
 #include "fmt.h"
 /*
 #include "CLI/CLI.hpp"
@@ -34,6 +31,8 @@ public:
             return 0;
         }
 
+
+    
         // initialize the command line parser
         std::vector<std::string> compile_files;
         app.add_option("-c,--compile", compile_files, "compile single or more file")->check(CLI::ExistingFile);
