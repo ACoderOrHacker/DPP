@@ -44,7 +44,7 @@ public:
             }
 
             auto result = options.parse(argc,argv);
-        } catch (cxxopts::OptionException &e) {
+        } catch (cxxopts::OptionsException &e) {
             fmt::print_error("error: ", e.what());
             return EXIT_FAILURE;
         }
