@@ -7,7 +7,6 @@
 #include "cxxopts.hpp"
 #include "fmt.h"
 /*
-#include "CLI/CLI.hpp"
 #include "compiler.hpp"
 
 #include "serialize.hpp"
@@ -27,11 +26,6 @@ public:
     application() = default;
     ~application() = default;
     int run(int argc, char *argv[]) {
-        if (argc == 1) {
-            fmt::print("dpp: try 'dpp --help' for more information");
-            return 0;
-        }
-
         try {
             cxxopts::Options options("dpp","A Power Programming Language");
             options.set_width(70).add_options()
@@ -44,7 +38,7 @@ public:
             }
 
             auto result = options.parse(argc,argv);
-        } catch (cxxopts::OptionsException &e) {
+        } catch (const cxxopts::exceptions::exception &e) {
             fmt::print_error("error: ", e.what());
             return EXIT_FAILURE;
         }
