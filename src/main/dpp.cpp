@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <fstream>
 #include <ios>
 #include <memory>
@@ -31,21 +32,27 @@ public:
             return 0;
         }
 
+        try {
+            cxxopts::Options options("dpp","A Power Programming Language");
+            options.set_width(70).add_options()
+                ("help,h","show help message")
+            ;
+        
+            if (argc == 1) {
+                fmt::print(options.help());
+                return EXIT_SUCCESS;
+            }
 
-    
-        // initialize the command line parser
-        std::vector<std::string> compile_files;
-        app.add_option("-c,--compile", compile_files, "compile single or more file")->check(CLI::ExistingFile);
+            auto result = options.parse(argc,argv);
+        } catch (cxxopts::OptionException &e) {
+            fmt::print_error("error: ", e.what());
+            return EXIT_FAILURE;
+        }
 
-        std::string run_file;
-        app.add_option("-r,--run", run_file, "run a compiled file")->check(CLI::ExistingFile);
-
-        CLI11_PARSE(app, argc, argv);
-        return 0;
+        return EXIT_SUCCESS;
     }
 
 private:
-    CLI::App app{"D++ Programming Language\nCopyright (c) 2023 ACoderOrHacker, All rights reserved.\n"};
 };
 
 int main(int argc, char *argv[] ) {
