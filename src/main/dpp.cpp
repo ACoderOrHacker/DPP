@@ -6,14 +6,12 @@
 
 #include "cxxopts.hpp"
 #include "fmt.h"
-/*
 #include "compiler.hpp"
 
 #include "serialize.hpp"
 #include "vm.hpp"
 #include "modules.h"
 #include "dpp/api.h"
-*/
 
 /**
  * @brief the main application class
