@@ -27,7 +27,7 @@ public:
     ~application() = default;
     int run(int argc, char *argv[]) {
         try {
-            cxxopts::Options options("dpp","A Power Programming Language");
+            cxxopts::Options options("dpp","Standard D++ Compiler & Runtime");
             options.set_width(70).add_options()
                 ("help,h","show help message")
             ;
@@ -38,6 +38,10 @@ public:
             }
 
             auto result = options.parse(argc,argv);
+
+            if (result.count("help")) {
+                fmt::print(options.help());
+            }
         } catch (const cxxopts::exceptions::exception &e) {
             fmt::print_error("error: ", e.what());
             return EXIT_FAILURE;
