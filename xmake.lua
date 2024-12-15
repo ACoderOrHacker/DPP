@@ -52,7 +52,7 @@ target("debug")
     add_deps("compiler", "vm")
 target_end()
 
-target("test")
+target("tests")
     add_files("src/tests/*.cpp")
 
     add_packages("catch2")
