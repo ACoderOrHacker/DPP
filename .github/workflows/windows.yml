@@ -32,6 +32,7 @@ jobs:
     - name: Build project
       run: |
         xmake build -y
+    
     - name: Run tests
       run: |
         tests
