@@ -78,10 +78,10 @@ public:
                         exit(1);
                     });
 
-                dpp::vm _vm = compile(ifs);
+                dpp::vm vm = compile(ifs);
                 dpp::close_file<std::ifstream>(ifs);
 
-                int exit_code = dpp::run(_vm, false);
+                int exit_code = dpp::run(vm, false);
                 exit(exit_code);
             } else if (result.count("list")) {
                 // TODO: not successed
