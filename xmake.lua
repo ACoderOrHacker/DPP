@@ -43,7 +43,7 @@ target("dpp")
     add_files("src/main/dpp.cpp")
 
     add_deps("compiler", "vm")
-    add_packages("cxxopts", "termcolor", "cereal", "nlohmann_json")
+    add_packages("cxxopts", "termcolor", "cereal", "nlohmann_json", "antlr4-runtime")
 target_end()
 
 target("debug")
