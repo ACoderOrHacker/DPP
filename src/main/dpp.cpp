@@ -4,18 +4,11 @@
 #include <memory>
 #include <ostream>
 
-#ifdef _MSC_VER
-// for antlr4-runtime
-#undef max
-#undef min
-#endif
-
 #include "cxxopts.hpp"
 #include "fmt.h"
 #include "compiler.hpp"
 
 #include "serialize.hpp"
-#include "vm.hpp"
 #include "modules.h"
 #include "dpp/api.h"
 
