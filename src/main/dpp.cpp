@@ -90,27 +90,21 @@ public:
                 dpp::output_information();
                 std::cout << "\n\n";
 
-                uint32_t i = 0;
-                for (auto &it : vm["list"].as<std::vector<std::string>>()) {
-                    fmt::print("[", i, "]", " ", it);
+                const std::string &file = result["list"].as<std::string>();
+                std::ifstream ifs;
+                dpp::vm vm;
 
-                    std::ifstream ifs;
-
-                    try {
-                        ifs = dpp::open_file<std::ifstream>(it);
-                    } catch(std::runtime_error &) {
-                        fmt::print_error("error: cannot find '", it, "' source file\n");
-                        continue;
-                    }
-                    fObj = compile(ifs);
-                    dpp::close_file(ifs);
-
-                    dpp::output_vm(fObj, false);
-                    dpp::delete_vm(fObj);
-
-                    std::cout << "\n\n";
-                    ++i;
+                try {
+                    ifs = dpp::open_file<std::ifstream>(file);
+                } catch(std::runtime_error &) {
+                    fmt::print_error("error: cannot find '", file, "' source file\n");
+                    continue;
                 }
+                vm = compile(ifs);
+                dpp::close_file(ifs);
+
+                dpp::output_vm(vm, false);
+                dpp::delete_vm(vm);
             }
         } catch (const cxxopts::exceptions::exception &e) {
             fmt::print_error("error: ", e.what());
