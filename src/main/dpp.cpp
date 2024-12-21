@@ -110,6 +110,7 @@ public:
 
                     std::cout << "\n\n";
                     ++i;
+                }
             }
         } catch (const cxxopts::exceptions::exception &e) {
             fmt::print_error("error: ", e.what());
