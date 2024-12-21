@@ -1,7 +1,6 @@
 #ifndef _CONFIG_H
 #include <iostream>
 #include <fstream>
-#include <json/json.h>
 
 #include "dpp/api.h"
 #include "fmt.h"
@@ -19,14 +18,12 @@ struct tests load_tests(const std::string &path) {
                             fmt::print_error("\nerror: cannot open tests.json file\n");
                             exit(1);
                         });
-    Json::Value root;
-    fs >> root;
-    struct tests tests;
+    struct tests tests;/*
     for (const auto &test : root["tests"]) {
         tests.tests[test["id"].asString()] = test["buf"].asString();
     }
 
-    dpp::close_file(fs);
+    dpp::close_file(fs);*/
     return tests;
 }
 
