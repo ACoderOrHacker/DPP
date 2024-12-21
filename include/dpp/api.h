@@ -28,7 +28,6 @@
 #define NOMINMAX
 #endif
 
-#include "vm.hpp"
 #include "compiler.hpp"
 #include "objects.hpp"
 #include "error.hpp"
