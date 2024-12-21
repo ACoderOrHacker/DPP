@@ -98,7 +98,7 @@ public:
                     ifs = dpp::open_file<std::ifstream>(file);
                 } catch(std::runtime_error &) {
                     fmt::print_error("error: cannot find '", file, "' source file\n");
-                    continue;
+                    return EXIT_FAILURE;
                 }
                 vm = compile(ifs);
                 dpp::close_file(ifs);
