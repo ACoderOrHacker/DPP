@@ -10,7 +10,7 @@
 
 #include "cxxopts.hpp"
 #include "fmt.h"
-#include "compiler.hpp"
+#include "vm.hpp"
 
 #include "serialize.hpp"
 #include "modules.h"
