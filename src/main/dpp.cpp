@@ -4,13 +4,8 @@
 #include <memory>
 #include <ostream>
 
-#ifdef WIN32
-#define NOMINMAX
-#endif
-
 #include "cxxopts.hpp"
 #include "fmt.h"
-#include "vm.hpp"
 
 #include "serialize.hpp"
 #include "modules.h"
