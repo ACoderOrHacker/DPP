@@ -83,8 +83,30 @@ public:
                 int exit_code = dpp::run(vm, false);
                 exit(exit_code);
             } else if (result.count("list")) {
-                // TODO: not successed
-            }  
+                dpp::output_information();
+                std::cout << "\n\n";
+
+                uint32_t i = 0;
+                for (auto &it : vm["list"].as<std::vector<std::string>>()) {
+                    fmt::print("[", i, "]", " ", it);
+
+                    std::ifstream ifs;
+
+                    try {
+                        ifs = dpp::open_file<std::ifstream>(it);
+                    } catch(std::runtime_error &) {
+                        fmt::print_error("error: cannot find '", it, "' source file\n");
+                        continue;
+                    }
+                    fObj = compile(ifs);
+                    dpp::close_file(ifs);
+
+                    dpp::output_vm(fObj, false);
+                    dpp::delete_vm(fObj);
+
+                    std::cout << "\n\n";
+                    ++i;
+            }
         } catch (const cxxopts::exceptions::exception &e) {
             fmt::print_error("error: ", e.what());
             return EXIT_FAILURE;
@@ -98,38 +120,6 @@ private:
 
 int main(int argc, char *argv[] ) {
 /*
-        desc.add_options()
-            ("list,l", opt::value<std::vector<std::string>>(), "List Opcodes of files")
-#ifdef _COMPILE_TEST
-            ("compile-test,t", "Compile the test")
-#endif
-        else if (vm.count("list")) {
-            dpp::output_information();
-            std::cout << "\n\n";
-
-            uint32_t i = 0;
-            for (auto &it : vm["list"].as<std::vector<std::string>>()) {
-                fmt::print("[", i, "]", " ", it);
-
-                std::ifstream ifs;
-
-                try {
-                    ifs = dpp::open_file<std::ifstream>(it);
-                } catch(std::runtime_error &) {
-                    fmt::print_error("error: cannot find '", it, "' source file\n");
-                    continue;
-                }
-                fObj = compile(ifs);
-                dpp::close_file(ifs);
-
-                dpp::output_vm(fObj, false);
-                dpp::delete_vm(fObj);
-
-                std::cout << "\n\n";
-                ++i;
-            }
-        }
-        else if (vm.count("compile-test")) {
             dpp::output_information();
             std::cout << "\n\n";
 
@@ -163,7 +153,6 @@ int main(int argc, char *argv[] ) {
             }
 
             fmt::print_success("All tests passed\n");
-        }
 */
     application app;
     return app.run(argc, argv);
