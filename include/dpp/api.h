@@ -23,7 +23,13 @@
 #ifdef _DXX_EXPORT
 #undef _DXX_EXPORT
 #endif // _DXX_EXPORT
+
+#ifdef WIN32
+#define NOMINMAX
+#endif
+
 #include "vm.hpp"
+#include "compiler.hpp"
 #include "objects.hpp"
 #include "error.hpp"
 #include "acassert.h"
