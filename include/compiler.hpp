@@ -23,8 +23,6 @@
  */
 
 #ifndef _COMPILER_H
-#include "DXXParser.h"
-#include "DXXParserBaseVisitor.h"
 
 #include <cstdint>
 #include <string>
@@ -66,7 +64,6 @@ namespace fmt = dpp::fmt;
 
 DXX_API FObject *fObj = new FObject;
 
-DXX_API FObject *_compile(antlr4::ANTLRInputStream stream);
 DXX_API FObject *compile(std::string &code);
 DXX_API FObject *compile(std::ifstream &ifs);
 DXX_API FObject *compile(std::fstream &ifs);
