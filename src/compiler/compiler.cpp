@@ -4,6 +4,10 @@
 #include "compiler.hpp"
 #include <fstream>
 
+void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
+
+}
+
 #include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
