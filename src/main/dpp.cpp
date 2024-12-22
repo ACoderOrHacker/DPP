@@ -7,9 +7,11 @@
 #include "cxxopts.hpp"
 #include "fmt.h"
 
+#include "import.h"
+#include "vm.hpp"
+#include "compiler.hpp"
 #include "serialize.hpp"
 #include "modules.h"
-#include "dpp/api.h"
 
 /**
  * @brief the main application class
