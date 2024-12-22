@@ -1,6 +1,6 @@
 #include "DXXLexer.h"
 #include "DXXParser.h"
-#include "DXXBaseVisitor.h"
+#include "DXXParserBaseVisitor.h"
 #include "compiler.hpp"
 #include <fstream>
 
