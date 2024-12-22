@@ -11,7 +11,7 @@ set_languages("c++20") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
 -- requires
-add_requires("cereal", "cxxopts", "nlohmann_json", "termcolor", "antlr4-runtime")
+add_requires("cereal", "cxxopts", "termcolor", "antlr4-runtime")
 
 if is_mode("debug") then
     -- for tests and benchmarks
@@ -43,7 +43,7 @@ target("dpp")
     add_files("src/main/dpp.cpp")
 
     add_deps("compiler", "vm")
-    add_packages("cxxopts", "termcolor", "cereal", "nlohmann_json", "antlr4-runtime")
+    add_packages("cxxopts", "termcolor", "cereal")
 target_end()
 
 target("debug")
