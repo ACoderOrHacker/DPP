@@ -262,10 +262,6 @@ private:
     uint32_t global;
 };
 
-void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
-
-}
-
 DXX_API OpCode MakeOpCode(rt_opcode op,
     char flags = NO_FLAG,
     std::initializer_list<Object> l = {}) {
