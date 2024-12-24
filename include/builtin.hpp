@@ -32,26 +32,26 @@ enum BUILTIN : uint32_t {
 */
 
 
-dpp::object *newErrorObject();
+dpp::object *newErrorObject(const std::string &);
 
-void initBuiltin();
+/**
+ * @brief get all builtins object
+ *
+ * @return const std::vector<dpp::object *> &
+ */
+DXX_API const std::vector<dpp::object *> &get_builtins();
 
-extern Object Dpp_Null;
+/// Builtins
+#define _BUILTINS(id) (get_builtins()[id])
 
-extern DXX_API dpp::object *Dpp_NullObject;
-
-extern DXX_API dpp::object *Dpp_BaseError;
-
-extern DXX_API dpp::object *Dpp_NullPointerError;
-
-extern DXX_API dpp::object *Dpp_DataCantOperatorError;
-
-extern DXX_API dpp::object *Dpp_TypeNotRightError;
-
-extern DXX_API dpp::object *Dpp_NoMemoryError;
-
-extern DXX_API dpp::object *Dpp_LibNoSymbolError;
-
-extern DXX_API dpp::object *Dpp_DivideZeroError;
+#define Dpp_Null {true, 0}
+#define Dpp_NullObject _BUILTINS(BUILTIN_NULL)
+#define Dpp_BaseError _BUILTINS(BUILTIN_BASE_ERROR)
+#define Dpp_NullPointerError _BUILTINS(BUILTIN_NULLPOINTER_ERROR)
+#define Dpp_DataCantOperatorError _BUILTINS(BUILTIN_NO_OPERATOR_ERROR)
+#define Dpp_TypeNotRightError _BUILTINS(BUILTIN_TYPE_NOT_RIGHT_ERROR)
+#define Dpp_NoMemoryError _BUILTINS(BUILTIN_NO_MEMORY_ERROR)
+#define Dpp_LibNoSymbolError _BUILTINS(BUILTIN_LIB_NO_SYMBOL_ERROR)
+#define Dpp_DivideZeroError _BUILTINS(BUILTIN_DIVIDE_ZERO_ERROR)
 
 #endif // !_DXX_BUILTIN_H

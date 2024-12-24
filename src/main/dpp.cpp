@@ -27,7 +27,7 @@ public:
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
             ;
-        
+
             if (argc == 1) {
                 fmt::print(options.help());
                 return EXIT_SUCCESS;
@@ -45,14 +45,14 @@ public:
                         ifs = dpp::open_file<std::ifstream>(it);
                     } catch(std::runtime_error &) {
                         fmt::print_error("error: cannot find '", it, "' source file\n");
-                        exit(1);
+                        return EXIT_FAILURE;
                     }
                     dpp::vm vm = compile(ifs);
 
                     dpp::close_file(ifs);
-                    auto filename = std::filesystem::path(it).filename().string();
+                    auto filename = std::filesystem::path(it).filename().stem().string();
                     const std::fstream &fs = dpp::open_file((filename + ".dppo"),
-                                                       std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
+                                                    std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
                     dpp::serialize::save<std::unique_ptr<FObject>>(dynamic_cast<std::ostream &>(const_cast<std::fstream &>(fs)), std::unique_ptr<FObject>(vm));
                 }
             } else if (result.count("run")) {

@@ -118,32 +118,8 @@ VM_API const char *dpp::get_flag_name(uint8_t i) {
     return flag_name_list[i - 1];
 }
 
-template<typename T>
-dpp::object *mk_type(const std::string &id) {
-    dpp::object *o = dpp::make_type(dpp::new_object<T>());
-    o->name = id;
-
-	return o;
-}
-
 VM_API dpp::vm dpp::create_vm() {
-	std::vector<Dpp_Object *> builtins = {
-		Dpp_NullObject,
-        Dpp_BaseError,
-		Dpp_NullPointerError,
-		Dpp_DataCantOperatorError,
-		Dpp_TypeNotRightError,
-		Dpp_NoMemoryError,
-		Dpp_LibNoSymbolError,
-		Dpp_DivideZeroError,
-		mk_type<IntObject>("int"),
-		mk_type<FloatObject>("float"),
-		mk_type<StringObject>("string"),
-		mk_type<ClassObject>("class"),
-		mk_type<ErrorObject>("error"),
-		mk_type<FunctionObject>("function"),
-        mk_type<TypeObject>("type")
-	};
+	const auto &builtins = get_builtins();
 
 	dpp::vm vm = new FObject;
 	for(uint32_t i = 0; i < BUILTIN::BUILTIN_END; ++i) {
@@ -225,14 +201,11 @@ VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
 
 #ifndef _WIN32
 void InitVMLibrary() __attribute__((constructor));
-void InitVMLibrary() {
-    initBuiltin();
-}
+void InitVMLibrary() {}
 #else
 BOOL WINAPI DllMain(HINSTANCE,
 	DWORD,
 	LPVOID) {
-    initBuiltin();
 	return TRUE;
 }
 #endif
