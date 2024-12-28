@@ -32,8 +32,8 @@
 #include "struct.hpp"
 #include "acdpp.h"
 
-#define EXEC_FAILED true
-#define EXEC_SUCCESS false
+constexpr bool EXEC_FAILED = true;
+constexpr bool EXEC_SUCCESS = false;
 // #define vmswitch switch // unused
 // #define vmcase case // unused
 #define VM_API DXX_API

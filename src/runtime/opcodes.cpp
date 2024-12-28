@@ -26,6 +26,7 @@
 #include "opcodes.hpp"
 #include "builtin.hpp"
 #include "macros.hpp"
+#include "native.hpp"
 #include "objects.hpp"
 #include "struct.hpp"
 
@@ -482,8 +483,8 @@ void _calln(dpp::vm vm) {
 	if(dpp::is_string(call_func)) {
 		String _native_func = dpp::get_string(call_func);
 
-		std::string native_func = WStrToPChar(_native_func);
-		NativeProc proc = GetNativeProc(vm->NativeModules[_lib.id], native_func.c_str());
+		std::string native_func = dpp::to_pchar(_native_func);
+        dpp::proc proc = dpp::get_proc(vm->NativeModules[_lib.id], native_func);
 		if(proc == nullptr) {
             dpp::set_error(vm, Dpp_LibNoSymbolError, L"");
 			return;

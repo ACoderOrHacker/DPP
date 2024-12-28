@@ -4,11 +4,13 @@
 #include <memory>
 #include <ostream>
 
+#include "cereal/details/helpers.hpp"
 #include "cxxopts.hpp"
 #include "fmt.h"
 #include "serialize.hpp"
 #include "modules.h"
 #include "dpp/api.h"
+#include "vm.hpp"
 
 /**
  * @brief the main application class
@@ -51,34 +53,43 @@ public:
 
                     dpp::close_file(ifs);
                     auto filename = std::filesystem::path(it).filename().stem().string();
-                    const std::fstream &fs = dpp::open_file((filename + ".dppo"),
-                                                    std::ios_base::binary | std::ios_base::out | std::ios_base::trunc);
-                    dpp::serialize::save<std::unique_ptr<FObject>>(dynamic_cast<std::ostream &>(const_cast<std::fstream &>(fs)), std::unique_ptr<FObject>(vm));
+                    std::ofstream fs;
+                    fs.open(filename + ".dppo");
+                    dpp::serialize::save<FObject>(fs, *vm,
+                        [](cereal::Exception &e) {
+                            fmt::print_error("error: internal error\n");
+                            fmt::print_error("    message: ", e.what(), "\n");
+                            exit(EXIT_FAILURE);
+                        });
+                    fs.close();
                 }
             } else if (result.count("run")) {
-                dpp::vm vm;
+                dpp::vm vm = dpp::create_vm();
 
                 std::string filename = result["run"].as<std::string>();
-                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::binary | std::ios_base::in,
+                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in,
                     [](const std::string &filename, std::ifstream &fs) -> void {
                         fmt::print_error("error: cannot find '", filename, "' binary file\n");
-                        exit(1);
+                        exit(EXIT_FAILURE);
                     });
-                vm = dpp::serialize::load<std::unique_ptr<FObject>>(dynamic_cast<std::istream &>(const_cast<std::ifstream &>(ifs))).get();
 
+                *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(const_cast<std::ifstream &>(ifs)),
+                    [](cereal::Exception &e) {
+                        fmt::print_error("error: invaild input file\n");
+                        fmt::print_error("    message: ", e.what(), "\n");
+                        exit(EXIT_FAILURE);
+                    });
+
+                ifs.close();
                 dpp::run(vm);
             } else if (result.count("run-script")) {
                 std::string filename = result["run-script"].as<std::string>();
-                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in,
+
+                int exit_code = dpp::run_script(filename,
                     [](const std::string &filename, std::ifstream &fs) -> void {
                         fmt::print_error("error: cannot find '", filename, "' source file\n");
-                        exit(1);
+                        exit(EXIT_FAILURE);
                     });
-
-                dpp::vm vm = compile(ifs);
-                dpp::close_file<std::ifstream>(ifs);
-
-                int exit_code = dpp::run(vm, false);
                 exit(exit_code);
             } else if (result.count("list")) {
                 dpp::output_information();

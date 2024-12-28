@@ -3,7 +3,6 @@
 
 #include <exception> // std::exception
 #include <cereal/types/base_class.hpp>
-#include <cereal/types/memory.hpp>
 #include <cereal/access.hpp>
 
 /*
@@ -31,14 +30,6 @@ typedef bool STATUS;
 #define SetBit1(x, bit) ((x) |= (1 << (bit)))
 #define SetBit0(x, bit) ((x) &= ~ (1 << (bit)))
 
-#ifdef _WIN32
-#define LIB_PREFIX ""
-#define PLATFORM_LIB_EX ".dll"
-#elif defined(__linux__)
-#define LIB_PREFIX "lib"
-#define PLATFORM_LIB_EX ".so"
-#endif
-
 #define NAMESPACE_BEGIN(ns) namespace ns {
 #define NAMESPACE_END }
 #define NAMESPACE_DPP_BEGIN NAMESPACE_BEGIN(dpp)
@@ -63,15 +54,16 @@ typedef bool STATUS;
 
 #define Dpp_OBJECT_SERIALIZE(...) Dpp_SERIALIZE(cereal::base_class<dpp::object>(this), __VA_ARGS__)
 #define Dpp_EMPTY_OBJECT_SERIALIZE() Dpp_SERIALIZE(cereal::base_class<dpp::object>(this))
-
+#define Dpp_NVP(name) CEREAL_NVP(name)
 
 #define Dpp_REGISTER_TYPE(dpptype, cpptype) \
+CEREAL_REGISTER_TYPE(cpptype) \
 NAMESPACE_DPP_BEGIN                                                                       \
     forceinline bool is_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj) != nullptr; } \
     forceinline cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
 NAMESPACE_DPP_END
 
-#define Dpp_REGISTER_SERIALIZE(type) CEREAL_REGISTER_TYPE(type)
+#define Dpp_REGISTER_SERIALIZE(type) //CEREAL_REGISTER_DYNAMIC_INIT(type) //CEREAL_REGISTER_TYPE(type)
 
 #define Dpp_REGISTER_TYPE_EX(dpptype, cpptype, valid)      \
 Dpp_REGISTER_TYPE(dpptype, cpptype)                        \

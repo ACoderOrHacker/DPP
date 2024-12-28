@@ -8,39 +8,22 @@
 
 #include <string>
 #include <stdexcept>
+#include <dylib.hpp>
 #include "acdpp.h"
 #include "macros.hpp"
-#ifdef _WIN32
-#include <windows.h>
-typedef HMODULE Module;
-typedef FARPROC NativeProc;
-#elif __linux__
-#include <dlfcn.h>
-typedef void *Module;
-typedef void *NativeProc;
-#endif
 
-DXX_API Module OpenNativeLib(const char *libname);
-DXX_API NativeProc GetNativeProc(Module m, const char *procname);
-DXX_API bool FreeNativeLib(Module m);
 DXX_API std::string WStrToPChar(std::wstring wstr);
 DXX_API std::wstring stringToWstring(std::string str);
 
 NAMESPACE_DPP_BEGIN
 
-NAMESPACE_BASE_BEGIN
-
-DXX_API std::string to_module_id(const std::string &lib);
-
-NAMESPACE_BASE_END
-
 // Defines types
 
-using native_module = Module;
-using proc = NativeProc;
+using native_module = dylib;
+using proc = dylib::native_symbol_type;
 
 DXX_API dpp::native_module open(const std::string &lib);
-DXX_API dpp::proc get_proc(dpp::native_module m, const std::string &proc_id);
+DXX_API dpp::proc get_proc(const dpp::native_module &m, const std::string &proc_id);
 DXX_API void close(dpp::native_module m);
 
 forceinline std::string to_pchar(const std::wstring &wstr) {

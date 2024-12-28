@@ -127,6 +127,6 @@ template<typename T, typename container = std::deque<T>> class Heap {
             return (Heap<T>(Data.begin()+start, Data.begin()+end));
         }
 
-Dpp_SERIALIZE(Data)
+Dpp_SERIALIZE(Dpp_NVP(Data))
 };
 #endif // !_HEAP_H

@@ -21,7 +21,7 @@ template<typename T> class Array {
         auto &getContainer() {
             return array;
         }
-		T operator [](uint32_t n) {
+		T &operator [](uint32_t n) {
 			return (array.at(n));
 		}
         Array<T> &operator =(Array<T> data) {
@@ -35,6 +35,12 @@ template<typename T> class Array {
 			}
 			array.insert(array.begin() + n, data);
 		}
+        void write(uint32_t n, T &&data, bool) {
+            if(array.size() < n) {
+				array.resize(n);
+			}
+			array.insert(array.begin() + n, std::move(data));
+        }
         void write(T data) {
             array.resize(array.size());
 
@@ -64,7 +70,7 @@ template<typename T> class Array {
 	private:
 		std::vector<T> array;
 
-Dpp_SERIALIZE(array)
+Dpp_SERIALIZE(Dpp_NVP(array))
 };
 
 #endif // !_ARRAY_H

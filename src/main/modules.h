@@ -1,21 +1,25 @@
 #ifndef DPP_MODULES_H
 #define DPP_MODULES_H
 
-#include <iostream>
+#include <cstdint>
 #include <stdexcept>
 #include <format>
+#include <string>
 #include "macros.hpp"
+#include "struct.hpp"
 #include "vm.hpp"
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif // _MSC_VER
 
 #include <dpp/api.h>
-#include "serialize.hpp"
 #include "configs/configs.h"
 #include "fmt.h"
 #undef error
 #undef theap
+
+#define GLOBAL_OBJECT_SHOW_SIGN "@"
+#define LOCAL_OBJECT_SHOW_SIGN "%"
 
 namespace fmt = dpp::fmt;
 
@@ -110,18 +114,6 @@ std::string get_file_type(const std::string &magic_number) {
 }
 
 /**
- * @brief output file header to command line
- *
- * @param header the output file header
- */
-void output_fileheader(const FileHeader &header) {
-    fmt::print("FileHeader:\n");
-    fmt::print("    Type: ", dpp::get_file_type(header.MagicNumber));
-    fmt::print("    Compile Version: ", dpp::get_version_string(header.version));
-    fmt::print("    Lowest Version: ", dpp::get_version_string(header.LowestVersion));
-}
-
-/**
  * @brief Get the flags name
  *
  * @param flag
@@ -145,83 +137,80 @@ std::string get_flags_name(char flag) {
 /**
  * @brief output vm structure to command line
  *
- * @param s_fObj
+ * @param vm
  * @param isOutputCopyright
  */
-void output_s_vm(S_FObject *s_fObj, bool isOutputCopyright = true) {
-    auto opt_state = [](::VMState state) -> void {
+void output_vm(dpp::vm vm, bool isOutputCopyright = true) {
+    const auto &opt_state = [](::VMState &state) -> void {
         uint32_t i = 0;
         for(auto &it : state.vmopcodes) {
             std::string s;
 
-            s += std::format("[{}] ",i , dpp::get_opcode_name(it.opcode), " ");
+            s += std::string("    .") + std::to_string(i) + dpp::get_flags_name(it.flag) + ": " + dpp::get_opcode_name(it.opcode);
 
             for (auto &param : it.params) {
-                s += std::format("[{}, {}] ", param.isInGlobal ? "Global" : "Local", param.id);
+                s += std::string(param.isInGlobal ? GLOBAL_OBJECT_SHOW_SIGN : LOCAL_OBJECT_SHOW_SIGN) + std::to_string(param.id) + std::string(" ");
             }
-            std::cout << s;
+            fmt::print(s);
+
             size_t space_num = 100 - s.size();
             if (space_num > 0) {
-                std::cout << std::string(space_num, ' ');
-            }
-            else {
+                fmt::print(std::string(space_num, ' '));
+            } else {
                 // space_num <= 0
                 // std::length_error: string too long
-                std::cout << std::string(s.size() + 10, ' ');
+                fmt::print(std::string(s.size() + 10, ' '));
             }
-            fmt::print("flag: ", dpp::get_flags_name(it.flag), "\n");
-
             ++i;
         }
     };
-    fmt::print("\n");
-    if (isOutputCopyright) fmt::print("D++ Debug Tools. Copyright (c) ACoderOrHacker. All rights reserved.\n");
 
-    dpp::output_fileheader(s_fObj->header);
+    if (isOutputCopyright) dpp::output_information();
+
+    auto gmap = vm->obj_map.getGlobalMapping();
 
     fmt::print("\n");
-    fmt::print("Dependent modules: \n");
-    for(auto &it: s_fObj->modules) {
-        fmt::print("    ", it, "\n");
+    if (vm->modules.size() == 0) { fmt::print("modules: {}\n"); }
+    else {
+        fmt::print("modules: {\n");
+        for(auto &it: vm->modules) {
+            fmt::print("    ", it, "\n");
+        }
+        fmt::print("}\n");
     }
 
     fmt::print("\n");
-    fmt::print("Main State: \n");
-    opt_state(s_fObj->state);
+    if (vm->state.vmopcodes.isEmpty() == 0) { fmt::print("state: {}\n"); }
+    else {
+        fmt::print("state: {\n");
+        opt_state(vm->state);
+        fmt::print("}\n");
+    }
 
     fmt::print("\n");
     uint32_t i = 0;
-    for (auto it : s_fObj->global_mapping) {
+    for (auto it : gmap) {
         if (it != nullptr && it->name != "function" && dpp::is_function(it)) {
-            fmt::print("Function: ", it->name.empty() ? "unknown" : it->name, " [Global, ", i, "]\n");
+            fmt::print("function: {", it->name.empty() ? "unknown" : it->name, GLOBAL_OBJECT_SHOW_SIGN, i, "\n");
             opt_state(_cast(FunctionObject *, it)->state);
-            fmt::print("\n");
+            fmt::print("}\n");
         }
         ++i;
     }
 
     fmt::print("\n");
-    fmt::print("Global Object Mapping:\n");
-    for(uint32_t index = BUILTIN_END; index < s_fObj->global_mapping.size(); ++index) {
-        Dpp_Object *obj = s_fObj->global_mapping[index];
-		if (obj == nullptr) fmt::print("    [", index, "] ", "unknown\n");
+    fmt::print("global: {\n");
+    for(uint32_t index = BUILTIN_END; index < gmap.size(); ++index) {
+        auto obj = gmap[index];
+		if (obj == nullptr) fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": unknown\n");
 
         try {
-            fmt::print("    [", index, "] ", object_to_string(obj), "\n");
+            fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": ", object_to_string(obj), "\n");
         } catch (NoOperatorError &) {
-            fmt::print("    [", index, "] ", "unknown", "\n");
+            fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": unknown\n");
         }
     }
-}
-
-/**
- * @brief output vm structure to command line
- *
- * @param fObj
- * @param isOutputCopyright
- */
-void output_vm(FObject *fObj, bool isOutputCopyright = true) {
-    dpp::output_s_vm(GetS_FObject(fObj), isOutputCopyright);
+    fmt::print("}\n");
 }
 
 void check_test(const std::string &id, const std::string &buf) {

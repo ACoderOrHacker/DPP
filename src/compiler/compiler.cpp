@@ -56,7 +56,7 @@ public:
             THROW("main is not a function");
         }
         if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
-            THROW(std::format("main function has much than 0 paramter"));
+            THROW("main function has much than 0 paramter");
         }
         LoadOpcode(OPCODE_CALL, NO_FLAG, {main->object});
 

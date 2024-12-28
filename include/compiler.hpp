@@ -53,7 +53,7 @@
 }
 
 #define WARNING(msg) {                                                          \
-    fmt::print_error("\nwarning: ", msg, "\n");                                 \
+    fmt::print_warning("\nwarning: ", msg, "\n");                               \
 }
 
 #define MESSAGE(msg) {                                                          \

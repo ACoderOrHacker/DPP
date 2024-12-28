@@ -3,6 +3,7 @@
 */
 #ifndef _DXX_CONFIG_H
 #define _DXX_CONFIG_H
+#include <memory> // for std::shared_ptr and std::make_shared
 
 #define VERSION_HIGH 0
 #define VERSION_LOW 1
@@ -34,4 +35,12 @@
 #define NONE nullptr
 #define _cast(type, val) ((type)(val))
 #define anycast(type, val) (std::any_cast<type>(val)) // for std::any
+
+template<typename T>
+forceinline std::shared_ptr<T> create_ptr(T *ptr_) {
+	auto ptr = std::make_shared<T>();
+	ptr.reset(ptr_);
+	
+	return ptr;
+}
 #endif // !_DXX_CONFIG_H

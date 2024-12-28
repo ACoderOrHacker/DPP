@@ -1,59 +1,45 @@
 #ifndef DPP_SERIALIZATION
 #define DPP_SERIALIZATION
 
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/archives/json.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
-#include "struct.hpp"
+#include <memory>
+#include <stdexcept>
 
-struct FileHeader {
-    FileHeader() {
-        MagicNumber = "DPPO";
-    }
+#include "cereal/details/helpers.hpp"
+#include "macros.hpp"
 
-    std::string MagicNumber;
-    Version version = dpp::get_version();
-    Version LowestVersion = dpp::get_version();
-};
-
-class S_FObject {
-public:
-    S_FObject() {
-        header.MagicNumber = "DPPO";
-    }
-public:
-    struct FileHeader header;
-    Array<std::string> modules;
-    Array<Dpp_Object *> global_mapping;
-    struct VMState state;
-};
-
-/*
- * @return: S_FObject *
- * return a zipped FObject * to serialization
- */
-S_FObject *GetS_FObject(FObject *fObj) {
-    S_FObject *s_fObj = new S_FObject;
-    s_fObj->state = fObj->state;
-    s_fObj->global_mapping = fObj->obj_map.getGlobalMapping();
-    s_fObj->modules = fObj->modules;
-
-    return s_fObj;
-}
 
 NAMESPACE_DPP_BEGIN
     NAMESPACE_BEGIN(serialize)
-        template<typename T> T load(std::istream &istream) {
-            cereal::BinaryInputArchive archive(istream);
-            T object{};
-            archive(object);
+        template<typename T> T load(std::istream &istream,
+                                    void (*failed)(cereal::Exception &) = []() {}) {
+            try {
+                // cereal::PortableBinaryInputArchive archive(istream);
+                cereal::JSONInputArchive archive(istream);
+                T object {};
+                archive(object);
 
-            return object;
+                return object;
+            } catch (cereal::Exception &e) {
+                failed(e);
+                throw std::runtime_error("serialize: failed");
+            }
         }
 
-        template<typename T> STATUS save(std::ostream &fs, const T &object) {
-            cereal::BinaryOutputArchive archive(fs);
-            archive(object);
+        template<typename T> STATUS save(std::ostream &fs, const T &object,
+                                        void (*failed)(cereal::Exception &) = [](cereal::Exception &) {}) {
+            try {
+                // cereal::PortableBinaryOutputArchive archive(fs);
+                cereal::JSONOutputArchive archive(fs);
+                archive(object);
+            } catch (cereal::Exception &e) {
+                failed(e);
+                return STATUS_FAILED;
+            }
+
 
             return STATUS_SUCCESS;
         }

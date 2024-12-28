@@ -132,20 +132,17 @@ VM_API dpp::vm dpp::create_vm() {
 VM_API int dpp::run(dpp::vm vm, bool noExit) {
     uint32_t i = 0;
     for (auto &it : vm->modules) {
-        dpp::native_module vm_module;
         try {
-            vm_module = dpp::open(it);
+            vm->NativeModules.write(i, dpp::open(it), true /* unused */);
         } catch(std::runtime_error &) {
-            fmt::print_error("[dpp.startup] failed to load native module", it, "\n");
-            exit(1);
+            fmt::print_error("startup: cannot load dynamic library ", it, "\n");
+            vm->exit_code = EXIT_FAILURE;
+            goto EXIT;
         }
-
-        vm->NativeModules.write(i, vm_module);
     }
 
 	while(vm->state.vmopcodes.size() > vm->state.runat) {
-		OpCode opcode;
-		opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
+		const OpCode &opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
 
 		// execute the opcode and get the error code(isfail variable)
 		bool isfail = dpp::exec(opcode, vm);
@@ -175,6 +172,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
         if (opcode.opcode != OPCODE_CALL) ++vm->state.runat;
 	}
 
+EXIT:
 	// exit
 	int exit_code = vm->exit_code;
 	dpp::delete_vm(vm);

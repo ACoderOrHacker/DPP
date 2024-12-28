@@ -26,7 +26,9 @@ SOFTWARE.
 #define DPPDEF_OBJECTS
 
 #include <type_traits>
-#include <cereal/cereal.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/archives/json.hpp>
 #include "builtin.hpp"
 #include "struct.hpp"
 #include "macros.hpp"
@@ -127,7 +129,7 @@ public:
     dpp::object *equal(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
 
-Dpp_OBJECT_SERIALIZE(val)
+Dpp_OBJECT_SERIALIZE(dpp::to_pchar(val))
 };
 
 Dpp_REGISTER_TYPE_EX(string, StringObject, val)
@@ -135,7 +137,7 @@ Dpp_REGISTER_TYPE_EX(string, StringObject, val)
 Dpp_TYPE(ClassObject) {
 Dpp_TYPE_REGISTER_METHOD(ClassObject)
 public:
-    Heap<Dpp_Object *> members; // members of the class
+    Heap<std::shared_ptr<dpp::object>> members; // members of the class
 
 Dpp_OBJECT_SERIALIZE(members)
 };
@@ -166,10 +168,9 @@ Dpp_TYPE(TypeObject) {
 Dpp_TYPE_REGISTER_METHOD(TypeObject)
 public:
     TypeObject() { type = nullptr; }
-    ~TypeObject() override { delete type; type = nullptr; }
     dpp::object *type;
 
-Dpp_OBJECT_SERIALIZE(type)
+Dpp_OBJECT_SERIALIZE(create_ptr<dpp::object>(type))
 };
 
 Dpp_REGISTER_TYPE_EX(type, TypeObject, type)

@@ -19,7 +19,7 @@ if is_mode("debug") then
 end
 
 -- include directories
-add_includedirs("include", "src", "src/compiler/antlr4",  "src/main")
+add_includedirs("include", "src", "src/compiler/antlr4")
 
 set_optimize("fastest")
 

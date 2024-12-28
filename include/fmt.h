@@ -57,6 +57,4 @@ void print_success(T first, Args...args) {
 NAMESPACE_END
 NAMESPACE_DPP_END
 
-namespace fmt = dpp::fmt;
-
 #endif // !FMT_H

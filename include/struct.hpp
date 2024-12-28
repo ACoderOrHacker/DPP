@@ -25,6 +25,7 @@
 #ifndef _STRUCT_H
 #define _STRUCT_H
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <stack>
 
@@ -57,7 +58,7 @@ public:
 	bool operator ==(_Object o) const { return (this->id == o.id &&
                                         this->isInGlobal == o.isInGlobal); }
 
-Dpp_SERIALIZE(isInGlobal, id)
+Dpp_SERIALIZE(Dpp_NVP(isInGlobal), Dpp_NVP(id))
 } Object;
 
 struct _Version {
@@ -74,6 +75,7 @@ struct Version {
 
 class DXX_API Dpp_Object {
 public:
+    Dpp_Object() = default;
     virtual ~Dpp_Object() = default; // virtual destructor
 
 	public:
@@ -159,10 +161,10 @@ public:
 
 	public:
 		std::string name;
-        uint32_t type;
+        uint32_t type = 0;
 		char info = 0; // see doc/object/info.md
 
-Dpp_SERIALIZE(name, type, info)
+Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type), Dpp_NVP(info))
 };
 
 forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }
@@ -180,32 +182,32 @@ public:
 	uint32_t getLastCreateID() { return mappings.size() + 1; }
 
     Dpp_Object *get(Object o, uint32_t mapping_id) {
-        Array<Dpp_Object> func_mapping = this->getMapping(o, mapping_id);
-        static Dpp_Object obj = func_mapping[o.id];
+        Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o, mapping_id);
+        Dpp_Object *obj = ((*func_mapping)[o.id]).get();
 
-        // this object is not at stack if running at vm
-		return &obj;
+		return obj;
     }
 
 	Dpp_Object *get(Object o) {
-		Array<Dpp_Object> func_mapping = getMapping(o);
-        static Dpp_Object obj = func_mapping[o.id];
+		Array<std::shared_ptr<Dpp_Object>> *func_mapping = getMapping(o);
+        Dpp_Object *obj = ((*func_mapping)[o.id]).get();
 
-        // this object is not at stack if running at vm
-		return &obj;
+		return obj;
 	}
 
 	void write(Object o, Dpp_Object *obj, bool isRewrite = false) {
-		Array<Dpp_Object> func_mapping = this->getMapping(o);
+		Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o);
+        auto ptr = std::make_shared<Dpp_Object>();
+        ptr.reset(obj);
 		if(!isRewrite) {
-            func_mapping.write(o.id, *obj);
+            func_mapping->write(o.id, ptr);
         } else {
-            func_mapping.rewrite(o.id, *obj);
+            func_mapping->rewrite(o.id, ptr);
         }
 	}
 
 	void create_mapping(uint32_t mapping_id) {
-		Array<Dpp_Object> *mapping = new Array<Dpp_Object>;
+		Array<std::shared_ptr<Dpp_Object>> *mapping = new Array<std::shared_ptr<Dpp_Object>>;
 		mappings.write(mapping_id, *mapping);
 	}
 
@@ -224,7 +226,7 @@ public:
         uint32_t i = 0;
         for(auto &it : global) {
             // Dpp_Object * is a dynamic pointer (new Dpp_Object)
-            convert.write(i, &it);
+            convert.write(i, it.get());
             ++i;
         }
 
@@ -232,24 +234,23 @@ public:
     }
 
 private:
-    Array<Dpp_Object> global;
-	Array<Array<Dpp_Object>> mappings;
-
-	Array<Dpp_Object> getMapping(Object &_o) {
+    Array<std::shared_ptr<Dpp_Object>> global;
+	Array<Array<std::shared_ptr<Dpp_Object>>> mappings;
+    auto getMapping(Object &_o) -> decltype(global) * {
 		if (_o.isInGlobal) {
-			return global;
+			return &global;
 		}
-		return *(--mappings.end());
+		return &*(--mappings.end());
 	}
 
-    Array<Dpp_Object> getMapping(Object &_o, uint32_t mapping_id) {
+    auto getMapping(Object &_o, uint32_t mapping_id) -> decltype(global) * {
 		if (_o.isInGlobal) {
-			return global;
+			return &global;
 		}
-		return *(mappings.begin() + mapping_id - 1);
+		return &*(mappings.begin() + mapping_id - 1);
 	}
 
-Dpp_SERIALIZE(global)
+Dpp_SERIALIZE(Dpp_NVP(global))
 };
 
 typedef struct _VMError {
@@ -262,21 +263,17 @@ typedef struct _OpCode {
 	char flag = NO_FLAG;
     Heap<Object> params;
 
-Dpp_SERIALIZE(opcode, flag, params)
+Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(flag), Dpp_NVP(params))
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
-typedef Heap<Dpp_Object *> ErrorPool;
-typedef Heap<Object> WarningPool;
 typedef Heap<SIGNAL> Signal;
-
-typedef Dpp_Object *(*ConvertFunction)(ErrorPool *, Dpp_Object *);
 
 struct VMState {
 	Heap<OpCode> vmopcodes;
 	uint32_t runat = 0;
 
-Dpp_SERIALIZE(vmopcodes)
+Dpp_SERIALIZE(Dpp_NVP(vmopcodes))
 };
 
 typedef struct _FObject {
@@ -284,12 +281,6 @@ public:
 	_FObject(){
 		_theap = new Tmp_Heap;
 		sig = new Signal;
-
-        uint32_t i = 0;
-        for(auto &it: modules) {
-            NativeModules.write(i, OpenNativeLib((it + PLATFORM_LIB_EX).c_str()));
-            ++i;
-        }
 	}
 	~_FObject() = default;
 
@@ -297,7 +288,7 @@ public:
 	Tmp_Heap *_theap;
     VMError *_error = nullptr;
 public:
-    Array<Module> NativeModules;
+    Array<dpp::native_module> NativeModules;
 	Array<std::string> modules;
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
@@ -307,7 +298,7 @@ public:
 	char flags = NO_FLAG;
 	int exit_code = EXIT_SUCCESS;
 
-Dpp_SERIALIZE(modules, obj_map, state)
+Dpp_SERIALIZE(Dpp_NVP(modules), Dpp_NVP(obj_map),  Dpp_NVP(state))
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);
