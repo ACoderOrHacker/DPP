@@ -43,7 +43,7 @@ public:
             } else if (result.count("version")) {
                 fmt::print("Standard D++ Compiler & Runtime v", DXX_VERSION);
                 return EXIT_SUCCESS;
-} else if (result.count("compile")) {
+            } else if (result.count("compile")) {
                 for (auto &it : result["compile"].as<std::vector<std::string>>()) {
                     std::ifstream ifs;
 
