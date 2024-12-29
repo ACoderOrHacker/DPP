@@ -37,7 +37,7 @@ jobs:
 
     - name: Build project
       run: |
-        xmake build -y -v
+        xmake build -y
 
     - name: Package project
       run: |
