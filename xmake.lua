@@ -11,7 +11,7 @@ set_languages("c++20") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
 -- requires
-add_requires("cereal", "cxxopts", "termcolor", "antlr4-runtime")
+add_requires("cereal", "cxxopts", "termcolor", "antlr4-runtime", "antlr4")
 
 if is_mode("debug") then
     -- for tests and benchmarks
@@ -35,7 +35,11 @@ target("compiler")
     add_files("src/compiler/*.cpp", "src/compiler/antlr4/*.cpp")
 
     add_deps("vm")
-    add_packages("antlr4-runtime", "cereal", "termcolor")
+    add_packages("antlr4-runtime", "antlr4", "cereal", "termcolor")
+
+    before_build(function (target)
+        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool src/compiler/templates/DXXLexer.g4 src/compiler/templates/DXXLexer.g4 -o src/compiler/antlr4/")
+    end
 target_end()
 
 target("dpp")
