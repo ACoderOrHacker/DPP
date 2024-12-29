@@ -63,8 +63,6 @@ NAMESPACE_DPP_BEGIN                                                             
     forceinline cpptype* to_##dpptype(dpp::object *obj) { return dynamic_cast<cpptype*>(obj); }        \
 NAMESPACE_DPP_END
 
-#define Dpp_REGISTER_SERIALIZE(type) //CEREAL_REGISTER_DYNAMIC_INIT(type) //CEREAL_REGISTER_TYPE(type)
-
 #define Dpp_REGISTER_TYPE_EX(dpptype, cpptype, valid)      \
 Dpp_REGISTER_TYPE(dpptype, cpptype)                        \
 NAMESPACE_DPP_BEGIN                                        \
