@@ -28,6 +28,7 @@ public:
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
+                ("version,v", "get dpp version")
             ;
 
             if (argc == 1) {
@@ -39,7 +40,10 @@ public:
 
             if (result.count("help")) {
                 fmt::print(options.help());
-            } else if (result.count("compile")) {
+            } else if (result.count("version")) {
+                fmt::print("Standard D++ Compiler & Runtime v", DXX_VERSION);
+                return EXIT_SUCCESS;
+} else if (result.count("compile")) {
                 for (auto &it : result["compile"].as<std::vector<std::string>>()) {
                     std::ifstream ifs;
 
