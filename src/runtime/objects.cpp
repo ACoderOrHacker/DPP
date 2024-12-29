@@ -27,15 +27,6 @@
 #include "native.hpp"
 #include "struct.hpp"
 
-/*
-Dpp_REGISTER_SERIALIZE(IntObject)
-Dpp_REGISTER_SERIALIZE(FloatObject)
-Dpp_REGISTER_SERIALIZE(StringObject)
-Dpp_REGISTER_SERIALIZE(ClassObject)
-Dpp_REGISTER_SERIALIZE(FunctionObejct)
-Dpp_REGISTER_SERIALIZE(ErrorObject)
-Dpp_REGISTER_SERIALIZE(TypeObject)
-*/
 dpp::object *IntObject::add(dpp::object *lval, dpp::object *rval) {
     Integer rval_int;
     if (dpp::is_float(rval)) {
