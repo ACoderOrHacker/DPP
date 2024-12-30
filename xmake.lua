@@ -39,7 +39,7 @@ target("compiler")
 
     before_build(function (target)
         os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool src/compiler/templates/DXXLexer.g4 src/compiler/templates/DXXLexer.g4 -o src/compiler/antlr4/")
-    end
+    end)
 target_end()
 
 target("dpp")
