@@ -38,7 +38,7 @@ target("compiler")
     add_packages("antlr4-runtime", "antlr4", "cereal", "termcolor")
 
     before_build(function (target)
-        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool src/compiler/templates/DXXLexer.g4 src/compiler/templates/DXXLexer.g4 -o src/compiler/antlr4/")
+        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool $(projectdir)src/compiler/templates/DXXLexer.g4 $(projectdir)src/compiler/templates/DXXLexer.g4 -o $(projectdir)src/compiler/antlr4/")
     end)
 target_end()
 
