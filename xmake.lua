@@ -32,12 +32,12 @@ target_end()
 
 target("compiler")
     set_kind("shared")
-    add_files("src/compiler/*.cpp", "src/compiler/antlr4/DXXLexer.cpp", "src/compiler/antlr4/DXXParser.cpp", "src/compiler/antlr4/DXXBaseVisitor.cpp", "src/compiler/antlr4/DXXVisitor.cpp")
+    add_files("src/compiler/*.cpp", "src/compiler/antlr4/*.cpp")
 
     add_deps("vm")
     add_packages("antlr4-runtime", "antlr4", "cereal", "termcolor")
 
-    before_build(function (target)
+    on_load(function (target)
         os.cd("$(projectdir)/src/compiler/templates/")
         os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool -visitor -no-listener DXXLexer.g4 DXXParser.g4 -o $(projectdir)/src/compiler/antlr4/")
     end)
