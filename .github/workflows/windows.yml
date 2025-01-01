@@ -29,10 +29,6 @@ jobs:
       with:
         xmake-version: latest
 
-    - name: Gensource
-      run: |
-        xmake build gensource -y
-
     - name: Build project
       run: |
         xmake build -y
