@@ -35,9 +35,9 @@ jobs:
       run: |
         xmake f --toolchain=clang -c -y
 
-    - name: Gensource 
-      run: | 
-        xmake build gensource -y
+    - name: Gensource
+      run: |
+        antlr4 -visitor -no-listener src/compiler/templates/DXXLexer.g4 src/compiler/templates/DXXParser.g4 -o src/compiler/antlr4/
 
     - name: Build project
       run: |
