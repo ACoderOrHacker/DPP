@@ -44,7 +44,7 @@ target("compiler")
     add_files("src/compiler/*.cpp", "src/compiler/antlr4/*.cpp")
 
     add_deps("vm")
-    add_packages("antlr4-runtime", "antlr4", "cereal", "termcolor")
+    add_packages("antlr4-runtime", "cereal", "termcolor")
 target_end()
 
 target("dpp")
