@@ -35,9 +35,13 @@ jobs:
       run: |
         xmake f --toolchain=clang -c -y
 
+    - name: Gensource 
+      run: | 
+        xmake build gensource -y
+
     - name: Build project
       run: |
-        xmake build -y -v
+        xmake build -y
 
     - name: Package project
       run: |
