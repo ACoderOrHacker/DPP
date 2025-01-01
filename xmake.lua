@@ -43,7 +43,7 @@ target("compiler")
     set_kind("shared")
     add_files("src/compiler/*.cpp", "src/compiler/antlr4/*.cpp")
 
-    add_deps("vm")
+    add_deps("vm", "gensource")
     add_packages("antlr4-runtime", "cereal", "termcolor")
 target_end()
 
