@@ -23,6 +23,15 @@ add_includedirs("include", "src", "src/compiler/antlr4")
 
 set_optimize("fastest")
 
+target("gensource")
+    set_kind("phony")
+
+    on_build(function (target)
+        os.cd("$(projectdir)/src/compiler/templates/")
+        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool -visitor -no-listener DXXLexer.g4 DXXParser.g4 -o $(projectdir)/src/compiler/antlr4/")
+    end)
+target_end()
+
 target("vm")
     set_kind("shared")
     add_files("src/runtime/*.cpp")
@@ -36,11 +45,6 @@ target("compiler")
 
     add_deps("vm")
     add_packages("antlr4-runtime", "antlr4", "cereal", "termcolor")
-
-    on_load(function (target)
-        os.cd("$(projectdir)/src/compiler/templates/")
-        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool -visitor -no-listener DXXLexer.g4 DXXParser.g4 -o $(projectdir)/src/compiler/antlr4/")
-    end)
 target_end()
 
 target("dpp")
