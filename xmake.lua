@@ -39,7 +39,7 @@ target("compiler")
 
     before_build(function (target)
         os.cd("$(projectdir)/src/compiler/templates/")
-        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool -visitor -no-listener DXXLexer.g4 DXXLexer.g4 -o $(projectdir)/src/compiler/antlr4/")
+        os.vrun("java -classpath $(env CLASSPATH) org.antlr.v4.Tool -visitor -no-listener DXXLexer.g4 DXXParser.g4 -o $(projectdir)/src/compiler/antlr4/")
     end)
 target_end()
 
