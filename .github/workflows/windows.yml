@@ -27,10 +27,6 @@ jobs:
     - name: Setup antlr4
       uses: StoneMoe/setup-antlr4@v4.13.0
 
-    - name: Gensource
-      run: |
-        antlr4 -visitor -no-listener src/compiler/templates/DXXLexer.g4 src/compiler/templates/DXXParser.g4 -o src/compiler/antlr4/
-
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
