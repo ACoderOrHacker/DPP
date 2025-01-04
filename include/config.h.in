@@ -1,0 +1,13 @@
+/// D++ CONFIGURE FILE
+
+#define DXX_VERSION "${VERSION}"
+#define VERSION_HIGH VERSION_MAJOR
+#define VERSION_LOW VERSION_MINOR
+#define DXX_PLAT ${plat}
+#define DXX_ARCH ${arch}
+#define DXX_BUILD_MODE ${mode}
+#define DXX_OS ${os}
+#define GIT_COMMIT      "${GIT_COMMIT}"
+#define GIT_COMMIT_DATE "${GIT_COMMIT_DATE}"
+#define GIT_BRANCH      "${GIT_BRANCH}"
+#define GIT_TAG         "${GIT_TAG}"
