@@ -32,7 +32,7 @@ target_end()
 
 target("compiler")
     set_kind("shared")
-    add_files("src/compiler/*.cpp", "src/compiler/antlr4/*.cpp")
+    add_files("src/compiler/*.cpp")
     add_files("src/compiler/templates/*.g4")
 
     add_rules("@antlr4/lexer", "@antlr4/parser", {visitor = true, listener = false})
