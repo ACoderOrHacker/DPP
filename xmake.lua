@@ -9,6 +9,7 @@ includes("@builtin/xpack")
 add_rules("mode.debug", "mode.release") -- debug mode and release mode
 set_languages("c++20") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
+set_configdir("include")
 add_configfiles("include/config.h.in")
 
 -- requires
