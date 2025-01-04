@@ -8,9 +8,6 @@
 #include "macros.hpp"
 #include "struct.hpp"
 #include "vm.hpp"
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif // _MSC_VER
 
 #include <dpp/api.h>
 #include "configs/configs.h"
@@ -22,9 +19,6 @@
 #define LOCAL_OBJECT_SHOW_SIGN "%"
 
 namespace fmt = dpp::fmt;
-
-fs::path root = fs::current_path().parent_path();
-const fs::path examples_path = root / "examples";
 
 NAMESPACE_DPP_BEGIN
 
@@ -71,13 +65,7 @@ const char *get_system_32bits_or_64bits() {
  * @return const char*
  */
 const char *get_platform() {
-#if defined(_WIN32)
-    return "win32";
-#elif defined(__linux__)
-    return "linux";
-#else
-    return "unknown platform";
-#endif
+    return DXX_PLAT;
 }
 
 /**
