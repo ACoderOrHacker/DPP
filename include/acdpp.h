@@ -4,10 +4,7 @@
 #ifndef _DXX_CONFIG_H
 #define _DXX_CONFIG_H
 #include <memory> // for std::shared_ptr and std::make_shared
-
-#define VERSION_HIGH 0
-#define VERSION_LOW 1
-#define DXX_VERSION "0.1"
+#include "config.h"
 
 #ifdef _MSC_VER // for MSVC
 #ifndef _DXX_EXPORT
