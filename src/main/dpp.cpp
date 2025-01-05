@@ -8,7 +8,6 @@
 #include "cxxopts.hpp"
 #include "fmt.h"
 #include "serialize.hpp"
-#include "modules.h"
 #include "dpp/api.h"
 #include "vm.hpp"
 
