@@ -13,7 +13,7 @@ set_configdir("include")
 add_configfiles("include/config.h.in")
 
 -- requires
-add_requires("cereal", "cxxopts", "termcolor", "antlr4-runtime", "antlr4")
+add_requires("cereal 1.3.2", "cxxopts 3.2.1", "termcolor 2.1.0", "antlr4-runtime 4.13.2", "antlr4 4.13.2")
 
 if is_mode("debug") then
     -- for tests and benchmarks
