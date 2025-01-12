@@ -3,8 +3,8 @@
 #include <cstddef>
 
 /// Example: 
-///    FLAGS_ENUM(Test, F1, F2, F3)
-///    DEFINE_FLAGS(TestFlag, Test)
+///
+///    DEFINE_FLAGS(TestFlag, F1, F2, F3)
 ///    TestFlag f;
 ///    
 
@@ -12,17 +12,13 @@ template<typename /* An enum genrates by FLAGS_ENUM */>
 class flags;
 
 #define FLAGS_ENUM(name, ...) enum name {__VA_ARGS__, ENUM_END};
-#define DEFINE_FLAGS(name, flag_enum) using name = flags<flag_enum>;
+#define DEFINE_FLAGS(name, ...) FLAGS_ENUM(__##name_ENUM__, __VA_ARGS__) using name = flags<__##name_ENUM__>;
 
 template<typename _flags_enum>
 class flags {
-private:
-    constexpr static auto get_index(_flags_enum flag) {
-        return (flag / BYTE_SIZE) + (flag % BYTE_SIZE != 0 ? 1 : 0);
-    }
 public:
     constexpr static auto BYTE_SIZE = 8; /* size of byte(bits) */
-    constexpr static auto bytes = get_index(_flags_enum::ENUM_END);
+    constexpr static auto bytes = (_flags_enum::ENUM_END / BYTE_SIZE) + (_flags_enum::ENUM_END % BYTE_SIZE != 0 ? 1 : 0);
 
     flags() = default;
     ~flags() = default;
