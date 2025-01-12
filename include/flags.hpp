@@ -1,6 +1,7 @@
 #ifndef _FLAGS_HPP
 #define _FLAGS_HPP
 #include <cstddef>
+#include <type_traits>
 
 /// Example: 
 ///
@@ -16,6 +17,7 @@ class flags;
 
 template<typename _flags_enum>
 class flags {
+    static_assert(std::is_enum_v<_flags_enum>, "flags<_flags_enum> needs an enum structure for _flags_enum. Please use DEFINE_FLAGS or FLAGS_ENUM macro");
 public:
     constexpr static auto BYTE_SIZE = 8; /* size of byte(bits) */
     constexpr static auto bytes = (_flags_enum::ENUM_END / BYTE_SIZE) + (_flags_enum::ENUM_END % BYTE_SIZE != 0 ? 1 : 0);
