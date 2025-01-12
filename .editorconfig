@@ -11,8 +11,3 @@ trim_trailing_whitespace = true
 
 # For C++
 [*.{c++,cc,cpp,cxx,h,h++,hh,hpp,hxx,inl,ipp,tlh,tli}]
-
-# For Python
-[*.py]
-indent_style = space
-indent_size = 4

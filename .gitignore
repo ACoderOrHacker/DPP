@@ -1,10 +1,4 @@
-# binary file (by cmake)
-/bin/
-
-# build file (by cmake)
 /build/
-/__build__/
-/build_compile_commands/
 
 # all the binary file
 *.obj
@@ -24,28 +18,13 @@
 /out/
 /cmake-build-debug/
 
-# Python Cache Folder
-__pycache__
-
-# Cppcheck Cache Folder
-/.cppcheck/
-
-# Antlr4 Generate Files
-/src/compiler/templates/.antlr/
-/gen/
-
 # Waitlist
 /example/Waitlist/
 
 # NOTES
 /NOTES
 
-/.VSCodeCounter/
-
 # D++ Object Files
 *.dppo
-
-# Package Folder
-/packs/
 
 /.xmake/
