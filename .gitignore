@@ -9,6 +9,7 @@
 *.a
 *.exe
 *.out
+*.pdb
 
 # disable the project file
 /.vs/
@@ -28,3 +29,5 @@
 *.dppo
 
 /.xmake/
+
+/include/config.h

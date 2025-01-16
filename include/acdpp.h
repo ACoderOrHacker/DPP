@@ -37,7 +37,7 @@ template<typename T>
 forceinline std::shared_ptr<T> create_ptr(T *ptr_) {
 	auto ptr = std::make_shared<T>();
 	ptr.reset(ptr_);
-	
+
 	return ptr;
 }
 #endif // !_DXX_CONFIG_H

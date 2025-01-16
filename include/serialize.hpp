@@ -5,7 +5,6 @@
 #include <cereal/archives/json.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
-#include <memory>
 #include <stdexcept>
 
 #include "cereal/details/helpers.hpp"

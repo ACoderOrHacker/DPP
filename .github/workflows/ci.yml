@@ -15,15 +15,17 @@ on:
 
 
 jobs:
-  build_windows:
-    runs-on: windows-latest
+  build:
     strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
       fail-fast: false
+    runs-on: ${{matrix.os}}
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-  
+
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
@@ -32,7 +34,7 @@ jobs:
     - name: Build project
       run: |
         xmake build -y
-    
+
     - name: Run tests
       run: |
         xmake run tests
@@ -50,4 +52,4 @@ jobs:
           draft: true
           fail_on_unmatched_files: true
           files: |
-            build/xpack/*
+            build/xpack/DPP/*

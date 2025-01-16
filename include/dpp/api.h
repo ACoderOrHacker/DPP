@@ -32,7 +32,6 @@
 #include "compiler.hpp"
 #include "objects.hpp"
 #include "error.hpp"
-#include "acassert.h"
 
 #define None nullptr
 #define GLOBAL_OBJECT_SHOW_SIGN "@"

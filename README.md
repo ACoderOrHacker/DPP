@@ -12,24 +12,34 @@
 ---
 **D++** is a **power**, **fast** programming language.
 
+### Description
+D++ is a programming language that is designed to be easy to use and powerful. It is a scripting language that is similar to Python, but with a faster execution speed. It is also a compiled language, which means that it is translated into machine code before it is run, which makes it faster than interpreted languages like Python.
+
+Just for fun.
+
 ### Overview
 
 This repository is structured into the following directories.
 Refer to their respective `README.md` for more in-depth information.
 
-| Directory                                | Description                                      |
-|------------------------------------------|--------------------------------------------------|
-| [changelog](CHANGELOG)                   | changelog entries for the upcoming release       |
-| [src/compiler](src/compiler)             | source code, build system and build instructions |
-| [docs]()            | man pages and internal documentation             |                       |
-| [runtime](src/runtime/)                  | root of runtime                                  |
+| Directory               | Description                                      |
+| ----------------------- | ------------------------------------------------ |
+| [changelog](CHANGELOG)  | changelog entries for the upcoming release       |
+| [src](src/)             | source code, build system and build instructions |
+| [docs]()                | man pages and internal documentation             |
+| [runtime](src/runtime/) | root of runtime                                  |
+
+### Installation
+See [INSTALL.md](INSTALL.md) for more information.
+
+### Misc
+- [x] [xmake](https://github.com/xmake-io/xmake)
+- [x] [xmake-repo](https://github.com/xmake-io/xmake-repo)
+- [x] [doxygen](https://github.com/doxygen/doxygen)
+
+For more information, please see our [documentation](https://ACoderOrHacker.github.io/DPP/).
 
 ### Build
 ```
 xmake build -y
-```
-
-### IDES
-```
-Not Successful
 ```

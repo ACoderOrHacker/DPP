@@ -9,6 +9,7 @@
 #include "fmt.h"
 #include "serialize.hpp"
 #include "dpp/api.h"
+#include "struct.hpp"
 #include "vm.hpp"
 
 /**
@@ -23,11 +24,11 @@ public:
             cxxopts::Options options("dpp","Standard D++ Compiler & Runtime");
             options.set_width(70).add_options()
                 ("help,h", "show help message")
+                ("version,v", "get dpp version")
                 ("compile,c", "compile sources", cxxopts::value<std::vector<std::string>>())
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
-                ("version,v", "get dpp version")
             ;
 
             if (argc == 1) {
@@ -40,7 +41,7 @@ public:
             if (result.count("help")) {
                 fmt::print(options.help());
             } else if (result.count("version")) {
-                fmt::print("Standard D++ Compiler & Runtime v", DXX_VERSION);
+                fmt::print("Standard D++ Compiler & Runtime v", DXX_VERSION, "\n");
                 return EXIT_SUCCESS;
             } else if (result.count("compile")) {
                 for (auto &it : result["compile"].as<std::vector<std::string>>()) {
