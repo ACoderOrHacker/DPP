@@ -22,13 +22,12 @@
   SOFTWARE.
  */
 
+#include "macros.hpp"
 #ifndef _COMPILER_H
 
 #include <cstdint>
 #include <string>
-#include <format>
 #include <fstream>
-#include <any>
 #include <unordered_map>
 #include <stack>
 #include <initializer_list>
@@ -36,10 +35,7 @@
 #undef _DXX_EXPORT
 #include "enum.hpp"
 #include "acdpp.h"
-#include "vm.hpp"
 #include "acassert.h"
-#include "fmt.h"
-#include "objects.hpp"
 #include "builtin.hpp"
 #include "metadata.h"
 #include "export.h"
@@ -59,8 +55,6 @@
 #define MESSAGE(msg) {                                                          \
     fmt::print("\nmessage: ", msg, "\n");                                       \
 }
-
-namespace fmt = dpp::fmt;
 
 DXX_API FObject *fObj = new FObject;
 
@@ -263,7 +257,7 @@ private:
 };
 
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    char flags = NO_FLAG,
+    OpcodeFlags flags = OpcodeFlags(),
     std::initializer_list<Object> l = {}) {
     OpCode _op;
     _op.params = *new Heap<Object>;
@@ -280,7 +274,7 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
 }
 
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    char flags,
+    OpcodeFlags flags,
     Heap<Object> &params) {
     OpCode _op;
     _op.opcode = op;

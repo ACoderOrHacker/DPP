@@ -122,6 +122,8 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		}
 		Heap<T> &operator =(container &c) {
 			Data = c;
+
+            return *this;
 		}
         Heap<T> get(uint32_t start, uint32_t end) {
             return (Heap<T>(Data.begin()+start, Data.begin()+end));

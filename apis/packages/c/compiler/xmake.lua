@@ -6,7 +6,7 @@ package("compiler")
     add_configs("shared", {description = "Build shared library.", default = true, type = "boolean", readonly = true})
 
     on_load(function (package)
-        package:set("installdir", path.join(os.scriptdir(), package:plat(), package:arch(), package:mode()))
+        package:set("installdir", path.join(os.scriptdir()))
     end)
 
     on_fetch(function (package)

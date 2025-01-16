@@ -1,13 +1,21 @@
 #include "DXXLexer.h"
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
+#include "enum.hpp"
+#include "macros.hpp"
+#include "fmt.h"
+#include "objects.hpp"
+#include "vm.hpp"
 #include "compiler.hpp"
 #include <fstream>
 
-void writeInfos(Dpp_Object *o, std::vector<DXXParser::InfoContext *> *infos) {
+namespace fmt = dpp::fmt;
+
+void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
 }
 
+#define NO_FLAG OpcodeFlags()
 #include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
@@ -376,8 +384,9 @@ public:
      * The if statement opcodes
      */
     std::any visitWithIf(DXXParser::WithIfContext *ctx) override {
-        char flag = NO_FLAG;
-        SetBit1(flag, JMP_FALSE);
+        OpcodeFlags flag;
+        flag.set_flag<__OpcodeFlags::JMP_FALSE>(true);
+
         Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
 
@@ -395,8 +404,8 @@ public:
      */
     std::any visitWithIfExtends(DXXParser::WithIfExtendsContext *ctx) override {
         Heap<uint32_t> placeholders;
-        char flag = NO_FLAG;
-        SetBit1(flag, JMP_FALSE);
+        OpcodeFlags flag;
+        flag.set_flag<__OpcodeFlags::JMP_FALSE>(true);
 
         for (auto it : ctx->withIfExtendsSub()) {
             Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it->data()));
@@ -434,8 +443,8 @@ public:
         DXXParser::BlockContext *_block = ctx->block();
         DXXParser::DataContext *_data = ctx->data();
         uint32_t state_end = fObj->state.vmopcodes.size() - 1;
-        char flag = NO_FLAG;
-        SetBit1(flag, JMP_FALSE);
+        OpcodeFlags flag;
+        flag.set_flag<__OpcodeFlags::JMP_FALSE>(true);
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         if (data->type == VOID_TYPE) {
@@ -474,8 +483,8 @@ public:
         DXXParser::BlockContext *_block = ctx->block();
         DXXParser::DataContext *_data = ctx->data();
         uint32_t state_end = fObj->state.vmopcodes.size() - 1;
-        char flag = NO_FLAG;
-        SetBit1(flag, JMP_TRUE);
+        OpcodeFlags flag;
+        flag.set_flag<__OpcodeFlags::JMP_TRUE>(true);
 
         in_loop = true;
         visitChildren(_block);
@@ -1095,13 +1104,13 @@ private:
      * Create a opcode and push it to main state(fObj->state)
      */
     static void LoadOpcode(rt_opcode op,
-                    char flags = NO_FLAG,
+                    OpcodeFlags flags = NO_FLAG,
                     std::initializer_list<Object> l = {}) {
         fObj->state.vmopcodes.PushEnd(MakeOpCode(op, flags, l));
     }
 
     static void LoadOpcode(rt_opcode op,
-        char flags,
+        OpcodeFlags flags,
         Heap<Object> &params) {
         fObj->state.vmopcodes.PushEnd(MakeOpCode(op, flags, params));
     }
@@ -1112,7 +1121,7 @@ private:
      */
     static void ResetOpcode(uint32_t pos,
                      rt_opcode op,
-                     char flags = NO_FLAG,
+                     OpcodeFlags flags = NO_FLAG,
                      std::initializer_list<Object> l = {}) {
         fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, flags, l));
     }

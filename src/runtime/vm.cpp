@@ -30,10 +30,13 @@
 #include "vm.hpp"
 #include "builtin.hpp"
 #include "fmt.h"
+#include "macros.hpp"
 #include "native.hpp"
 #include "objects.hpp"
 #include "opcodes.hpp"
 #include "struct.hpp"
+
+Dpp_DEFINE_ERROR(InternalError)
 
 const OpcodeFunc opcode_list[256] = {
     &_import,
@@ -144,18 +147,17 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
 	while(vm->state.vmopcodes.size() > vm->state.runat) {
 		const OpCode &opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
 
-		// execute the opcode and get the error code(isfail variable)
-		bool isfail = dpp::exec(opcode, vm);
-        vm->flags = NO_FLAG; // clear the flags
+        bool isfail = EXEC_SUCCESS;
+        try {
+            // execute the opcode and get the error code(isfail variable)
+		    isfail = dpp::exec(opcode, vm);
+        } catch (InternalError &) {
+            vm->exit_code = EXIT_FAILURE;
+            goto EXIT;
+        }
+        ~vm->flags; // clear the flags
 
-		if(isfail && vm->_error != nullptr) {
-			// the opcode has error
-			if(GetBit(vm->flags, NO_OPCODE)) {
-				// has a unknown opcode
-				SetBit0(vm->flags, NO_OPCODE);
-				return EXIT_FAILURE; // Skip this opcode
-			}
-
+		if(isfail == EXEC_FAILED && vm->_error != nullptr) {
             dpp::catch_error(vm);
 		}
 
@@ -181,7 +183,7 @@ EXIT:
 }
 
 VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
-	if(opcode.flag != NO_FLAG) {
+	if(!opcode.flag.empty()) {
 		vm->flags = opcode.flag; // set the flags
 	}
 
@@ -192,8 +194,7 @@ VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
 		if(vm->_error == nullptr && vm->sig->size() == 0) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
 	} else {
-		SetBit1(vm->flags, NO_OPCODE);
-		return EXEC_FAILED; // failed
+		throw InternalError(); // no opcode
 	}
 }
 

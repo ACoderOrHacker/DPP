@@ -260,7 +260,7 @@ typedef struct _VMError {
 
 typedef struct _OpCode {
     rt_opcode opcode = OPCODE_START;
-	char flag = NO_FLAG;
+	OpcodeFlags flag;
     Heap<Object> params;
 
 Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(flag), Dpp_NVP(params))
@@ -295,7 +295,7 @@ public:
     std::stack<Dpp_Object *> return_values;
 	Signal *sig;
 	struct VMState state;
-	char flags = NO_FLAG;
+	OpcodeFlags flags;
 	int exit_code = EXIT_SUCCESS;
 
 Dpp_SERIALIZE(Dpp_NVP(modules), Dpp_NVP(obj_map),  Dpp_NVP(state))

@@ -4,32 +4,29 @@
 #include <exception> // std::exception
 #include <cereal/types/base_class.hpp>
 #include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
+#include "flags.hpp"
 
 /*
  * The Status Code
  */
-typedef bool STATUS;
-#define STATUS_SUCCESS 1
-#define STATUS_FAILED 0
+using STATUS = bool;
+constexpr bool STATUS_SUCCESS = true;
+constexpr bool STATUS_FAILED = false;
 
-#define NO_OPCODE 8
-#define HAS_SIGNAL 7
+/**
+ * @brief Construct a new define flags object
+ *
+ * @details the flags in opcodes
+ */
+DEFINE_FLAGS(OpcodeFlags,
+    JMP_TRUE,
+    JMP_FALSE
+);
 
-#define JMP_TRUE 6
-#define JMP_FALSE 5
-
-#define NO_FLAG 0b00000000
-
-#define DATA_CANT_OPERATOR_ID 0
-#define DATA_NULLP_ID 1
-#define LIB_NO_SYMBOL_ID 2
-#define NO_MEM_ID 3
-#define TYPE_NOT_RIGHT_ID 4
-
-#define GetBit(x, bit) ((x & (1 << bit)) >> bit)
-#define SetBit1(x, bit) ((x) |= (1 << (bit)))
-#define SetBit0(x, bit) ((x) &= ~ (1 << (bit)))
-
+/**
+ * namespaces define macros
+ */
 #define NAMESPACE_BEGIN(ns) namespace ns {
 #define NAMESPACE_END }
 #define NAMESPACE_DPP_BEGIN NAMESPACE_BEGIN(dpp)

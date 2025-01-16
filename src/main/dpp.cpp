@@ -12,13 +12,29 @@
 #include "struct.hpp"
 #include "vm.hpp"
 
+namespace fmt = dpp::fmt;
+
 /**
  * @brief the main application class
+ * @details entry point for dpp program, defines the command line options and runs them
+ * @code {.cpp}
+ * application app;
+ * int exit_code = app.run(argc, argv); // argc is ref to main:argc, argv is ref to main:argv
+ * @endcode
+ *
  */
 class application {
 public:
     application() = default;
     ~application() = default;
+
+    /**
+     * @brief compiles command line and runs it
+     *
+     * @param argc ref to main:argc
+     * @param argv ref to main:argv
+     * @return int exit code of the program
+     */
     int run(int argc, char *argv[]) {
         try {
             cxxopts::Options options("dpp","Standard D++ Compiler & Runtime");
@@ -41,7 +57,7 @@ public:
             if (result.count("help")) {
                 fmt::print(options.help());
             } else if (result.count("version")) {
-                fmt::print("Standard D++ Compiler & Runtime v", DXX_VERSION, "\n");
+                fmt::print("Standard D++ Compiler & Runtime v", dpp::get_version_string(dpp::get_version()), "\n");
                 return EXIT_SUCCESS;
             } else if (result.count("compile")) {
                 for (auto &it : result["compile"].as<std::vector<std::string>>()) {
@@ -127,41 +143,6 @@ private:
 };
 
 int main(int argc, char *argv[] ) {
-/*
-            dpp::output_information();
-            std::cout << "\n\n";
-
-            std::vector<fs::path> files;
-            dpp::get_files(files, examples_path);
-
-            FObject *fObj;
-            uint32_t i = 1;
-            for (auto &it : files) {
-                if (it.extension() != ".dpp") {
-                    continue;
-                }
-
-
-                fmt::print("[", i, "] ", it.filename().string(), "\n");
-
-                std::stringstream out;
-                std::ifstream ifs;
-                ifs.open(it.string());
-                fObj = compile(ifs);
-                ifs.close();
-
-                dpp::switch_ostream(out.rdbuf());
-                dpp::run(fObj, true);
-                std::string str = out.str();
-                dpp::check_test(it.filename().string(), str);
-
-
-                std::cout << "\n\n";
-                ++i;
-            }
-
-            fmt::print_success("All tests passed\n");
-*/
     application app;
     return app.run(argc, argv);
 }

@@ -419,12 +419,12 @@ void _or(dpp::vm vm) {
 void _jmp(dpp::vm vm) {
 	Object _jmpto = vm->_theap->PopFront();
 
-    if (GetBit(vm->flags, JMP_TRUE) == 1) {
+    if (vm->flags.get_flag<__OpcodeFlags::JMP_TRUE>()) {
         if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
             vm->state.runat = _jmpto.id;
         }
         return;
-    } else if (GetBit(vm->flags, JMP_FALSE) == 1) {
+    } else if (vm->flags.get_flag<__OpcodeFlags::JMP_FALSE>()) {
         if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
             vm->state.runat = _jmpto.id;
         }

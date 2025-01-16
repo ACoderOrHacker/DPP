@@ -6,6 +6,11 @@
 #include <memory> // for std::shared_ptr and std::make_shared
 #include "config.h"
 
+/**
+ * @brief DXX_API macro
+ *
+ * @details DXX_API is a macro for export/import dll function
+ */
 #ifdef _MSC_VER // for MSVC
 #ifndef _DXX_EXPORT
 #define DXX_API __declspec(dllimport)
@@ -18,6 +23,11 @@
 #define _DXX_EXPORT_API extern "C"
 #endif
 
+/**
+ * @brief forceinline macro
+ *
+ * @details forceinline is a macro to let function always inline
+ */
 #ifdef _MSC_VER // for MSVC
 #define forceinline __forceinline
 #elif defined __GNUC__ // for gcc on Linux/Apple OS X
@@ -27,7 +37,7 @@
 #endif
 
 /*
- * If Returned 'NONE', then the grammer doesn't have object to return
+ * If Returned 'NONE', then the grammar doesn't have object to return
  */
 #define NONE nullptr
 #define _cast(type, val) ((type)(val))

@@ -19,6 +19,8 @@
 #include <ios>
 #include <stdexcept>
 #include <filesystem>
+#include <string>
+#include "macros.hpp"
 
 #ifdef _DXX_EXPORT
 #undef _DXX_EXPORT
@@ -30,6 +32,7 @@
 
 #include "vm.hpp"
 #include "compiler.hpp"
+#include "fmt.h"
 #include "objects.hpp"
 #include "error.hpp"
 
@@ -45,6 +48,15 @@ const auto __stdout = std::cout.rdbuf();
 const auto __stdin = std::cin.rdbuf();
 const auto __stderr = std::cerr.rdbuf();
 
+/**
+ * @brief open a file with openmode
+ *
+ * @tparam FSTREAM file stream type
+ * @param file the file to open
+ * @param openmode open the file with this mode
+ * @param failed calls it if this function not found the file
+ * @return FSTREAM the opened file stream
+ */
 template<typename FSTREAM = std::fstream>
 forceinline FSTREAM open_file(const std::string &file, std::ios_base::openmode openmode = std::ios_base::in,
                         void(* failed)(const std::string &, FSTREAM &) =
@@ -61,11 +73,26 @@ forceinline FSTREAM open_file(const std::string &file, std::ios_base::openmode o
     return fs;
 }
 
+/**
+ * @brief close a file
+ *
+ * @tparam FSTREAM file stream type
+ * @param fs the file stream to close
+ * @return void
+ */
 template<typename FSTREAM = std::fstream>
 forceinline void close_file(FSTREAM &fs) {
     fs.close();
 }
 
+/**
+ * @brief get the files in the path
+ *
+ * @param files the results of this function
+ * @param path the path to get the files
+ * @param failed calls it if this function failed
+ * @return bool return true if success, otherwise return false
+ */
 forceinline bool get_files(std::vector<fs::path> &files, const fs::path &path,
             void(* failed)(const std::exception &) =
             [](const std::exception &e) -> void { std::cout << "error: " << e.what(); }) {
@@ -86,18 +113,43 @@ forceinline bool get_files(std::vector<fs::path> &files, const fs::path &path,
     return false;
 }
 
+/**
+ * @brief switch the standard output stream(std::cout) to other stream
+ *
+ * @param stream the stream to switch to
+ * @return void
+ */
 forceinline void switch_ostream(auto stream = __stdout) {
     std::cout.rdbuf(stream);
 }
 
+/**
+ * @brief switch the standard input stream(std::cin) to other stream
+ *
+ * @param stream the stream to switch to
+ * @return void
+ */
 forceinline void switch_istream(auto stream = __stdin) {
     std::cin.rdbuf(stream);
 }
 
+/**
+ * @brief switch the standard error stream(std::cerr) to other stream
+ *
+ * @param stream the stream to switch to
+ * @return void
+ */
 forceinline void switch_errorstream(auto stream = __stderr) {
     std::cerr.rdbuf(stream);
 }
 
+/**
+ * @brief run a D++ Program file as a script
+ *
+ * @param filename the file to run
+ * @param failed calls it if this function not found the file
+ * @return int returns the exit code
+ */
 forceinline int run_script(const std::string &filename,
         void(* failed)(const std::string &, std::ifstream &) =
             [](const std::string &, std::ifstream &) -> void {}) {
@@ -110,46 +162,56 @@ forceinline int run_script(const std::string &filename,
 }
 
 /**
- * @brief Get the compile time
+ * @brief get D++ compile time
+ *
+ * @return std::string the formated string
  */
 forceinline std::string get_compile_time() {
-    return std::format("{}.{}", __DATE__, __TIME__);
+    return std::string(__DATE__) + __TIME__;
 }
 
 /**
- * @brief Get the compiler infos
+ * @brief Get D++ compiler infos
  *
- * @return std::string
+ * @return std::string the formated compiler information
  */
 forceinline std::string get_compiler_infos() {
 #ifdef __clang__
-    return std::format("{}.{}.{}", __clang_major__, __clang_minor__, __clang_patchlevel__);
+    return std::to_string(__clang_major__) + "." + std::to_string(__clang_minor__) + "." + std::to_string(__clang_patchlevel__);
 #elif defined(__GNUC__)
-    return std::format("{}.{}.{}", __GNUC__,  __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    return std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__) + "." + std::to_string(__GNUC_PATCHLEVEL__);
 #elif defined(_MSC_VER)
-    return std::format("MSC .v{}", _MSC_VER);
+    return std::string("MSC .v") + std::to_string(_MSC_VER);
 #else
-    return "Unknown";
+    return "unknown";
 #endif
 }
 
 /**
  * @brief get the system is 32bit or 64bit
+ * @warning this function can only get 32-bit or 64-bit, others will return "unknown" (include 8-bit, etc)
  *
- * @return const char *
+ * @return const char * "32-bit" or "64-bit"
  */
 forceinline const char *get_system_32bits_or_64bits() {
-#if defined(__LP64__) || defined(_WIN64)
-    return "64bit";
-#else
-    return "32bit";
-#endif
+    constexpr void *ptr = nullptr;
+    switch (sizeof(ptr)) {
+        case 8:
+            return "64-bit";
+            break;
+        case 4:
+            return "32-bit";
+            break;
+        default:
+            return "unknown";
+            break;
+    }
 }
 
 /**
- * @brief Get the platform infos
+ * @brief get the platform infos
  *
- * @return const char*
+ * @return const char * the platform string
  */
 forceinline const char *get_platform() {
     return DXX_PLAT;
@@ -158,6 +220,7 @@ forceinline const char *get_platform() {
 /**
  * @brief output infos in command line
  * like version, compiler, platform, etc.
+ *
  * @return void
  */
 forceinline void output_information() {
@@ -171,14 +234,14 @@ forceinline void output_information() {
  * @return std::string
  */
 forceinline std::string get_version_string(Version ver) {
-    return std::format("{}.{}", ver.ver.high, ver.ver.low);
+    return std::to_string(ver.ver.high) + "." + std::to_string(ver.ver.low);
 }
 
 /**
- * @brief Get the file type from magic number
+ * @brief get the file type from magic number
  *
  * @param MagicNumber
- * @return std::string
+ * @return std::string the file type string
  */
 forceinline std::string get_file_type(const std::string &magic_number) {
     if(magic_number == "DPPO") {
@@ -189,20 +252,21 @@ forceinline std::string get_file_type(const std::string &magic_number) {
 }
 
 /**
- * @brief Get the flags name
+ * @brief get flag name from flag
  *
- * @param flag
- * @return std::string
+ * @param flag the flag to get name
+ * @return std::string the flag string
  */
-forceinline std::string get_flags_name(char flag) {
-    if(flag == NO_FLAG) {
+forceinline std::string get_flags_name(const OpcodeFlags flag) {
+    if(flag.empty()) {
         return "null";
     }
 
     std::string s;
-    for(int i = 1; i <= 8; ++i) {
-        if(GetBit(flag, i)) {
-            s += std::format("{} ", dpp::get_flag_name(i));
+    for(int i = 0; i < OpcodeFlags::flags_count; ++i) {
+        if(flag.get_flag((__OpcodeFlags)i)) {
+            s += dpp::get_flag_name(i);
+            s += " ";
         }
     }
 
@@ -212,10 +276,10 @@ forceinline std::string get_flags_name(char flag) {
 /**
  * @brief output vm structure to command line
  *
- * @param vm
- * @param isOutputCopyright
+ * @param vm the vm instance
+ * @param isOutputInformation output information of dpp if is true
  */
-forceinline void output_vm(dpp::vm vm, bool isOutputCopyright = true) {
+forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
     const auto &opt_state = [](::VMState &state) -> void {
         uint32_t i = 0;
         for(auto &it : state.vmopcodes) {
@@ -240,7 +304,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputCopyright = true) {
         }
     };
 
-    if (isOutputCopyright) dpp::output_information();
+    if (isOutputInformation) dpp::output_information();
 
     auto gmap = vm->obj_map.getGlobalMapping();
 
@@ -280,9 +344,9 @@ forceinline void output_vm(dpp::vm vm, bool isOutputCopyright = true) {
 		if (obj == nullptr) fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": unknown\n");
 
         try {
-            fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": ", object_to_string(obj), "\n");
+            fmt::print("    .", index, ": ", object_to_string(obj), "\n");
         } catch (NoOperatorError &) {
-            fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": unknown\n");
+            fmt::print("    .", index, ": unknown\n");
         }
     }
     fmt::print("}\n");
