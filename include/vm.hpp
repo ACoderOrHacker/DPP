@@ -49,8 +49,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID);
 
 NAMESPACE_DPP_BEGIN
 
-forceinline VM_API const char *get_opcode_name(unsigned char opcode_id);
-forceinline VM_API const char *get_flag_name(uint8_t i);
+VM_API const char *get_opcode_name(unsigned char opcode_id);
+VM_API const char *get_flag_name(uint8_t i);
 VM_API dpp::vm create_vm();
 VM_API bool exec(const OpCode &, dpp::vm);
 VM_API int run(FObject *fObj, bool noExit = false);

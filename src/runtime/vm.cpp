@@ -113,7 +113,7 @@ const char *flag_name_list[8] = {
     "null"
 };
 
-forceinline VM_API const char *dpp::get_opcode_name(unsigned char opcode_id) {
+VM_API const char *dpp::get_opcode_name(unsigned char opcode_id) {
     return opcode_name_list[opcode_id - 1];
 }
 

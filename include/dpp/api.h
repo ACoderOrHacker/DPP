@@ -19,6 +19,7 @@
 #include <ios>
 #include <stdexcept>
 #include <filesystem>
+#include <streambuf>
 #include <string>
 #include "macros.hpp"
 
@@ -119,7 +120,7 @@ forceinline bool get_files(std::vector<fs::path> &files, const fs::path &path,
  * @param stream the stream to switch to
  * @return void
  */
-forceinline void switch_ostream(auto stream = __stdout) {
+forceinline void switch_ostream(std::streambuf *stream = __stdout) {
     std::cout.rdbuf(stream);
 }
 
@@ -129,7 +130,7 @@ forceinline void switch_ostream(auto stream = __stdout) {
  * @param stream the stream to switch to
  * @return void
  */
-forceinline void switch_istream(auto stream = __stdin) {
+forceinline void switch_istream(std::streambuf *stream = __stdin) {
     std::cin.rdbuf(stream);
 }
 
@@ -139,7 +140,7 @@ forceinline void switch_istream(auto stream = __stdin) {
  * @param stream the stream to switch to
  * @return void
  */
-forceinline void switch_errorstream(auto stream = __stderr) {
+forceinline void switch_errorstream(std::streambuf *stream = __stderr) {
     std::cerr.rdbuf(stream);
 }
 

@@ -12,6 +12,7 @@
 
 using namespace errors;
 #define REPORT(id, ...) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), __VA_ARGS__);
+#define REPORT_NPARAM(id) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
 void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
@@ -40,7 +41,7 @@ public:
             globalNamespace->objects.write(co);
         }
 
-        auto make_type = [=, this](const std::string &id, uint32_t type_id) {
+        auto make_type = [&, this](const std::string &id, uint32_t type_id) {
             Dpp_CObject *type = new Dpp_CObject;
             type->id = id;
             type->object = { true, type_id};
@@ -216,7 +217,7 @@ public:
             param_list->PushEnd(anycast(Dpp_CObject *, visitVarDefine(it)));
 
             if (beginAutovalue && func_param_autovalue == nullptr) {
-                REPORT(E0008);
+                REPORT_NPARAM(E0008);
             }
             if (func_param_autovalue != nullptr) beginAutovalue = true;
             autovalues->PushEnd(func_param_autovalue);
@@ -450,7 +451,7 @@ public:
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         if (data->type != INT_TYPE) {
-            REPORT(E0014);
+            REPORT_NPARAM(E0014);
         }
 
         uint32_t jmp1 = fObj->state.vmopcodes.size();
@@ -495,7 +496,7 @@ public:
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
 
         if (data->type != INT_TYPE) {
-            REPORT(E0014);
+            REPORT_NPARAM(E0014);
         }
 
         LoadOpcode(OPCODE_JMP, flag, { {true, state_end}, data->object });
@@ -519,7 +520,7 @@ public:
      */
     std::any visitBreakExpr(DXXParser::BreakExprContext *ctx) override {
         if (!in_loop) {
-            REPORT(E0015);
+            REPORT_NPARAM(E0015);
         }
 
         breaks.PushData(fObj->state.vmopcodes.size());
@@ -533,7 +534,7 @@ public:
      */
     std::any visitContinueExpr(DXXParser::ContinueExprContext *ctx) override {
         if (!in_loop) {
-            REPORT(E0016);
+            REPORT_NPARAM(E0016);
         }
 
         continues.PushData(fObj->state.vmopcodes.size());
@@ -547,14 +548,14 @@ public:
      */
     std::any visitReturn(DXXParser::ReturnContext *ctx) override {
         if (return_value == nullptr) {
-            REPORT(E0017);
+            REPORT_NPARAM(E0017);
         }
 
         DXXParser::DataContext *_data = ctx->data();
 
         if (_data == nullptr) {
             if (return_value->type != VOID_TYPE) {
-                REPORT(E0013);
+                REPORT_NPARAM(E0013);
             }
 
             LoadOpcode(OPCODE_RET, NO_FLAG);
@@ -562,10 +563,10 @@ public:
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         if (data->type == VOID_TYPE) {
-            REPORT(E0011);
+            REPORT_NPARAM(E0011);
         }
         if (return_value->type != data->type && return_value->type != OBJECT_TYPE) {
-            REPORT(E0012);
+            REPORT_NPARAM(E0012);
         }
 
         LoadOpcode(OPCODE_RET, NO_FLAG, { data->object });
@@ -624,14 +625,14 @@ public:
 
                 Dpp_CObject *arg = params->GetData(i);
                 if (call_arg->type == VOID_TYPE) {
-                    REPORT(E0024);
+                    REPORT_NPARAM(E0024);
                 }
                 if (call_arg->type == OBJECT_TYPE && arg->type != OBJECT_TYPE) {
-                    REPORT(W0001);
+                    REPORT_NPARAM(W0001);
                 }
                 if (call_arg->type != arg->type && arg->type != OBJECT_TYPE) {
                     // TODO: there need two types
-                    REPORT(E0025);
+                    REPORT_NPARAM(E0025);
                 }
             }
 
@@ -778,7 +779,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (data->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         if (ctx->PlusPlus() != nullptr) {
@@ -802,7 +803,7 @@ public:
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         Dpp_CObject *co = MakeObject("");
         if(data->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         if (ctx->Not() != nullptr) {
@@ -827,7 +828,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
         LoadOpcode(OPCODE_AND, NO_FLAG, { ldata->object, rdata->object, co->object });
 
@@ -846,7 +847,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
         LoadOpcode(OPCODE_OR, NO_FLAG, { ldata->object, rdata->object, co->object });
 
@@ -865,7 +866,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
         LoadOpcode(OPCODE_EQ, NO_FLAG, { ldata->object, rdata->object, co->object });
         if (ctx->NotEqual() != nullptr) {
@@ -890,7 +891,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         if (ctx->Star() != nullptr) {
@@ -918,7 +919,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         if (ctx->Plus() != nullptr) {
@@ -944,7 +945,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         if (ctx->LeftShift() != nullptr) {
@@ -970,7 +971,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         if (ctx->Less() != nullptr) {
@@ -1009,7 +1010,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         LoadOpcode(OPCODE_BAND, NO_FLAG, { ldata->object, rdata->object, co->object });
@@ -1029,7 +1030,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         LoadOpcode(OPCODE_BXOR, NO_FLAG, { ldata->object, rdata->object, co->object });
@@ -1049,7 +1050,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         LoadOpcode(OPCODE_BOR, NO_FLAG, { ldata->object, rdata->object, co->object });
@@ -1068,7 +1069,7 @@ public:
         Dpp_CObject *int_1 = MakeInteger(-1);
 
         if (data->type == VOID_TYPE) {
-            REPORT(E0010);
+            REPORT_NPARAM(E0010);
         }
 
         LoadOpcode(OPCODE_MUL, NO_FLAG, { data->object, int_1->object, co->object });

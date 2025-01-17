@@ -64,8 +64,8 @@ NAMESPACE_DPP_END
 Dpp_REGISTER_TYPE(dpptype, cpptype)                        \
 NAMESPACE_DPP_BEGIN                                        \
     forceinline auto get_##dpptype(dpp::object *obj) { return to_##dpptype(obj)->valid; } \
-    forceinline void set_##dpptype(dpp::object *obj, auto val) { const auto &_obj = to_##dpptype(obj); _obj->valid = val; } \
-    forceinline dpp::object *make_##dpptype(auto val) { \
+    forceinline void set_##dpptype(dpp::object *obj, const decltype(cpptype::valid) &val) { const auto &_obj = to_##dpptype(obj); _obj->valid = val; } \
+    forceinline dpp::object *make_##dpptype(const decltype(cpptype::valid) &val) { \
         cpptype *obj = (cpptype *)dpp::new_object<cpptype>(); \
         obj->valid = val; \
         return (dpp::object *)obj; } \

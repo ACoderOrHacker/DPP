@@ -57,16 +57,16 @@ typedef std::unordered_map<std::string, struct _Dpp_CObject *> Throwtable;
 
 struct INFOS {
 public:
-    unsigned is_compiletime : 1 = false;
-    unsigned is_final : 1 = false;
-    unsigned is_override : 1 = false;
-    unsigned is_inline : 1 = false;
-    unsigned is_static : 1 = false;
-    unsigned is_public : 1 = false;
-    unsigned is_protected : 1 = false;
-    unsigned is_private : 1 = false;
-    unsigned is_constructor : 1 = false;
-    unsigned is_destructor : 1 = false;
+    unsigned is_compiletime : 1;
+    unsigned is_final : 1;
+    unsigned is_override : 1;
+    unsigned is_inline : 1;
+    unsigned is_static : 1;
+    unsigned is_public : 1;
+    unsigned is_protected : 1;
+    unsigned is_private : 1;
+    unsigned is_constructor : 1;
+    unsigned is_destructor : 1;
     std::string native_library;
     std::string native_function;
 public:
@@ -83,6 +83,10 @@ public:
             is_destructor == infos.is_destructor &&
             native_library == infos.native_library &&
             native_function == infos.native_function;
+    }
+
+    bool operator !=(const INFOS &infos) const {
+        return !(*this == infos);
     }
 
     struct INFOS &operator =(const INFOS &infos) {

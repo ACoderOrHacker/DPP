@@ -55,8 +55,9 @@ public:
 	bool isInGlobal = true;
 	uint32_t id = 0;
 
-	bool operator ==(_Object o) const { return (this->id == o.id &&
+	bool operator ==(const _Object &o) const { return (this->id == o.id &&
                                         this->isInGlobal == o.isInGlobal); }
+    bool operator !=(const _Object &o) const { return !(*this == o); }
 
 Dpp_SERIALIZE(Dpp_NVP(isInGlobal), Dpp_NVP(id))
 } Object;

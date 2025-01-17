@@ -7,13 +7,14 @@ set_version("0.1.0")
 includes("@builtin/xpack")
 
 add_rules("mode.debug", "mode.release") -- debug mode and release mode
-set_languages("c++20") -- set c++ standard
+set_languages("c++17") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 set_configdir("include")
 add_configfiles("include/config.h.in")
 
 -- requires
-add_requires("cereal 1.3.2", "cxxopts 3.2.1", "termcolor 2.1.0", "antlr4-runtime 4.13.2", "antlr4 4.13.2")
+add_requires("cereal 1.3.2", "cxxopts 3.2.1", "antlr4-runtime 4.13.2", "antlr4 4.13.2")
+-- add_requires("termcolor 2.1.0")
 
 if is_mode("debug") then
     -- for tests and benchmarks
@@ -72,7 +73,7 @@ xpack("DPP")
 
     -- set base information
     set_homepage("https://ACoderOrHacker.github.io/DPP")
-    set_description("A Programming Language based on c++20")
+    set_description("A Programming Language based on c++17")
     set_author("ACoderOrHacker")
     set_license("MIT")
     set_licensefile("LICENSE")
