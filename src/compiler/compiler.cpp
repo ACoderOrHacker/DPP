@@ -1,15 +1,17 @@
 #include "DXXLexer.h"
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
+#include "builtin.hpp"
 #include "enum.hpp"
 #include "macros.hpp"
-#include "fmt.h"
+#include "errors.hpp"
 #include "objects.hpp"
 #include "vm.hpp"
 #include "compiler.hpp"
 #include <fstream>
 
-namespace fmt = dpp::fmt;
+using namespace errors;
+#define REPORT(id, ...) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), __VA_ARGS__);
 
 void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
@@ -57,14 +59,14 @@ public:
 
         Dpp_CObject *main = FindObject("main", true);
         if (main == nullptr) {
-            WARNING("no main function in program");
+            W0002();
             goto RETURN;
         }
         if (main->type != FUNCTION_TYPE) {
-            THROW("main is not a function");
+            E0006();
         }
         if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
-            THROW("main function has much than 0 paramter");
+            E0007();
         }
         LoadOpcode(OPCODE_CALL, NO_FLAG, {main->object});
 
@@ -98,7 +100,7 @@ public:
             const std::string &id = it.first;
             Dpp_CObject *label = FindObject(id, true);
             if (label == nullptr) {
-                THROW(std::format("cannot find '{}' label", id));
+                REPORT(E0009, id);
             }
 
             uint32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
@@ -177,7 +179,7 @@ public:
         namespaces.pop();
         blockNoNamespace = false;
 
-        Dpp_CObject *co = MakeFunction(func, infos, params, func_autovalues, ret, throws, isNone);
+        Dpp_CObject *co = MakeFunction(ctx, func, infos, params, func_autovalues, ret, throws, isNone);
         func_autovalues = nullptr;
 
         return co;
@@ -214,7 +216,7 @@ public:
             param_list->PushEnd(anycast(Dpp_CObject *, visitVarDefine(it)));
 
             if (beginAutovalue && func_param_autovalue == nullptr) {
-                THROW("the paramters are invalid");
+                REPORT(E0008);
             }
             if (func_param_autovalue != nullptr) beginAutovalue = true;
             autovalues->PushEnd(func_param_autovalue);
@@ -240,7 +242,7 @@ public:
                 // type is always in global namespace
                 co = FindObject(id, true);
                 if (co == nullptr) {
-                    THROW(std::format("no type named '{}'", id));
+
                 }
 
                 co->infos |= GetInfos(&infos);
@@ -266,7 +268,7 @@ public:
         to->type = type->object.id;
         Dpp_CObject *result = FindObject(to);
         if (result != nullptr) {
-            THROW(std::format("{} was defined", id));
+            REPORT(E0002, id);
         }
         thisNamespace->objects.write(to);
 
@@ -309,16 +311,16 @@ public:
         const std::string &_container = (*idex.begin())->toString();
         Dpp_CObject *container = FindObject(_container);
         if (container == nullptr) {
-            THROW(std::format("cannot find object {}", _container));
+            REPORT(E0001, _container);
         }
         Dpp_CObject *co = container;
         Object o = container->object;
         if (container == nullptr) {
-            THROW(std::format("cannot find object {}", _container));
+            REPORT(E0001, _container);
         }
         if (idex.size() == 1) goto END;
         if (container->type != FUNCTION_TYPE) {
-            THROW(std::format("object {} was not a container", _container));
+            REPORT(E0004, _container);
         }
 
         for (auto it = idex.begin() + 1; it != idex.end(); ++it) {
@@ -326,7 +328,7 @@ public:
             Dpp_CObject *method = MakeString(_method);
             Dpp_CObject *sub = FindSubObject(container, _method);
             if (sub == nullptr) {
-                THROW(std::format("the '{}' did not have '{}' method", co->id, _method));
+                REPORT(E0005, co->id, method->id);
             }
             Object tmp = allocMapping();
 
@@ -447,8 +449,8 @@ public:
         flag.set_flag<__OpcodeFlags::JMP_FALSE>(true);
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
-        if (data->type == VOID_TYPE) {
-            THROW("the data type of 'while' loop must be integer");
+        if (data->type != INT_TYPE) {
+            REPORT(E0014);
         }
 
         uint32_t jmp1 = fObj->state.vmopcodes.size();
@@ -492,8 +494,8 @@ public:
         in_loop = false;
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
 
-        if (data->type == VOID_TYPE) {
-            THROW("the data type of 'while' loop must be integer");
+        if (data->type != INT_TYPE) {
+            REPORT(E0014);
         }
 
         LoadOpcode(OPCODE_JMP, flag, { {true, state_end}, data->object });
@@ -515,9 +517,9 @@ public:
     /*
      * @return: NONE
      */
-    std::any visitBreakExpr(DXXParser::BreakExprContext *) override {
+    std::any visitBreakExpr(DXXParser::BreakExprContext *ctx) override {
         if (!in_loop) {
-            THROW("break is not in loop");
+            REPORT(E0015);
         }
 
         breaks.PushData(fObj->state.vmopcodes.size());
@@ -529,9 +531,9 @@ public:
     /*
      * @return: NONE
      */
-    std::any visitContinueExpr(DXXParser::ContinueExprContext *) override {
+    std::any visitContinueExpr(DXXParser::ContinueExprContext *ctx) override {
         if (!in_loop) {
-            THROW("continue is not in loop");
+            REPORT(E0016);
         }
 
         continues.PushData(fObj->state.vmopcodes.size());
@@ -545,14 +547,14 @@ public:
      */
     std::any visitReturn(DXXParser::ReturnContext *ctx) override {
         if (return_value == nullptr) {
-            THROW("return must in function");
+            REPORT(E0017);
         }
 
         DXXParser::DataContext *_data = ctx->data();
 
         if (_data == nullptr) {
             if (return_value->type != VOID_TYPE) {
-                THROW("no return paramter");
+                REPORT(E0013);
             }
 
             LoadOpcode(OPCODE_RET, NO_FLAG);
@@ -560,15 +562,15 @@ public:
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         if (data->type == VOID_TYPE) {
-            THROW("return paramter cannot be void");
+            REPORT(E0011);
         }
         if (return_value->type != data->type && return_value->type != OBJECT_TYPE) {
-            THROW("return paramter type is not match");
+            REPORT(E0012);
         }
 
         LoadOpcode(OPCODE_RET, NO_FLAG, { data->object });
 
-        return NONE; // TODO: _ret not success
+        return NONE;
     }
 
     /*
@@ -583,11 +585,11 @@ public:
 
 
         if(func->type != FUNCTION_TYPE && func->infos.native_function.empty()) {
-            THROW(std::format("cannot call '{}' because it is not a function", func->id));
+            REPORT(E0018, func->id);
         }
 
         if(func->isNone && func->infos.native_function.empty()) {
-            THROW(std::format("function {} was not defined", func->id));
+            REPORT(E0019, func->id);
         }
 
         // TODO: the autovalue cannot be a function paramter, the code not write it
@@ -599,11 +601,48 @@ public:
         }
 
         /******************** Check the paramters ********************/
+        auto __check_call_params = [&, ctx](Dpp_CObject *func,
+            Heap<Dpp_CObject *> *params,
+            Heap<Dpp_CObject *> *call_params,
+            Heap<Dpp_CObject *> *autovalues) -> bool {
+            if (params->size() < call_params->size()) {
+                REPORT(E0022, func->id);
+            }
+
+            for (uint32_t i = 0; i < params->size(); ++i) {
+                Dpp_CObject *call_arg = nullptr;
+                if (call_params->size() <= i) {
+                    Dpp_CObject *autovalue = autovalues->GetData(i);
+                    if (autovalue == nullptr) {
+                        REPORT(E0023, func->id);
+                    }
+                    call_arg = autovalue;
+                }
+                else {
+                    call_arg = call_params->GetData(i);
+                }
+
+                Dpp_CObject *arg = params->GetData(i);
+                if (call_arg->type == VOID_TYPE) {
+                    REPORT(E0024);
+                }
+                if (call_arg->type == OBJECT_TYPE && arg->type != OBJECT_TYPE) {
+                    REPORT(W0001);
+                }
+                if (call_arg->type != arg->type && arg->type != OBJECT_TYPE) {
+                    // TODO: there need two types
+                    REPORT(E0025);
+                }
+            }
+
+            return true;
+        };
+
         if (!__check_call_params(func,
             _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::PARAMS]),
             &param_list,
             _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::AUTOVALUES]))) {
-            THROW(std::format("'{}' has different paramters", func->id));
+            REPORT(E0020, func->id);
         }
 
 
@@ -623,7 +662,7 @@ public:
             }
 
             if (!isFound) {
-                THROW(std::format("cannot find '{}' library", func->infos.native_library));
+                REPORT(E0021, func->infos.native_library);
             }
 
             LoadOpcode(OPCODE_CALLN, NO_FLAG, params);
@@ -635,43 +674,6 @@ public:
         LoadOpcode(OPCODE_GETRET, NO_FLAG, { co->object });
 
         return co;
-    }
-
-    static forceinline bool __check_call_params(Dpp_CObject *func,
-        Heap<Dpp_CObject *> *params,
-        Heap<Dpp_CObject *> *call_params,
-        Heap<Dpp_CObject *> *autovalues) {
-        if (params->size() < call_params->size()) {
-            THROW(std::format("too many parameters to provide in '{}'", func->id));
-        }
-
-        for (uint32_t i = 0; i < params->size(); ++i) {
-            Dpp_CObject *call_arg = nullptr;
-            if (call_params->size() <= i) {
-                Dpp_CObject *autovalue = autovalues->GetData(i);
-                if (autovalue == nullptr) {
-                    THROW(std::format("too few parameters to provide in '{}'", func->id));
-                }
-                call_arg = autovalue;
-            }
-            else {
-                call_arg = call_params->GetData(i);
-            }
-
-            Dpp_CObject *arg = params->GetData(i);
-            if (call_arg->type == VOID_TYPE) {
-                THROW("argument is void");
-            }
-            if (call_arg->type == OBJECT_TYPE && arg->type != OBJECT_TYPE) {
-                MESSAGE(std::format("object value to not object type value maybe error"));
-            }
-            if (call_arg->type != arg->type && arg->type != OBJECT_TYPE) {
-                // TODO: there need two types
-                THROW(std::format("cannot convert from type to other type"));
-            }
-        }
-
-        return true;
     }
 
     /*
@@ -759,7 +761,7 @@ public:
         Dpp_CObject *null = nullptr;
 
         if ((null = FindObject("null")) == nullptr) {
-            THROW("null object cannot find");
+            REPORT(E0001, "null");
         }
 
         return null;
@@ -776,7 +778,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (data->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         if (ctx->PlusPlus() != nullptr) {
@@ -800,7 +802,7 @@ public:
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         Dpp_CObject *co = MakeObject("");
         if(data->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         if (ctx->Not() != nullptr) {
@@ -825,7 +827,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
         LoadOpcode(OPCODE_AND, NO_FLAG, { ldata->object, rdata->object, co->object });
 
@@ -844,7 +846,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
         LoadOpcode(OPCODE_OR, NO_FLAG, { ldata->object, rdata->object, co->object });
 
@@ -863,7 +865,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
         LoadOpcode(OPCODE_EQ, NO_FLAG, { ldata->object, rdata->object, co->object });
         if (ctx->NotEqual() != nullptr) {
@@ -888,7 +890,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         if (ctx->Star() != nullptr) {
@@ -916,7 +918,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         if (ctx->Plus() != nullptr) {
@@ -942,7 +944,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         if (ctx->LeftShift() != nullptr) {
@@ -968,7 +970,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         if (ctx->Less() != nullptr) {
@@ -1007,7 +1009,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         LoadOpcode(OPCODE_BAND, NO_FLAG, { ldata->object, rdata->object, co->object });
@@ -1027,7 +1029,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         LoadOpcode(OPCODE_BXOR, NO_FLAG, { ldata->object, rdata->object, co->object });
@@ -1047,7 +1049,7 @@ public:
         Dpp_CObject *co = MakeObject("");
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         LoadOpcode(OPCODE_BOR, NO_FLAG, { ldata->object, rdata->object, co->object });
@@ -1066,7 +1068,7 @@ public:
         Dpp_CObject *int_1 = MakeInteger(-1);
 
         if (data->type == VOID_TYPE) {
-            THROW("cannot use operator on void type");
+            REPORT(E0010);
         }
 
         LoadOpcode(OPCODE_MUL, NO_FLAG, { data->object, int_1->object, co->object });
@@ -1208,7 +1210,8 @@ private:
      * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of FunctionObject
      * And Push the function object to the object pool
      */
-    Dpp_CObject *MakeFunction(Dpp_Object *func,
+    Dpp_CObject *MakeFunction(DXXParser::FunctionContext *ctx,
+            Dpp_Object *func,
             const struct INFOS &infos,
             Heap<Dpp_CObject *> *params,
             Heap<Dpp_CObject *> *autovalues,
@@ -1232,12 +1235,12 @@ private:
             result = FindObject(co);
         }
         catch (RetTypeNeqError &) {
-            THROW(std::format("{} was defined", result->id));
+            REPORT(E0002, result->id);
         }
 
         if(result != nullptr) {
             if (!result->isNone || co->isNone) {
-                THROW(std::format("{} was defined", result->id));
+                REPORT(E0002, result->id);
             }
 
             //*result = *co;

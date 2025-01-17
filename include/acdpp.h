@@ -1,6 +1,10 @@
-/*
-  Copyright (C) ACoder-doge. All rights reserved.
-*/
+/**
+ * @file acdpp.h
+
+ * @author ACoderOrHacker (sgy2788@163.com)
+ * @brief Some base macros and functions for D++ Compoments
+ */
+
 #ifndef _DXX_CONFIG_H
 #define _DXX_CONFIG_H
 #include <memory> // for std::shared_ptr and std::make_shared
@@ -43,6 +47,13 @@
 #define _cast(type, val) ((type)(val))
 #define anycast(type, val) (std::any_cast<type>(val)) // for std::any
 
+/**
+ * @brief create a smart pointer
+ *
+ * @tparam T the type of the raw pointer
+ * @param ptr_ a raw pointer
+ * @return std::shared_ptr<T> a ptr with smart pointer
+ */
 template<typename T>
 forceinline std::shared_ptr<T> create_ptr(T *ptr_) {
 	auto ptr = std::make_shared<T>();

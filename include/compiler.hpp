@@ -43,19 +43,6 @@
 #define VOID_TYPE UINT_MAX
 #define OBJECT_TYPE (UINT_MAX - 1)
 
-#define THROW(msg) {                                                          \
-    fmt::print_error("\nerror: ", msg, "\n");                                 \
-    exit(1);                                                                  \
-}
-
-#define WARNING(msg) {                                                          \
-    fmt::print_warning("\nwarning: ", msg, "\n");                               \
-}
-
-#define MESSAGE(msg) {                                                          \
-    fmt::print("\nmessage: ", msg, "\n");                                       \
-}
-
 DXX_API FObject *fObj = new FObject;
 
 DXX_API FObject *compile(std::string &code);

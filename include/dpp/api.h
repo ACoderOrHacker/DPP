@@ -153,7 +153,7 @@ forceinline void switch_errorstream(auto stream = __stderr) {
 forceinline int run_script(const std::string &filename,
         void(* failed)(const std::string &, std::ifstream &) =
             [](const std::string &, std::ifstream &) -> void {}) {
-    std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in);
+    std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in, failed);
 
     dpp::vm vm = compile(ifs);
     dpp::close_file<std::ifstream>(ifs);

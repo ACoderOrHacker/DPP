@@ -1,6 +1,22 @@
+/**
+ * @file flags.hpp
+
+ * @author ACoderOrHacker (sgy2788@163.com)
+ * @brief Flags module in D++
+ *
+ * @details you can use DEFINE_FLAGS(flagName, ...) to define a flag set
+ * @code {.cpp}
+ * DEFINE_FLAGS(TestFlag, F1, F2, F3)
+ * TestFlag f;
+ * f.set_flag<__TestFlag::F1>(true);
+ * f.set_flag<__TestFlag::F2>(true);
+ * f.set_flag<__TestFlag::F3>(false);
+ * f.get_flag<__TestFlag::F1>();
+ * @endcode
+ */
+
 #ifndef _FLAGS_HPP
 #define _FLAGS_HPP
-#include <cstddef>
 #include <cstdint>
 #include <type_traits>
 #include <limits>

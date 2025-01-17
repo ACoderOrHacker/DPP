@@ -1,7 +1,7 @@
 -- D++ Build & Package Script
 set_xmakever("2.2.2")
 
-set_project("DPP")
+set_project("D++")
 set_version("0.1.0")
 
 includes("@builtin/xpack")
