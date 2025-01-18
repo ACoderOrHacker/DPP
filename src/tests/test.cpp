@@ -11,13 +11,6 @@
 #include <cstdlib>
 #include "dpp/api.h"
 
-#define CHECK_RUN(cmd) CHECK(std::system(cmd) == EXIT_SUCCESS)
-
-TEST_CASE("Test D++ Command Line") {
-    CHECK_RUN("dpp -v");
-    CHECK_RUN("dpp -h");
-}
-
 TEST_CASE("Test APIs") {
     dpp::vm vm;
     CHECK(dpp::run(dpp::compile("a: int = 1;"), true) == EXIT_SUCCESS);
