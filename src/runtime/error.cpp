@@ -48,11 +48,10 @@ DXX_API FunctionObject *dpp::get_error_handle(Dpp_Object *obj) {
 DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
     acassert(vm == nullptr);
 
-    std::wcout << L"An error throwed\n";
-    std::wcout << L"    ";
+    std::cout << "An error throwed\n";
+    std::cout << "    ";
     // TODO: The function not finish
 
-    dpp::delete_vm(vm);
     exit(1);
 }
 

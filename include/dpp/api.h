@@ -286,13 +286,14 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
         for(auto &it : state.vmopcodes) {
             std::string s;
 
-            s += std::string("    .") + std::to_string(i) + dpp::get_flags_name(it.flag) + ": " + dpp::get_opcode_name(it.opcode);
+            s += std::string("    .") + std::to_string(i) + "(" + dpp::get_flags_name(it.flag) + "): " + dpp::get_opcode_name(it.opcode) + " ";
 
             for (auto &param : it.params) {
                 s += std::string(param.isInGlobal ? GLOBAL_OBJECT_SHOW_SIGN : LOCAL_OBJECT_SHOW_SIGN) + std::to_string(param.id) + std::string(" ");
             }
-            fmt::print(s);
+            fmt::print(s, "\n");
 
+/*
             size_t space_num = 100 - s.size();
             if (space_num > 0) {
                 fmt::print(std::string(space_num, ' '));
@@ -300,7 +301,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
                 // space_num <= 0
                 // std::length_error: string too long
                 fmt::print(std::string(s.size() + 10, ' '));
-            }
+            }*/
             ++i;
         }
     };
@@ -320,7 +321,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
     }
 
     fmt::print("\n");
-    if (vm->state.vmopcodes.isEmpty() == 0) { fmt::print("state: {}\n"); }
+    if (vm->state.vmopcodes.isEmpty()) { fmt::print("state: {}\n"); }
     else {
         fmt::print("state: {\n");
         opt_state(vm->state);
@@ -331,7 +332,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
     uint32_t i = 0;
     for (auto it : gmap) {
         if (it != nullptr && it->name != "function" && dpp::is_function(it)) {
-            fmt::print("function: {", it->name.empty() ? "unknown" : it->name, GLOBAL_OBJECT_SHOW_SIGN, i, "\n");
+            fmt::print("function ", it->name.empty() ? "unknown" : it->name, "(", GLOBAL_OBJECT_SHOW_SIGN, i, "): {", "\n");
             opt_state(_cast(FunctionObject *, it)->state);
             fmt::print("}\n");
         }
@@ -342,7 +343,10 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
     fmt::print("global: {\n");
     for(uint32_t index = BUILTIN_END; index < gmap.size(); ++index) {
         auto obj = gmap[index];
-		if (obj == nullptr) fmt::print("    .", GLOBAL_OBJECT_SHOW_SIGN, index, ": unknown\n");
+		if (obj == nullptr) {
+            fmt::print("    .", index, ": unknown\n");
+            continue;
+        }
 
         try {
             fmt::print("    .", index, ": ", object_to_string(obj), "\n");

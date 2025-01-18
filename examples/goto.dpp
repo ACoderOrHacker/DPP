@@ -1,7 +1,7 @@
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
-main() => void {
-    out("start");
+fun main(): void {
+    out("start ");
     goto END;
     out("jntm"); // there is never a way to reach this line
 

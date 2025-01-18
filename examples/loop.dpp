@@ -1,6 +1,6 @@
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
-main() => void {
+fun main(): void {
     i: int = 0;
     while(i < 10) {
         with if (i == 5) {

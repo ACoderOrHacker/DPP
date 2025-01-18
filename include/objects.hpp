@@ -138,7 +138,8 @@ Dpp_TYPE(ClassObject) {
 Dpp_TYPE_REGISTER_METHOD(ClassObject)
 public:
     Heap<std::shared_ptr<dpp::object>> members; // members of the class
-
+public:
+    std::string to_string(dpp::object *) override;
 Dpp_OBJECT_SERIALIZE(members)
 };
 
@@ -148,7 +149,8 @@ Dpp_TYPE(FunctionObject) {
 Dpp_TYPE_REGISTER_METHOD(FunctionObject)
 public:
     struct VMState state;
-
+public:
+    std::string to_string(dpp::object *) override;
 Dpp_OBJECT_SERIALIZE(state)
 };
 
@@ -158,7 +160,8 @@ Dpp_TYPE(ErrorObject) {
 Dpp_TYPE_REGISTER_METHOD(ErrorObject)
 public:
     std::stack<FunctionObject *> handles;
-
+public:
+    std::string to_string(dpp::object *) override;
 Dpp_EMPTY_OBJECT_SERIALIZE() // C1001 WHEN USE Dpp_OBJECT_SERIALIZE()
 };
 
@@ -169,7 +172,8 @@ Dpp_TYPE_REGISTER_METHOD(TypeObject)
 public:
     TypeObject() { type = nullptr; }
     dpp::object *type;
-
+public:
+    std::string to_string(dpp::object *) override;
 Dpp_OBJECT_SERIALIZE(create_ptr<dpp::object>(type))
 };
 

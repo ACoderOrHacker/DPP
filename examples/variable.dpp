@@ -1,10 +1,10 @@
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
 a: int = 114514;
 b: int = 1919810;
 s: string = "\"Hello, world!\"";
 
-main() => void {
+fun main(): void {
     out(a);
     out(" ");
     out(b);

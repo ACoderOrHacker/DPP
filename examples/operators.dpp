@@ -1,4 +1,4 @@
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
 j: int = 1;
 a: int = ~j;
@@ -24,7 +24,7 @@ w: int = 3 & 4;
 x: int = 3 | 4;
 y: int = -k;
 
-main() => void {
+fun main(): void {
     out(a);
     out(" ");
     out(c);

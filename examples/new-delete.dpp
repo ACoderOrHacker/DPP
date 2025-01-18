@@ -1,4 +1,4 @@
-main() => void {
+fun main(): void {
     a: int = new int;
     delete a;
 }

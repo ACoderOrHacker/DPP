@@ -1,5 +1,5 @@
 using a = int;
 
-main() => void {
+fun main(): void {
     b: a = 1;
 }

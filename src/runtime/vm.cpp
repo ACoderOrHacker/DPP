@@ -177,7 +177,8 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
 EXIT:
 	// exit
 	int exit_code = vm->exit_code;
-	dpp::delete_vm(vm);
+    // TODO: there is a bug when delete
+	// dpp::delete_vm(vm);
 	if (!noExit) exit(exit_code);
     return exit_code;
 }

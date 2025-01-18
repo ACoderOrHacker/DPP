@@ -29,7 +29,7 @@
 #include <string>
 #include <stack>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(disable : 4267)
 #pragma warning(push)
 #pragma warning(disable : 4251)
@@ -100,8 +100,6 @@ public:
             return new Dpp_Object;
         }
 		virtual Dpp_Object *move(Dpp_Object *obj) {
-            delete obj;
-            obj = nullptr;
             obj = this->new_object();
             *obj = *this;
 
@@ -279,10 +277,10 @@ Dpp_SERIALIZE(Dpp_NVP(vmopcodes))
 
 typedef struct _FObject {
 public:
-	_FObject(){
-		_theap = new Tmp_Heap;
-		sig = new Signal;
-	}
+	_FObject() {
+        _theap = new Tmp_Heap;
+        sig = new Signal;
+    }
 	~_FObject() = default;
 
 public:
@@ -325,7 +323,7 @@ forceinline Version get_version() {
 }
 NAMESPACE_DPP_END
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(pop)
 #endif // _MSC_VER
 

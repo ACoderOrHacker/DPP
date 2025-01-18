@@ -1,4 +1,4 @@
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
 enum Test {
     EnumSubA = 1,
@@ -6,7 +6,7 @@ enum Test {
     EnumSubC = 114514
 }
 
-main() => void {
+fun main(): void {
     out(EnumSubA);
     out(" ");
     out(EnumSubB);

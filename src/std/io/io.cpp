@@ -1,9 +1,10 @@
 #include "io.h"
+#include "struct.hpp"
 
-_DXX_EXPORT_API Dpp_Object *out(FObject *fObj) {
-    Object o = fObj->_theap->PopFront();
+_DXX_EXPORT_API dpp::object *out(dpp::vm vm) {
+    Object o = vm->_theap->PopFront();
 
-    Dpp_Object *obj = fObj->obj_map.get(o);
+    Dpp_Object *obj = vm->obj_map.get(o);
 
 	acassert(obj == nullptr);
 

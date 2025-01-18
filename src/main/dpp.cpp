@@ -69,7 +69,7 @@ public:
                         fmt::print_error("error: cannot find '", it, "' source file\n");
                         return EXIT_FAILURE;
                     }
-                    dpp::vm vm = compile(ifs);
+                    dpp::vm vm = dpp::compile(ifs);
 
                     dpp::close_file(ifs);
                     auto filename = std::filesystem::path(it).filename().stem().string();
@@ -125,7 +125,7 @@ public:
                     fmt::print_error("error: cannot find '", file, "' source file\n");
                     return EXIT_FAILURE;
                 }
-                vm = compile(ifs);
+                vm = dpp::compile(ifs);
                 dpp::close_file(ifs);
 
                 dpp::output_vm(vm, false);

@@ -1,11 +1,11 @@
-final x(y: int) => int;
+fun final x(y: int): int;
 
-final x(y: int) => int {
+fun final x(y: int): int {
     return y + 1;
 }
 
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
-main() => void {
+fun main(): void {
     out(x(1));
 }

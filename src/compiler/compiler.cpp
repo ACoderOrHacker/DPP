@@ -777,6 +777,7 @@ public:
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (data->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -802,6 +803,8 @@ public:
         rt_opcode op = OPCODE_START;
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
+
         if(data->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
         }
@@ -826,6 +829,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -845,6 +849,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -864,6 +869,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -889,6 +895,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -917,6 +924,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -943,6 +951,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -969,6 +978,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -1008,6 +1018,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -1028,6 +1039,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -1048,6 +1060,7 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
+        co->type = INT_TYPE;
 
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -1067,6 +1080,7 @@ public:
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         Dpp_CObject *co = MakeObject("");
         Dpp_CObject *int_1 = MakeInteger(-1);
+        co->type = INT_TYPE;
 
         if (data->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
@@ -1546,7 +1560,9 @@ DXX_API FObject *_compile(antlr4::ANTLRInputStream input) {
     return fObj;
 }
 
-DXX_API FObject *compile(std::string &code) {
+NAMESPACE_DPP_BEGIN
+
+DXX_API FObject *compile(const std::string &code) {
     antlr4::ANTLRInputStream input(code);
     return _compile(input);
 }
@@ -1560,3 +1576,5 @@ DXX_API FObject *compile(std::fstream &ifs) {
     antlr4::ANTLRInputStream input(dynamic_cast<std::ifstream &>(ifs));
     return _compile(input);
 }
+
+NAMESPACE_DPP_END

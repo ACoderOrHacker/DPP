@@ -1,8 +1,8 @@
-native("io", "out") out(o: object) => void;
+fun native("io", "out") out(o: object): void;
 
 s: string = "Hello World";
 // shit: string = 1;
 
-main() => void {
+fun main(): void {
     out(s);
 }

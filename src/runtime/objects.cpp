@@ -318,3 +318,19 @@ dpp::object *StringObject::equal(dpp::object *lval, dpp::object *rval) {
 std::string StringObject::to_string(dpp::object *obj) {
     return dpp::to_pchar(dpp::get_string(obj));
 }
+
+std::string ClassObject::to_string(dpp::object *obj) {
+    return "class " + obj->name;
+}
+
+std::string ErrorObject::to_string(dpp::object *obj) {
+    return "error " + obj->name;
+}
+
+std::string FunctionObject::to_string(dpp::object *obj) {
+    return "function " + obj->name;
+}
+
+std::string TypeObject::to_string(dpp::object *obj) {
+    return "type " + obj->name;
+}

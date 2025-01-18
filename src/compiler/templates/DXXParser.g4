@@ -82,7 +82,7 @@ delete: Delete data;
 
 typedef: Using ID Assign theType;
 
-// simple: static x(int y) => int { return y++;}
+// simple: static x(var y: int): int { return y++;}
 function: functionHead block?;
 
 return: Return data?;
@@ -91,7 +91,7 @@ lambdaFunction:
 	LeftBracket RightBracket LeftParen paramList? RightParen block;
 
 functionHead:
-	info* ID LeftParen paramList? RightParen Arrow theType throwtable?;
+	Fun info* ID LeftParen paramList? RightParen Colon theType throwtable?;
 
 functionCall: idEx LeftParen callParamList? RightParen;
 
@@ -102,9 +102,9 @@ callParamList: data (Comma data)*;
 
 throwtable: Throw (idEx Comma)* idEx?;
 
-varDefine: info* ID Colon theType (assigns data)?;
+varDefine: Var? info* ID Colon theType (assigns data)?;
 
-varDefineNoSet: info* ID Colon theType;
+varDefineNoSet: Var? info* ID Colon theType;
 
 varSet: idEx assigns data;
 

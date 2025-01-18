@@ -453,7 +453,7 @@ void _ret(dpp::vm vm) {
     // TODO: _ret cannot use like null object
     dpp::object *val = nullptr;
     if (!vm->_theap->isEmpty()) {
-        val = vm->obj_map.get(vm->_theap->PopFront());
+        val = vm->obj_map.get(vm->_theap->PopFront())->move(val);
     }
 
 	vm->state = vm->callstack.top();
@@ -491,7 +491,7 @@ void _calln(dpp::vm vm) {
 		}
 		NATIVE_FUNC func = (NATIVE_FUNC)proc;
 		dpp::object *ret = func(vm);
-        if (ret != nullptr) {
+        if (ret != nullptr && !vm->_theap->isEmpty()) {
             Object _to = vm->_theap->PopFront();
             vm->obj_map.write(_to, ret, true);
         }
@@ -557,7 +557,8 @@ void _del(dpp::vm vm) {
 
     dpp::object *obj = vm->obj_map.get(_obj);
 
-    dpp::_delete_object(obj);
+    // TODO: bug in it
+    //dpp::_delete_object(obj);
 }
 
 void _mov(dpp::vm vm) {

@@ -9,6 +9,7 @@ includes("@builtin/xpack")
 add_rules("mode.debug", "mode.release") -- debug mode and release mode
 set_languages("c++17") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
+
 set_configdir("include")
 add_configfiles("include/config.h.in")
 
@@ -30,7 +31,7 @@ target("vm")
     set_kind("shared")
     add_files("src/runtime/*.cpp")
 
-    add_packages("cereal", "termcolor")
+    add_packages("cereal")
 target_end()
 
 target("compiler")
@@ -40,27 +41,31 @@ target("compiler")
 
     add_rules("@antlr4/lexer", "@antlr4/parser", {visitor = true, listener = false})
     add_deps("vm")
-    add_packages("antlr4-runtime", "antlr4", "cereal", "termcolor")
+    add_packages("antlr4-runtime", "antlr4", "cereal")
 target_end()
 
 target("dpp")
     set_kind("binary")
     add_files("src/main/dpp.cpp")
+    add_headerfiles("include/*")
 
     add_deps("compiler", "vm")
-    add_packages("cxxopts", "termcolor", "cereal")
-target_end()
-
-target("debug")
-    set_kind("binary")
-    add_files("src/main/debug.cpp")
-    add_deps("compiler", "vm")
+    add_packages("cxxopts", "cereal")
 target_end()
 
 target("tests")
     add_files("src/tests/*.cpp")
 
-    add_packages("catch2")
+    add_deps("compiler", "vm")
+    add_packages("catch2", "cereal")
+target_end()
+
+target("io")
+    set_kind("shared")
+    add_files("src/std/io/*.cpp")
+
+    add_deps("vm")
+    add_packages("cereal")
 target_end()
 
 xpack("DPP")
@@ -80,11 +85,13 @@ xpack("DPP")
     set_title("D++ Programming Language")
 
     -- set install targets
-    add_targets("dpp", "debug", "vm", "compiler")
+    add_targets("dpp", "vm", "compiler")
     add_installfiles("include/*", {prefixdir = "include"})
-    add_installfiles("include/acoder/*", {prefixdir = "include/acoder"})
     add_installfiles("include/dpp/*", {prefixdir = "include/dpp"})
     add_installfiles("CHANGELOG")
     add_installfiles("LICENSE")
     add_installfiles("README.md")
+
+    -- std libraries
+    add_targets("io", {prefixdir = "libs"})
 xpack_end()

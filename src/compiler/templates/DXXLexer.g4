@@ -44,6 +44,8 @@ Float: 'float';
 
 Foreach: 'foreach';
 
+Fun: 'fun';
+
 Goto: 'goto';
 
 If: 'if';
@@ -103,6 +105,8 @@ Try: 'try';
 Type: 'type';
 
 Using: 'using';
+
+Var: 'var';
 
 Virtual: 'virtual';
 

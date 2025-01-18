@@ -45,9 +45,13 @@
 
 DXX_API FObject *fObj = new FObject;
 
-DXX_API FObject *compile(std::string &code);
+NAMESPACE_DPP_BEGIN
+
+DXX_API FObject *compile(const std::string &code);
 DXX_API FObject *compile(std::ifstream &ifs);
 DXX_API FObject *compile(std::fstream &ifs);
+
+NAMESPACE_DPP_END
 
 struct _Dpp_CObject;
 class RetTypeNeqError : std::exception {};
