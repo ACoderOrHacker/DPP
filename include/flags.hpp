@@ -63,8 +63,8 @@ public:
      */
     template<_flags_enum flag>
     inline flags &set_flag(bool data) {
-        constexpr auto x = (uint64_t)flag / 32;
-        constexpr auto y = (uint64_t)flag % 32;
+        constexpr auto x = (uint64_t)flag / BYTE_SIZE;
+        constexpr auto y = (uint64_t)flag % BYTE_SIZE;
 
         if (data) {
             _flags[x] = 1 << y;
@@ -83,8 +83,8 @@ public:
      */
     template <_flags_enum flag>
     inline bool get_flag() {
-        constexpr auto x = (uint64_t)flag / 32;
-        constexpr auto y = (uint64_t)flag % 32;
+        constexpr auto x = (uint64_t)flag / BYTE_SIZE;
+        constexpr auto y = (uint64_t)flag % BYTE_SIZE;
 
         return (_flags[x] & (1 << y));
     }
@@ -96,8 +96,8 @@ public:
      * @return true the flag is true, false the flag is false
      */
     inline bool get_flag(_flags_enum flag) const {
-        auto x = (uint64_t)flag / 32;
-        auto y = (uint64_t)flag % 32;
+        auto x = (uint64_t)flag / BYTE_SIZE;
+        auto y = (uint64_t)flag % BYTE_SIZE;
 
         return (_flags[x] & (1 << y));
     }
