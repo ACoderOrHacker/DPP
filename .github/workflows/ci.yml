@@ -49,7 +49,7 @@ jobs:
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: packages
+        name: artifact
         path: ./packages
 
     - name: Create Release and Upload Release Asset
