@@ -20,7 +20,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest] # Systems to build for
+        arch: [x86_64, arm64] # Architectures to build for
       fail-fast: false
     runs-on: ${{matrix.os}}
     permissions:
@@ -34,6 +35,10 @@ jobs:
       uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: latest
+
+    - name: Set Arch
+      run: |
+        xmake f -a ${{matrix.arch}}
 
     - name: Build project
       run: |

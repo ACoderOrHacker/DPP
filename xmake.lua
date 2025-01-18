@@ -66,11 +66,9 @@ target_end()
 
 xpack("DPP")
     -- set formats
-    if is_os("windows") then
-        set_formats("zip", "targz", "runself", "nsis")
-    else
-        set_formats("zip", "targz", "runself")
-    end
+    set_formats("zip", "targz", "nsis", "runself", "rpm", "srpm")
+
+    set_basename("dpp-$(version)-$(plat)-$(arch)")
 
     -- set base information
     set_homepage("https://ACoderOrHacker.github.io/DPP")
