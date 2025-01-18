@@ -25,7 +25,9 @@
 #include "macros.hpp"
 #ifndef _COMPILER_H
 
+#include <climits>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <fstream>
 #include <unordered_map>
