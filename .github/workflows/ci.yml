@@ -23,6 +23,8 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
       fail-fast: false
     runs-on: ${{matrix.os}}
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout code
