@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - dev
+    tags:
+      - "v*"
   pull_request:
     branches:
       - main
@@ -42,7 +44,13 @@ jobs:
 
     - name: Package project
       run: |
-        xmake pack -y
+        xmake pack -y -o packages/
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifacts@v4
+      with:
+        name: packages
+        path: ./packages
 
     - name: Create Release and Upload Release Asset
       uses: softprops/action-gh-release@v1
@@ -52,4 +60,4 @@ jobs:
           draft: true
           fail_on_unmatched_files: true
           files: |
-            build/xpack/DPP/*
+              ./packages/*
