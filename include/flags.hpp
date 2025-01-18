@@ -17,6 +17,7 @@
 
 #ifndef _FLAGS_HPP
 #define _FLAGS_HPP
+#include <cstring>
 #include <cstdint>
 #include <type_traits>
 #include <limits>
