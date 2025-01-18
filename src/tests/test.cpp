@@ -6,26 +6,23 @@
  * @copyright Copyright (c) 2025
  *
  */
-#include "catch2/catch_test_macros.hpp"
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch_all.hpp>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
 #include <cstdlib>
 #include "dpp/api.h"
 
-#define REQUIRE_RUN(cmd) REQUIRE(std::system(cmd) == EXIT_SUCCESS)
+#define CHECK_RUN(cmd) CHECK(std::system(cmd) == EXIT_SUCCESS)
 
-TEST_CASE("Test D++ Command Line", "[cmdline]") {
-    REQUIRE_RUN("dpp -v");
-    REQUIRE_RUN("dpp -h");
+TEST_CASE("Test D++ Command Line") {
+    CHECK_RUN("dpp -v");
+    CHECK_RUN("dpp -h");
 }
 
-TEST_CASE("Test APIs", "[apis]") {
+TEST_CASE("Test APIs") {
     dpp::vm vm;
-    REQUIRE(dpp::run(dpp::compile("a: int = 1;"), true) == EXIT_SUCCESS);
+    CHECK(dpp::run(dpp::compile("a: int = 1;"), true) == EXIT_SUCCESS);
 }
 
-TEST_CASE("Examples run & benchmark", "[examples][!benchmark]") {
-    BENCHMARK("Fibonacci") {
-        // TODO:
-    };
+TEST_CASE("Examples run") {
+    
 }
