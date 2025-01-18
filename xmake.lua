@@ -19,7 +19,7 @@ add_requires("cereal 1.3.2", "cxxopts 3.2.1", "antlr4-runtime 4.13.2", "antlr4 4
 
 if is_mode("debug") then
     -- for tests and benchmarks
-    add_requires("catch2")
+    add_requires("doctest 2.4.11")
 end
 
 -- include directories
@@ -57,7 +57,7 @@ target("tests")
     add_files("src/tests/*.cpp")
 
     add_deps("compiler", "vm")
-    add_packages("catch2", "cereal")
+    add_packages("doctest", "cereal")
 target_end()
 
 target("io")
