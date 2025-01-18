@@ -1,5 +1,5 @@
 /**
- * @file test.cpp
+ * @file test.cpp`
  * @author ACoderOrHacker (sgy2788@163.com)
  * @brief Tests for D++ APIs and functions.
  *
@@ -13,9 +13,9 @@
 
 TEST_CASE("Test APIs") {
     dpp::vm vm;
-    CHECK(dpp::run(dpp::compile("a: int = 1;"), true) == EXIT_SUCCESS);
+    CHECK(dpp::run(dpp::compile("a: int = 1; fun main(): void {}"), true) == EXIT_SUCCESS);
 }
 
 TEST_CASE("Examples run") {
-    
+
 }

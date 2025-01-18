@@ -56,6 +56,8 @@ public:
     }
 
     std::any visit(antlr4::tree::ParseTree *tree) override {
+        reset_count();
+
         visitChildren(tree);
 
         Dpp_CObject *main = FindObject("main", true);
@@ -71,7 +73,13 @@ public:
         }
         LoadOpcode(OPCODE_CALL, NO_FLAG, {main->object});
 
+        dpp::fmt::print(error_count, " errors found, ", warning_count, "warnings found.\n");
+        if (error_count != 0) {
+            exit(EXIT_FAILURE);
+        }
+
         RETURN:
+        reset_count();
         return fObj;
     }
 

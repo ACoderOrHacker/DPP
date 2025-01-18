@@ -11,6 +11,14 @@
 #define _DXX_COMPILER_ERRORS_HPP
 #include "fmt.h"
 
+uint32_t error_count = 0;
+uint32_t warning_count = 0;
+
+inline void reset_count() {
+    error_count = 0;
+    warning_count = 0;
+}
+
 /**
  * @brief Error print macro
  *
@@ -20,6 +28,7 @@
 #define E(...) \
     do { \
         dpp::fmt::print_error("error(", line, pos, "): ", __VA_ARGS__, "\n"); \
+        ++error_count; \
     } while(0);
 
 /**
@@ -31,6 +40,7 @@
 #define E_NO_LP(...) \
     do { \
         dpp::fmt::print_error("error: ", __VA_ARGS__, "\n"); \
+        ++error_count; \
     } while(0);
 
 /**
@@ -42,6 +52,7 @@
 #define W(...) \
     do { \
         dpp::fmt::print_warning("error(", line, pos, "): ", __VA_ARGS__, "\n"); \
+        ++warning_count; \
     } while(0);
 
 /**
@@ -51,6 +62,7 @@
 #define W_NO_LP(...) \
     do { \
         dpp::fmt::print_warning("error: ", __VA_ARGS__, "\n"); \
+        ++warning_count; \
     } while(0);
 
 #define LP int line, int pos
