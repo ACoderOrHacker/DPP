@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest] # Systems to build for
-        arch: [x86_64, arm64] # Architectures to build for
+        arch: [x64, arm64] # Architectures to build for
       fail-fast: false
     runs-on: ${{matrix.os}}
     permissions:
