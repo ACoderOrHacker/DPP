@@ -38,7 +38,7 @@ jobs:
 
     - name: Set Arch
       run: |
-        xmake f -a ${{matrix.arch}}
+        xmake f -a ${{matrix.arch}} -y
 
     - name: Build project
       run: |
