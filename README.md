@@ -22,11 +22,11 @@ Just for fun.
 This repository is structured into the following directories.
 Refer to their respective `README.md` for more in-depth information.
 
-| Directory                 | Description                                      |
-| ------------------------- | ------------------------------------------------ |
-| [changelog](CHANGELOG.md) | changelog entries for the upcoming release       |
-| [src](src/)               | source code, build system and build instructions |
-| [runtime](src/runtime/)   | root of runtime                                  |
+| Directory                 | Description                                                 |
+| ------------------------- | ----------------------------------------------------------- |
+| [changelog](CHANGELOG.md) | changelog entries for the upcoming release                  |
+| [src](src/)               | source code, compiler, std libraries and build instructions |
+| [examples](examples/)     | examples of how to use apis and write source files.         |
 
 ### Installation
 See [INSTALL.md](INSTALL.md) for more information.
