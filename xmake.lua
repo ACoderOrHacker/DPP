@@ -64,7 +64,7 @@ target("io")
     add_packages("cereal")
 target_end()
 
-xpack("DPP")
+xpack("dpp")
     -- set formats
     set_formats("zip", "targz", "nsis", "runself", "deb")
 
