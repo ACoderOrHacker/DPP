@@ -54,6 +54,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install devscripts -y
         sudo apt-get install debhelper -y
+        sudo apt-get install build-essential xmake -y
 
     - name: Set Arch
       run: |
