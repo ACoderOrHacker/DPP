@@ -1,5 +1,5 @@
 -- D++ Build & Package Script
-set_xmakever("2.2.2")
+set_xmakever("2.9.3")
 
 set_project("D++")
 set_version("0.1.0")
@@ -66,7 +66,7 @@ target_end()
 
 xpack("DPP")
     -- set formats
-    set_formats("zip", "targz", "nsis", "runself")
+    set_formats("zip", "targz", "nsis", "runself", "srpm", "rpm", "deb")
 
     set_basename("dpp-$(version)-$(plat)-$(arch)")
 
