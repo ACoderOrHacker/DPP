@@ -1,0 +1,25 @@
+doc:
+  - changed-files:
+    - any-glob-to-any-file:
+      README.md
+      INSTALL.md
+      Doxyfile
+
+build:
+  - changed-files:
+    - any-glob-to-any-file:
+      xmake.lua
+
+examples:
+  - changed-files:
+    - any-glob-to-any-file:
+      examples/**
+
+devops:
+  - changed-files:
+    - any-glob-to-any-file:
+      .github/**
+      .gitignore
+      .gitattributes
+      .editorconfig
+      .clang-tidy
