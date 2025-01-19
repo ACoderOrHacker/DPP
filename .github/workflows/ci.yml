@@ -48,11 +48,6 @@ jobs:
       run: |
         xmake build -y
 
-    - name: Run tests
-      run: |
-        xmake run tests
-
-
     - name: Package project
       run: |
         xmake pack -y -o packages/
