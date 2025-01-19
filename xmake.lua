@@ -2,7 +2,7 @@
 set_xmakever("2.9.3")
 
 set_project("D++")
-set_version("0.1.0")
+set_version("0.1.1")
 
 includes("@builtin/xpack")
 
