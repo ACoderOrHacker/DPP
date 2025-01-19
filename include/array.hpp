@@ -48,15 +48,15 @@ public:
         * @brief get the data at index 'n'
         *
         * @param n the index to array
-        * @return T & the data
+        * @return const T & the data
         */
-    T &operator [](uint32_t n) const {
+    const T &operator [](const uint32_t n) const {
         return (array.at(n));
     }
 
     /**
         * @brief copy the data from other array
-        *
+        *2
         * @param data the other array
         * @return Array<T> &
         */
