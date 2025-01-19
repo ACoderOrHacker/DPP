@@ -56,6 +56,5 @@ void _new(dpp::vm vm);
 void _del(dpp::vm vm);
 void _mov(dpp::vm vm);
 void _method(dpp::vm vm);
-void _exit(dpp::vm vm);
 
 #endif // !_DXX_RUNTIME

@@ -27,7 +27,6 @@
 
 #include <climits>
 #include <cstdint>
-#include <cstring>
 #include <string>
 #include <fstream>
 #include <unordered_map>
@@ -35,7 +34,6 @@
 #include <initializer_list>
 
 #undef _DXX_EXPORT
-#include "enum.hpp"
 #include "acdpp.h"
 #include "acassert.h"
 #include "builtin.hpp"

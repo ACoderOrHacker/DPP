@@ -66,8 +66,7 @@ const OpcodeFunc opcode_list[256] = {
 	&_new,
     &_del,
 	&_mov,
-    &_method,
-	&_exit
+    &_method
 };
 
 const char *opcode_name_list[256] = {
@@ -98,8 +97,7 @@ const char *opcode_name_list[256] = {
     "new",
     "del",
     "mov",
-    "method",
-    "exit"
+    "method"
 };
 
 const char *flag_name_list[8] = {
@@ -192,7 +190,7 @@ VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
 		opcode_list[opcode.opcode - 1](vm); // call opcode
-		if(vm->_error == nullptr && vm->sig->size() == 0) return EXEC_SUCCESS;
+		if(vm->_error == nullptr) return EXEC_SUCCESS;
 		else return EXEC_FAILED; // failed
 	} else {
 		throw InternalError(); // no opcode

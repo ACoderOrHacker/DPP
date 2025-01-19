@@ -1,3 +1,12 @@
+/**
+ * @file configs.h
+ * @author ACoderOrHacker (sgy2788@163.com)
+ * @brief Read & Write configures
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
+
 #ifndef _CONFIG_H
 #include <iostream>
 #include <fstream>

@@ -589,12 +589,6 @@ void _method(dpp::vm vm) {
     // TODO: Not Success
 }
 
-void _exit(dpp::vm vm) {
-	Object _exitcode = vm->_theap->PopFront();
-
-	vm->exit_code = (int)_exitcode.id;
-	vm->sig->PushData(EXIT);
-}
 /*
   void _convert(dpp::vm vm,
   vm->_errorPool *vm->_error,

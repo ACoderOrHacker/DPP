@@ -40,7 +40,6 @@
 #include "macros.hpp"
 #include "array.hpp"
 #include "heap.hpp"
-#include "enum.hpp"
 #include "native.hpp"
 
 typedef long long Integer;
@@ -49,6 +48,39 @@ typedef std::wstring String;
 
 struct VMState;
 class Dpp_Object;
+
+enum rt_opcode : unsigned char {
+    OPCODE_START,
+    OPCODE_IMPORT,
+	OPCODE_ADD,
+	OPCODE_SUB,
+	OPCODE_MUL,
+	OPCODE_DIV,
+	OPCODE_MOD,
+	OPCODE_BNEG,
+	OPCODE_BAND,
+	OPCODE_BOR,
+	OPCODE_BXOR,
+	OPCODE_SHL,
+	OPCODE_SHR,
+	OPCODE_NOT,
+	OPCODE_EQ,
+	OPCODE_BIGGER,
+	OPCODE_SMALLER,
+	OPCODE_AND,
+	OPCODE_OR,
+	OPCODE_JMP,
+	OPCODE_CALL,
+    OPCODE_GETRET,
+	OPCODE_CALLN,
+	OPCODE_RET,
+	OPCODE_SIGN,
+	OPCODE_NEW,
+    OPCODE_DEL,
+	OPCODE_MOV,
+    OPCODE_METHOD,
+    OPCODE_END
+};
 
 typedef struct _Object {
 public:
@@ -235,18 +267,19 @@ public:
 private:
     Array<std::shared_ptr<Dpp_Object>> global;
 	Array<Array<std::shared_ptr<Dpp_Object>>> mappings;
-    auto getMapping(Object &_o) -> decltype(global) * {
+    auto getMapping(Object &_o) -> Array<std::shared_ptr<Dpp_Object>> * {
 		if (_o.isInGlobal) {
 			return &global;
 		}
-		return &*(--mappings.end());
+
+		return const_cast<Array<std::shared_ptr<Dpp_Object>> *>(&*(--mappings.end()));
 	}
 
-    auto getMapping(Object &_o, uint32_t mapping_id) -> decltype(global) * {
+    auto getMapping(Object &_o, uint32_t mapping_id) -> Array<std::shared_ptr<Dpp_Object>> * {
 		if (_o.isInGlobal) {
 			return &global;
 		}
-		return &*(mappings.begin() + mapping_id - 1);
+		return const_cast<Array<std::shared_ptr<Dpp_Object>> *>(&*(mappings.begin() + mapping_id - 1));
 	}
 
 Dpp_SERIALIZE(Dpp_NVP(global))
@@ -266,7 +299,6 @@ Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(flag), Dpp_NVP(params))
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
-typedef Heap<SIGNAL> Signal;
 
 struct VMState {
 	Heap<OpCode> vmopcodes;
@@ -279,7 +311,6 @@ typedef struct _FObject {
 public:
 	_FObject() {
         _theap = new Tmp_Heap;
-        sig = new Signal;
     }
 	~_FObject() = default;
 
@@ -292,7 +323,6 @@ public:
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
     std::stack<Dpp_Object *> return_values;
-	Signal *sig;
 	struct VMState state;
 	OpcodeFlags flags;
 	int exit_code = EXIT_SUCCESS;

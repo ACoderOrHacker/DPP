@@ -2,7 +2,6 @@
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
 #include "builtin.hpp"
-#include "enum.hpp"
 #include "macros.hpp"
 #include "errors.hpp"
 #include "objects.hpp"
