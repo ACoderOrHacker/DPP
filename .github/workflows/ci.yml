@@ -30,6 +30,10 @@ jobs:
           # windows-latest with x86_64 not supported
           - os: windows-latest
             arch: x86_64
+
+          # ubuntu-latest with x64 failed
+          - os: ubuntu-latest
+            arch: x64
       fail-fast: false
     runs-on: ${{matrix.os}}
     permissions:
