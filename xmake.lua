@@ -66,7 +66,7 @@ target_end()
 
 xpack("dpp")
     -- set formats
-    set_formats("zip", "targz", "nsis", "runself", "deb")
+    set_formats("zip", "targz", "nsis", "runself")
 
     set_basename("dpp-$(version)-$(plat)-$(arch)")
 

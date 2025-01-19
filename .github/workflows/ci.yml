@@ -46,15 +46,7 @@ jobs:
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
-        xmake-version: 2.9.7
-
-    - name: Setup DEB Tools for Ubuntu
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install devscripts -y
-        sudo apt-get install debhelper -y
-        sudo apt-get install build-essential xmake=2.9.4 -y
+        xmake-version: latest
 
     - name: Set Arch
       run: |
