@@ -3,9 +3,9 @@
 # D++
 [![license](https://badgen.net/github/license/ACoderOrHacker/DPP)](https://github.com/ACoderOrHacker/DPP/blob/master/LICENSE)
 [![releases](https://badgen.net/github/releases/ACoderOrHacker/DPP)](https://github.com/ACoderOrHacker/DPP/releases/)
-[![branches](https://badgen.net/github/branches/ACoderOrHacker/DPP)]()
+[![branches](https://badgen.net/github/branches/ACoderOrHacker/DPP)](https://github.com/ACoderOrHacker/DPP/branches)
 [![tags](https://badgen.net/github/tags/ACoderOrHacker/DPP)](https://github.com/ACoderOrHacker/DPP/tags)
-[![version](https://badgen.net/github/release/ACoderOrHacker/DPP)]()
+[![version](https://badgen.net/github/release/ACoderOrHacker/DPP)](https://github.com/ACoderOrHacker/DPP/releases/latest)
 
 </div>
 
@@ -22,20 +22,19 @@ Just for fun.
 This repository is structured into the following directories.
 Refer to their respective `README.md` for more in-depth information.
 
-| Directory               | Description                                      |
-| ----------------------- | ------------------------------------------------ |
-| [changelog](CHANGELOG)  | changelog entries for the upcoming release       |
-| [src](src/)             | source code, build system and build instructions |
-| [docs]()                | man pages and internal documentation             |
-| [runtime](src/runtime/) | root of runtime                                  |
+| Directory                 | Description                                      |
+| ------------------------- | ------------------------------------------------ |
+| [changelog](CHANGELOG.md) | changelog entries for the upcoming release       |
+| [src](src/)               | source code, build system and build instructions |
+| [runtime](src/runtime/)   | root of runtime                                  |
 
 ### Installation
 See [INSTALL.md](INSTALL.md) for more information.
 
 ### Misc
-- [x] [xmake](https://github.com/xmake-io/xmake)
-- [x] [xmake-repo](https://github.com/xmake-io/xmake-repo)
-- [x] [doxygen](https://github.com/doxygen/doxygen)
+- [xmake](https://github.com/xmake-io/xmake)
+- [xmake-repo](https://github.com/xmake-io/xmake-repo)
+- [doxygen](https://github.com/doxygen/doxygen)
 
 For more information, please see our [documentation](https://ACoderOrHacker.github.io/DPP/).
 
