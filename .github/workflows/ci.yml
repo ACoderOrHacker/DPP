@@ -26,6 +26,10 @@ jobs:
           # macos-latest with x64 not supported
           - os: macos-latest
             arch: x64
+
+          # windows-latest with x86_64 not supported
+          - os: windows-latest
+            arch: x86_64
       fail-fast: false
     runs-on: ${{matrix.os}}
     permissions:
