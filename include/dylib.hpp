@@ -98,9 +98,8 @@ public:
         other.m_handle = nullptr;
     };
     explicit dylib(const dylib &other) : m_handle(other.m_handle) {};
-    dylib & operator=(dylib &other) {
+    dylib & operator=(const dylib &other) {
         m_handle = other.m_handle;
-        other.m_handle = nullptr;
 
         return *this;
     }
