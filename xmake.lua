@@ -66,7 +66,7 @@ target_end()
 
 xpack("dpp")
     -- set formats
-    set_formats("zip", "targz", "nsis", "runself", "deb")
+    set_formats("zip", "targz", "nsis", "runself", "deb", "rpm", "srpm")
 
     set_basename("dpp-$(version)-$(plat)-$(arch)")
 
@@ -78,10 +78,14 @@ xpack("dpp")
     set_licensefile("LICENSE")
     set_title("D++ Programming Language")
 
+    add_sourcefiles("(src/**)")
+    add_sourcefiles("(include/**)")
+
     -- set install targets
     add_targets("dpp", "vm", "compiler")
     add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
     add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
+    add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
     add_installfiles("$(projectdir)/CHANGELOG")
     add_installfiles("$(projectdir)/LICENSE")
     add_installfiles("$(projectdir)/README.md")
