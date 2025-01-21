@@ -80,11 +80,11 @@ xpack("dpp")
 
     -- set install targets
     add_targets("dpp", "vm", "compiler")
-    add_installfiles("include/*", {prefixdir = "include"})
-    add_installfiles("include/dpp/*", {prefixdir = "include/dpp"})
-    add_installfiles("CHANGELOG")
-    add_installfiles("LICENSE")
-    add_installfiles("README.md")
+    add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
+    add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
+    add_installfiles("$(projectdir)/CHANGELOG")
+    add_installfiles("$(projectdir)/LICENSE")
+    add_installfiles("$(projectdir)/README.md")
 
     -- std libraries
     add_targets("io", {prefixdir = "libs"})
