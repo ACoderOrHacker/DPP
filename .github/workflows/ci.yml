@@ -50,12 +50,6 @@ jobs:
 
     - name: Install devtools for ubuntu
       run: |
-        sudo mkdir -p /etc/yum.repos.d/
-        sudo mkdir -p /etc/yum.repos.d/
-        sudo mkdir -p /etc/dnf/
-        sudo touch /etc/dnf/dnf.conf
-        sudo touch /etc/yum.repos.d/fedora.repo
-        sudo touch /etc/yum.repos.d/fedora-updates.repo
         sudo sed -e 's|^metalink=|#metalink=|g' -e 's|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.tuna.tsinghua.edu.cn/fedora|g' -i.bak /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
         sudo add-apt-repository ppa:xmake-io/xmake
         sudo apt-get update
