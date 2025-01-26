@@ -58,10 +58,5 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-$fedora_version-\$basearch
 EOF
 
-# 设置文件权限
 chmod 644 /etc/yum.repos.d/fedora.repo
 chmod 644 /etc/yum.repos.d/fedora-updates.repo
-
-# 清理并重建dnf缓存
-dnf clean all
-dnf makecache
