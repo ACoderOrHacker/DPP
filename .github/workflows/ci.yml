@@ -66,8 +66,8 @@ jobs:
         sudo apt install xmake -y
         sudo dnf clean all
         sudo dnf makecache
-        sudo dnf install gcc-c++ -y
-        sudo dnf install xmake -y
+        sudo dnf install gcc-c++ -y --allowerasing
+        sudo dnf install xmake -y --allowerasing
       if: matrix.os == 'ubuntu-latest'
 
     - name: Set Arch
