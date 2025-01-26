@@ -53,6 +53,8 @@ jobs:
         sudo mkdir -p /etc/yum.repos.d/
         sudo touch /etc/yum.repos.d/fedora.repo
         sudo touch /etc/yum.repos.d/fedora-updates.repo
+        sudo chmod 644 /etc/yum.repos.d/fedora.repo
+        sudo chmod 644 /etc/yum.repos.d/fedora-updates.repo
         sudo sed -e 's|^metalink=|#metalink=|g' -e 's|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.tuna.tsinghua.edu.cn/fedora|g' -i.bak /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
         sudo cat /etc/yum.repos.d/fedora.repo
         sudo ls /etc/yum.repos.d/
