@@ -54,7 +54,7 @@ jobs:
         sudo touch /etc/yum.repos.d/fedora.repo
         sudo touch /etc/yum.repos.d/fedora-updates.repo
         sudo chmod +x scripts/dnf.sh
-        scripts/dnf.sh
+        sudo scripts/dnf.sh
         sudo cat /etc/yum.repos.d/fedora.repo
         sudo ls /etc/yum.repos.d/
         sudo add-apt-repository ppa:xmake-io/xmake
