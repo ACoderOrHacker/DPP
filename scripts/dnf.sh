@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat > /etc/yum.repos.d/fedora.repo << EOF
+sudo cat > /etc/yum.repos.d/fedora.repo << EOF
 [fedora]
 name=Fedora-TUNA
 failovermethod=priority
@@ -29,7 +29,7 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-39-\$basearch
 EOF
 
-cat > /etc/yum.repos.d/fedora-updates.repo << EOF
+sudo cat > /etc/yum.repos.d/fedora-updates.repo << EOF
 [updates]
 name=Fedora Updates - TUNA
 failovermethod=priority
@@ -58,5 +58,5 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-39-\$basearch
 EOF
 
-chmod 644 /etc/yum.repos.d/fedora.repo
-chmod 644 /etc/yum.repos.d/fedora-updates.repo
+sudo chmod 644 /etc/yum.repos.d/fedora.repo
+sudo chmod 644 /etc/yum.repos.d/fedora-updates.repo
