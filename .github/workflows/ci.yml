@@ -53,6 +53,8 @@ jobs:
         sudo mkdir -p /etc/yum.repos.d/
         sudo touch /etc/yum.repos.d/fedora.repo
         sudo touch /etc/yum.repos.d/fedora-updates.repo
+        sudo chmod +x scripts/dnf.sh
+        scripts/dnf.sh
         sudo cat /etc/yum.repos.d/fedora.repo
         sudo ls /etc/yum.repos.d/
         sudo add-apt-repository ppa:xmake-io/xmake
@@ -62,6 +64,7 @@ jobs:
         sudo apt-get install debhelper -y
         sudo apt-get install build-essential -y
         sudo apt install xmake -y
+        sudo dnf clean all
         sudo dnf makecache
         sudo dnf install gcc-c++ -y
         sudo dnf install xmake -y
