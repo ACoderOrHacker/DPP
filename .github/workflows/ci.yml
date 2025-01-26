@@ -66,8 +66,6 @@ jobs:
         sudo apt install xmake -y
         sudo dnf clean all
         sudo dnf makecache
-        sudo dnf install glibc -y --force
-        sudo apt --reinstall install libc6
         sudo dnf install gcc-c++ -y --force
         sudo dnf install xmake -y --force
       if: matrix.os == 'ubuntu-latest'
