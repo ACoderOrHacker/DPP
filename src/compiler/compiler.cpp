@@ -10,7 +10,17 @@
 #include <fstream>
 
 using namespace errors;
+
+/**
+ * @brief report an error or warning for the given context (ctx)
+ *
+ */
 #define REPORT(id, ...) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), __VA_ARGS__);
+
+/**
+ * @brief report an error or warning for the given context (ctx) without arguments
+ *
+ */
 #define REPORT_NPARAM(id) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
 
 void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {

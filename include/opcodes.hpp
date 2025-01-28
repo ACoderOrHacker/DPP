@@ -27,7 +27,6 @@
 #include "error.hpp"
 #include "struct.hpp"
 
-forceinline bool is_true(dpp::object *obj);
 void _import(dpp::vm vm);
 void _add(dpp::vm vm);
 void _sub(dpp::vm vm);

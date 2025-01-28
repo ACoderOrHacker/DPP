@@ -9,6 +9,7 @@
 #include "fmt.h"
 #include "serialize.hpp"
 #include "dpp/api.h"
+#include "dpp/plugins.h"
 #include "struct.hpp"
 #include "vm.hpp"
 
@@ -45,6 +46,7 @@ public:
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
+                ("plugin,p", "run a plugin", cxxopts::value<std::string>())
             ;
 
             if (argc == 1) {
@@ -130,6 +132,32 @@ public:
 
                 dpp::output_vm(vm, false);
                 dpp::delete_vm(vm);
+            } else if (result.count("plugin")) {
+                dpp::output_information();
+                std::cout << "\n\n";
+
+                const std::string &plugin_id = result["plugin"].as<std::string>();
+                auto _plugins = std::getenv("DPP_PLUGINS");
+                if (_plugins == nullptr) {
+                    fmt::print_error("error: cannot find plugin '", plugin_id, "'\n");
+                    return EXIT_FAILURE;
+                }
+
+                auto plugins = dpp::string_split(_plugins, ';');
+                for (const auto &plugin : plugins) {
+                    try {
+                        dylib plugin_lib(plugin);
+                        if (plugin_lib.has_symbol(plugin_id)) {
+                            auto plugin_func = plugin_lib.get_function<dpp::plugin_init_func>(plugin_id);
+                            plugin_func(dpp::plugin_args()); // run plugin
+                            // TODO: plugin is not successful
+                        }
+                    } catch (dylib::exception &) {}
+                }
+
+                // not found plugin
+                fmt::print_error("error: cannot find plugin '", plugin_id, "'\n");
+                return EXIT_FAILURE;
             }
         } catch (const cxxopts::exceptions::exception &e) {
             fmt::print_error("error: ", e.what());

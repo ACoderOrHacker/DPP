@@ -34,4 +34,6 @@
 
 /include/config.h
 
+/.VSCodeCounter/
+
 /node_modules/

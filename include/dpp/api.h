@@ -357,6 +357,18 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
     fmt::print("}\n");
 }
 
+std::vector<std::string> string_split(const std::string &str, char delim) {
+    std::stringstream ss(str);
+    std::string item;
+    std::vector<std::string> elems;
+    while (std::getline(ss, item, delim)) {
+        if (!item.empty()) {
+            elems.push_back(item);
+        }
+    }
+    return elems;
+}
+
 NAMESPACE_DPP_END
 
 #endif // !_INC_DXX_API
