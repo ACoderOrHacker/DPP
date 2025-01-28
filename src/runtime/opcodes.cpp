@@ -23,6 +23,7 @@
  */
 
 #include <cstdint>
+#include <stdexcept>
 #include "opcodes.hpp"
 #include "builtin.hpp"
 #include "macros.hpp"
@@ -443,6 +444,8 @@ void _jmp(dpp::vm vm) {
 }
 
 void _call(dpp::vm vm) {
+    vm->files.push(vm->obj_map.get_currentfile());
+
 	Object _func = vm->_theap->PopFront();
     FunctionObject *func = (FunctionObject *)vm->obj_map.get(_func);
 
@@ -469,6 +472,8 @@ void _ret(dpp::vm vm) {
     vm->callstack.pop();
     vm->obj_map.pop_mapping();
 
+    vm->files.pop();
+
     vm->return_values.push(val);
 }
 
@@ -493,11 +498,14 @@ void _calln(dpp::vm vm) {
 		String _native_func = dpp::get_string(call_func);
 
 		std::string native_func = dpp::to_pchar(_native_func);
-        dpp::proc proc = dpp::get_proc(vm->NativeModules[_lib.id], native_func);
-		if(proc == nullptr) {
-            dpp::set_error(vm, Dpp_LibNoSymbolError, L"");
+        dpp::proc proc;
+        try {
+            proc = dpp::get_proc(vm->NativeModules[_lib.id], native_func);
+        } catch (std::runtime_error &) {
+            dpp::set_error(vm, Dpp_LibNoSymbolError, L"symbol '" + _native_func + L"' not found");
 			return;
-		}
+        }
+
 		NATIVE_FUNC func = (NATIVE_FUNC)proc;
 		dpp::object *ret = func(vm);
         if (ret != nullptr && !vm->_theap->isEmpty()) {
@@ -505,7 +513,7 @@ void _calln(dpp::vm vm) {
             vm->obj_map.write(_to, ret, true);
         }
     } else {
-        dpp::set_error(vm, Dpp_TypeNotRightError, L"");
+        dpp::set_error(vm, Dpp_TypeNotRightError, L"type not right");
     }
 }
 

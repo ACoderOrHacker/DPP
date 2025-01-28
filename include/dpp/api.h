@@ -156,7 +156,7 @@ forceinline int run_script(const std::string &filename,
             [](const std::string &, std::ifstream &) -> void {}) {
     std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in, failed);
 
-    dpp::vm vm = compile(ifs);
+    dpp::vm vm = dpp::compile(ifs, filename);
     dpp::close_file<std::ifstream>(ifs);
 
     return dpp::run(vm, false);
@@ -312,7 +312,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
         if (it != nullptr && it->name != "function" && dpp::is_function(it)) {
             fmt::print("function ", it->name.empty() ? "unknown" : it->name, "(", GLOBAL_OBJECT_SHOW_SIGN, i, "): {", "\n");
             opt_state(_cast(FunctionObject *, it)->state);
-            fmt::print("}\n");
+            fmt::print("}\n\n");
         }
         ++i;
     }
@@ -327,7 +327,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
         }
 
         try {
-            fmt::print("    .", index, ": ", object_to_string(obj), "\n");
+            fmt::print("    .", index, ": ", object_to_datastring(obj), "\n");
         } catch (NoOperatorError &) {
             fmt::print("    .", index, ": unknown\n");
         }

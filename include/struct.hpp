@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <stack>
+#include <cereal/types/stack.hpp>
 
 #if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(disable : 4267)
@@ -184,8 +185,10 @@ public:
         virtual Dpp_Object *equal(Dpp_Object *, Dpp_Object *) {
             throw NoOperatorError();
         }
-
         virtual std::string to_string(Dpp_Object *) {
+            throw NoOperatorError();
+        }
+        virtual std::string to_datastring(Dpp_Object *) {
             throw NoOperatorError();
         }
         virtual Dpp_Object *notval(Dpp_Object *) {
@@ -201,6 +204,7 @@ Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type), Dpp_NVP(info))
 };
 
 forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }
+forceinline DXX_API std::string object_to_datastring(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_datastring(obj); }
 
 class ObjectMapping {
 public:
@@ -248,6 +252,14 @@ public:
         mappings.pop();
     }
 
+    [[nodiscard]] const std::string &get_currentfile() const {
+        return currentfile;
+    }
+
+    void set_currentfile(const std::string &currentfile) {
+        ObjectMapping::currentfile = currentfile;
+    }
+
     /**
      * @brief Get the Global Mapping
      *
@@ -267,6 +279,7 @@ public:
     }
 
 private:
+    std::string currentfile;
     Array<std::shared_ptr<Dpp_Object>> global;
 	Array<Array<std::shared_ptr<Dpp_Object>>> mappings;
     auto getMapping(Object &_o) -> Array<std::shared_ptr<Dpp_Object>> * {
@@ -295,8 +308,10 @@ typedef struct _VMError {
 typedef struct _OpCode {
     rt_opcode opcode = OPCODE_START;
     Heap<Object> params;
+    uint32_t line = 1;
+    uint16_t pos = 0;
 
-Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(params))
+Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(params), Dpp_NVP(line), Dpp_NVP(pos))
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
@@ -326,8 +341,10 @@ public:
     std::stack<Dpp_Object *> return_values;
 	struct VMState state;
 	int exit_code = EXIT_SUCCESS;
+public:
+    std::stack<std::string> files; // storge files
 
-Dpp_SERIALIZE(Dpp_NVP(modules), Dpp_NVP(obj_map),  Dpp_NVP(state))
+Dpp_SERIALIZE(Dpp_NVP(modules), Dpp_NVP(obj_map),  Dpp_NVP(state), Dpp_NVP(files))
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);

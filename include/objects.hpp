@@ -90,6 +90,7 @@ public:
     dpp::object *bigger(dpp::object *, dpp::object *) override;
     dpp::object *smaller(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 
 Dpp_OBJECT_SERIALIZE(val)
 };
@@ -111,6 +112,7 @@ public:
     dpp::object *bigger(dpp::object *, dpp::object *) override;
     dpp::object *smaller(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 
 Dpp_OBJECT_SERIALIZE(val)
 };
@@ -128,6 +130,7 @@ public:
     dpp::object *notval(dpp::object *) override;
     dpp::object *equal(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 
 Dpp_OBJECT_SERIALIZE(dpp::to_pchar(val))
 };
@@ -140,6 +143,7 @@ public:
     Heap<std::shared_ptr<dpp::object>> members; // members of the class
 public:
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 Dpp_OBJECT_SERIALIZE(members)
 };
 
@@ -151,6 +155,7 @@ public:
     struct VMState state;
 public:
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 Dpp_OBJECT_SERIALIZE(state)
 };
 
@@ -162,6 +167,7 @@ public:
     std::stack<FunctionObject *> handles;
 public:
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 Dpp_EMPTY_OBJECT_SERIALIZE() // C1001 WHEN USE Dpp_OBJECT_SERIALIZE()
 };
 
@@ -174,6 +180,7 @@ public:
     dpp::object *type;
 public:
     std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
 Dpp_OBJECT_SERIALIZE(create_ptr<dpp::object>(type))
 };
 
@@ -192,6 +199,20 @@ forceinline bool is_true(dpp::object *obj) {
     acassert(obj == nullptr);
 
     return obj->is_true();
+}
+
+/**
+ * @brief convert the val to hex string
+ *
+ * @tparam T the value type
+ * @param val the value
+ * @return std::string
+ */
+template<typename T>
+forceinline std::string to_hex(const T &val) {
+    std::stringstream ss;
+    ss << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << val;
+    return "0x" + ss.str();
 }
 
 NAMESPACE_DPP_END

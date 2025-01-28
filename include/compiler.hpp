@@ -2,9 +2,9 @@
  * @file compiler.hpp
  * @author ACoderOrHacker (sgy2788@163.com)
  * @brief Defines compiler API and other compile-time structures
- * 
+ *
  * @copyright Copyright (c) 2025
- * 
+ *
  */
 
 #include "macros.hpp"
@@ -30,7 +30,7 @@
 
 /**
  * @brief genrated vm by compiler
- * 
+ *
  */
 DXX_API dpp::vm fObj = new FObject;
 
@@ -38,7 +38,7 @@ NAMESPACE_DPP_BEGIN
 
 /**
  * @brief compile D++ code
- * 
+ *
  * @param code the D++ code string
  * @return dpp::vm the vm instance
  */
@@ -46,19 +46,19 @@ DXX_API dpp::vm compile(const std::string &code);
 
 /**
  * @brief compile D++ code
- * 
+ *
  * @param ifs the D++ code filestream
  * @return dpp::vm the vm instance
  */
-DXX_API dpp::vm compile(std::ifstream &ifs);
+DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file);
 
 /**
  * @brief compile D++ code
- * 
+ *
  * @param ifs the D++ code filestream
  * @return dpp::vm the vm instance
  */
-DXX_API dpp::vm compile(std::fstream &ifs);
+DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file);
 
 NAMESPACE_DPP_END
 
@@ -66,13 +66,13 @@ NAMESPACE_DPP_END
  * @brief the compile-time object in compiler
  *
  * @details include symbols, types, its object position, etc.
- * 
+ *
  */
 struct _Dpp_CObject;
 
 /**
  * @brief when the return type is not equal to the function's return type, throw this error
- * 
+ *
  */
 Dpp_DEFINE_ERROR(RetTypeNeqError)
 
@@ -80,13 +80,13 @@ bool throw_when_neq = false;
 
 /**
  * @brief the throw table in function
- * 
+ *
  */
 typedef std::unordered_map<std::string, struct _Dpp_CObject *> Throwtable;
 
 /**
  * @brief the compile-time object informations(like final, static, inline, etc.)
- * 
+ *
  */
 struct INFOS {
 public:
@@ -207,7 +207,7 @@ public:
  * @brief the compile-time scope
  *
  * @details it often contains with brackets
- * 
+ *
  */
 class Namespace {
 public:
@@ -245,7 +245,7 @@ public:
  * @brief iterator for Object::id
  *
  * @details when define a new object, the iterator will be increased
- * 
+ *
  */
 class IDIterator {
 public:
@@ -294,15 +294,19 @@ private:
 
 /**
  * @brief genrate a opcode from op and l
- * 
+ *
  * @param op the opcode
  * @param l the opcode's paramters
  * @return OpCode the genrated opcode
  */
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    std::initializer_list<Object> l = {}) {
+    std::initializer_list<Object> l = {},
+    uint32_t line = 0,
+    uint32_t pos = 0) {
     OpCode _op;
     _op.opcode = op;
+    _op.line = line;
+    _op.pos = pos;
 
     uint32_t i = 0;
     for (auto it : l) {
@@ -315,16 +319,20 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
 
 /**
  * @brief genrate a opcode from op and l
- * 
+ *
  * @param op the opcode
  * @param params the opcode's paramters
  * @return OpCode the genrated opcode
  */
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    Heap<Object> &params) {
+    Heap<Object> &params,
+    uint32_t line,
+    uint32_t pos) {
     OpCode _op;
     _op.opcode = op;
     _op.params = params;
+    _op.line = line;
+    _op.pos = pos;
 
     return _op;
 }

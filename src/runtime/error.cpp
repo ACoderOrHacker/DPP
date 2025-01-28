@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdarg>
+#include "fmt.h"
 #include "objects.hpp"
 #include "struct.hpp"
 #include "error.hpp"
@@ -49,9 +50,18 @@ DXX_API FunctionObject *dpp::get_error_handle(dpp::object *obj) {
 DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
     acassert(vm == nullptr);
 
-    std::cout << "An error throwed\n";
-    std::cout << "    ";
-    // TODO: The function not finish
+    auto callstack = vm->callstack;
+    auto files = vm->files;
+    callstack.push(vm->state);
+
+    fmt::print_error(vm->_error->err->name, ": ", dpp::to_pchar(vm->_error->msg), "(most recent call first)\n");
+    while (callstack.size() > 0) {
+        auto &state = callstack.top();
+        OpCode op = state.vmopcodes.GetData(state.runat);
+        fmt::print_error("  at file: <", files.top(), ">, line: ", op.line, ", column: ", op.pos, "\n");
+        files.pop();
+        callstack.pop();
+    }
 
     exit(1);
 }

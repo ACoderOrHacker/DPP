@@ -48,13 +48,13 @@ target_end()
 target("dpp")
     set_kind("binary")
     add_files("src/main/dpp.cpp")
-    add_headerfiles("include/*")
 
     add_deps("compiler", "vm")
     add_packages("cxxopts", "cereal")
 target_end()
 
 target("tests")
+    set_kind("binary")
     add_files("src/tests/*.cpp")
 
     add_deps("compiler", "vm")
@@ -67,6 +67,7 @@ target("io")
 
     add_deps("vm")
     add_packages("cereal")
+    add_rules("utils.symbols.export_all") -- for export
 target_end()
 
 xpack("dpp")
@@ -85,16 +86,20 @@ xpack("dpp")
 
     add_sourcefiles("(src/**)")
     add_sourcefiles("(include/**)")
+    add_sourcefiles("(examples/**)")
+    add_sourcefiles("CHANGELOG.md")
+    add_sourcefiles("LICENSE")
+    add_sourcefiles("README.md")
 
     -- set install targets
     add_targets("dpp", "vm", "compiler")
     add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
     add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
     add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
-    add_installfiles("$(projectdir)/CHANGELOG")
+    add_installfiles("$(projectdir)/CHANGELOG.md")
     add_installfiles("$(projectdir)/LICENSE")
     add_installfiles("$(projectdir)/README.md")
 
     -- std libraries
-    add_targets("io", {prefixdir = "libs"})
+    add_targets("io")
 xpack_end()

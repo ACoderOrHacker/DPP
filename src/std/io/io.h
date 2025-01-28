@@ -15,4 +15,4 @@
  * @param vm the virtual machine instance
  * @return dpp::object * always None
  */
-_DXX_EXPORT_API dpp::object *out(dpp::vm vm);
+DXX_API dpp::object *out(dpp::vm vm);

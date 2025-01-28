@@ -1,6 +1,7 @@
 #include "DXXLexer.h"
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
+#include "ParserRuleContext.h"
 #include "builtin.hpp"
 #include "macros.hpp"
 #include "errors.hpp"
@@ -11,17 +12,20 @@
 
 using namespace errors;
 
+#define GET_LINE(ctx) ((ctx)->getStart()->getLine())
+#define GET_POS(ctx) ((ctx)->getStart()->getCharPositionInLine())
+
 /**
  * @brief report an error or warning for the given context (ctx)
  *
  */
-#define REPORT(id, ...) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), __VA_ARGS__);
+#define REPORT(id, ...) id(GET_LINE(ctx), GET_POS(ctx), __VA_ARGS__);
 
 /**
  * @brief report an error or warning for the given context (ctx) without arguments
  *
  */
-#define REPORT_NPARAM(id) id(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine());
+#define REPORT_NPARAM(id) id(GET_LINE(ctx), GET_POS(ctx));
 
 void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {
 
@@ -30,7 +34,7 @@ void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {
 #include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
-    explicit DXXVisitor(FObject *_fObj = nullptr) {
+    explicit DXXVisitor(const std::string &file, FObject *_fObj = nullptr) {
         if (_fObj != nullptr) fObj = _fObj;
         else fObj = dpp::create_vm();
 
@@ -61,6 +65,9 @@ public:
         make_type("object", OBJECT_TYPE);
         make_type("type", TYPE_TYPE);
         make_type("bool", INT_TYPE);
+
+        fObj->files.push(file);
+        fObj->obj_map.set_currentfile(file);
     }
 
     std::any visit(antlr4::tree::ParseTree *tree) override {
@@ -79,7 +86,7 @@ public:
         if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
             E0007();
         }
-        LoadOpcode(OPCODE_CALL, {main->object});
+        LoadOpcode(main_context, OPCODE_CALL, {main->object});
 
         dpp::fmt::print(error_count, " errors found, ", warning_count, " warnings found.\n");
         if (error_count != 0) {
@@ -121,7 +128,7 @@ public:
             }
 
             uint32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
-            ResetOpcode(it.second, OPCODE_JMP, { {true, pos} });
+            ResetOpcode(ctx, it.second, OPCODE_JMP, { {true, pos} });
         }
         gotos.clear();
 
@@ -145,7 +152,7 @@ public:
             params.PushData(mod->object);
         }
 
-        LoadOpcode(OPCODE_IMPORT, params);
+        LoadOpcode(ctx, OPCODE_IMPORT, params);
         return NONE;
     }
 
@@ -161,6 +168,8 @@ public:
         DXXParser::TheTypeContext *retType = _ctx->theType();
         DXXParser::ThrowtableContext *throwTable = _ctx->throwtable();
         DXXParser::BlockContext *block = ctx->block();
+
+        if (id == "main") main_context = ctx;
 
         bool isNone = true;
         Dpp_Object *func = MakeFunctionObject(id);
@@ -290,10 +299,10 @@ public:
         thisNamespace->objects.write(to);
 
         if (!noLoadVarOp) {
-            LoadOpcode(OPCODE_NEW, { type->object, to->object });
+            LoadOpcode(ctx, OPCODE_NEW, { type->object, to->object });
             if (_data != nullptr) {
                 data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
-                LoadOpcode(OPCODE_MOV, { data->object, to->object });
+                LoadOpcode(ctx, OPCODE_MOV, { data->object, to->object });
             }
         }
 
@@ -314,7 +323,7 @@ public:
 		Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
 		Dpp_CObject *val = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
-		LoadOpcode(OPCODE_MOV, { val->object, o->object });
+		LoadOpcode(ctx, OPCODE_MOV, { val->object, o->object });
 
 		return NONE;
 	}
@@ -349,7 +358,7 @@ public:
             }
             Object tmp = allocMapping();
 
-            LoadOpcode(OPCODE_METHOD, {container->object, method->object, tmp});
+            LoadOpcode(ctx, OPCODE_METHOD, {container->object, method->object, tmp});
             o = tmp;
             container = method;
         }
@@ -406,10 +415,10 @@ public:
         Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
 
-        LoadOpcode(OPCODE_JNT, {placeholder, placeholder});// just a placeholder
+        LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});// just a placeholder
         visitBlock(ctx->block());
         Object jmp_to = {true, block_end - 1};
-        ResetOpcode(jmp_pos, OPCODE_JNT, { jmp_to, is_jmp->object });
+        ResetOpcode(ctx, jmp_pos, OPCODE_JNT, { jmp_to, is_jmp->object });
 
         return NONE;
     }
@@ -426,16 +435,16 @@ public:
 
             uint32_t jmp1 = fObj->state.vmopcodes.size();
 
-            LoadOpcode(OPCODE_JNT, { placeholder, placeholder });
+            LoadOpcode(ctx, OPCODE_JNT, { placeholder, placeholder });
             visitBlock(it->block());
             Object next_block_begin = { true, (uint32_t)(fObj->state.vmopcodes.size())};
-            ResetOpcode(jmp1, OPCODE_JNT, {next_block_begin, is_jmp->object});
-            LoadOpcode(OPCODE_JNT, {placeholder, placeholder});// just a placeholder
+            ResetOpcode(ctx, jmp1, OPCODE_JNT, {next_block_begin, is_jmp->object});
+            LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});// just a placeholder
             placeholders.PushData(fObj->state.vmopcodes.size() - 1);
         }
 
         for (uint32_t _placeholder : placeholders) {
-            ResetOpcode(_placeholder, OPCODE_JMP, { {true, (uint32_t)fObj->state.vmopcodes.size() - 1} });
+            ResetOpcode(ctx, _placeholder, OPCODE_JMP, { {true, (uint32_t)fObj->state.vmopcodes.size() - 1} });
         }
 
         return NONE;
@@ -464,22 +473,22 @@ public:
         }
 
         uint32_t jmp1 = fObj->state.vmopcodes.size();
-        LoadOpcode(OPCODE_JNT, { placeholder, placeholder });
+        LoadOpcode(ctx, OPCODE_JNT, { placeholder, placeholder });
 
         in_loop = true;
         visitChildren(_block);
         // visitBlock(_block);
         in_loop = false;
 
-        ResetOpcode(jmp1, OPCODE_JNT, { {true, (uint32_t)(fObj->state.vmopcodes.size())}, data->object });
-        LoadOpcode(OPCODE_JMP, { {true, state_end}});
+        ResetOpcode(ctx, jmp1, OPCODE_JNT, { {true, (uint32_t)(fObj->state.vmopcodes.size())}, data->object });
+        LoadOpcode(ctx, OPCODE_JMP, { {true, state_end}});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(it, OPCODE_JMP, { {true, loop_end} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end} });
         }
         for (auto it : continues) {
-            ResetOpcode(it, OPCODE_JMP, { {true, loop_end - 1} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end - 1} });
         }
         breaks.clear();
         continues.clear();
@@ -506,14 +515,14 @@ public:
             REPORT_NPARAM(E0014);
         }
 
-        LoadOpcode(OPCODE_JNF, { {true, state_end}, data->object });
+        LoadOpcode(ctx, OPCODE_JNF, { {true, state_end}, data->object });
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(it, OPCODE_JMP, { {true, loop_end} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end} });
         }
         for (auto it : continues) {
-            ResetOpcode(it, OPCODE_JMP, { {true, loop_end - 1} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end - 1} });
         }
         breaks.clear();
         continues.clear();
@@ -531,7 +540,7 @@ public:
         }
 
         breaks.PushData(fObj->state.vmopcodes.size());
-        LoadOpcode(OPCODE_JMP, { placeholder });
+        LoadOpcode(ctx, OPCODE_JMP, { placeholder });
 
         return NONE;
     }
@@ -545,7 +554,7 @@ public:
         }
 
         continues.PushData(fObj->state.vmopcodes.size());
-        LoadOpcode(OPCODE_JMP, { placeholder });
+        LoadOpcode(ctx, OPCODE_JMP, { placeholder });
 
         return NONE;
     }
@@ -565,7 +574,7 @@ public:
                 REPORT_NPARAM(E0013);
             }
 
-            LoadOpcode(OPCODE_RET);
+            LoadOpcode(ctx, OPCODE_RET);
         }
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
@@ -576,7 +585,7 @@ public:
             REPORT_NPARAM(E0012);
         }
 
-        LoadOpcode(OPCODE_RET, { data->object });
+        LoadOpcode(ctx, OPCODE_RET, { data->object });
 
         return NONE;
     }
@@ -673,13 +682,13 @@ public:
                 REPORT(E0021, func->infos.native_library);
             }
 
-            LoadOpcode(OPCODE_CALLN, params);
+            LoadOpcode(ctx, OPCODE_CALLN, params);
             return co;
         }
 
         params.PushData(func->object);
-        LoadOpcode(OPCODE_CALL, params);
-        LoadOpcode(OPCODE_GETRET, { co->object });
+        LoadOpcode(ctx, OPCODE_CALL, params);
+        LoadOpcode(ctx, OPCODE_GETRET, { co->object });
 
         return co;
     }
@@ -692,7 +701,7 @@ public:
         const std::string &id = ctx->ID()->toString();
 
         gotos.insert({ id, fObj->state.vmopcodes.size() });
-        LoadOpcode(OPCODE_JMP, { placeholder });
+        LoadOpcode(ctx, OPCODE_JMP, { placeholder });
 
         return NONE;
     }
@@ -713,7 +722,7 @@ public:
 		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(ctx->theType()));
         Dpp_CObject *co = MakeObject("");
 
-        LoadOpcode(OPCODE_NEW, { type->object, co->object });
+        LoadOpcode(ctx, OPCODE_NEW, { type->object, co->object });
 		return co;
 	}
 
@@ -724,7 +733,7 @@ public:
 	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
 		Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
-        LoadOpcode(OPCODE_DEL, { data->object });
+        LoadOpcode(ctx, OPCODE_DEL, { data->object });
 
 		return NONE;
 	}
@@ -797,8 +806,8 @@ public:
         }
 
         Dpp_CObject *int1 = MakeInteger(1);
-        LoadOpcode(op, { data->object, int1->object, co->object });
-        LoadOpcode(OPCODE_MOV, { co->object, data->object });
+        LoadOpcode(ctx, op, { data->object, int1->object, co->object });
+        LoadOpcode(ctx, OPCODE_MOV, { co->object, data->object });
 
         return co;
     }
@@ -822,7 +831,7 @@ public:
             op = OPCODE_BNEG;
         }
 
-        LoadOpcode(op, { data->object, co->object });
+        LoadOpcode(ctx, op, { data->object, co->object });
         return co;
     }
 
@@ -841,7 +850,7 @@ public:
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
         }
-        LoadOpcode(OPCODE_AND, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_AND, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -861,7 +870,7 @@ public:
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
         }
-        LoadOpcode(OPCODE_OR, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_OR, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -881,10 +890,10 @@ public:
         if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
             REPORT_NPARAM(E0010);
         }
-        LoadOpcode(OPCODE_EQ, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, co->object });
         if (ctx->NotEqual() != nullptr) {
             Dpp_CObject *co2 = MakeObject("");
-            LoadOpcode(OPCODE_NOT, { co->object, co2->object });
+            LoadOpcode(ctx, OPCODE_NOT, { co->object, co2->object });
             return co2;
         }
 
@@ -915,7 +924,7 @@ public:
         } else if (ctx->Mod()!= nullptr) {
             op = OPCODE_MOD;
         }
-        LoadOpcode(op, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -942,7 +951,7 @@ public:
         } else if (ctx->Minus()!= nullptr) {
             op = OPCODE_SUB;
         }
-        LoadOpcode(op, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -969,7 +978,7 @@ public:
         } else if (ctx->RightShift() != nullptr) {
             op = OPCODE_SHR;
         }
-        LoadOpcode(op, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -993,24 +1002,24 @@ public:
 
         if (ctx->Less() != nullptr) {
             op = OPCODE_SMALLER;
-            LoadOpcode(op, { ldata->object, rdata->object, co->object });
+            LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
         } else if (ctx->Greater()!= nullptr) {
             op = OPCODE_BIGGER;
-            LoadOpcode(op, { ldata->object, rdata->object, co->object });
+            LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
         } else if (ctx->LessEqual() != nullptr) {
             Dpp_CObject *less_tmp = MakeObject("");
             Dpp_CObject *equal_tmp = MakeObject("");
 
-            LoadOpcode(OPCODE_SMALLER, { ldata->object, rdata->object, less_tmp->object });
-            LoadOpcode(OPCODE_EQ, { ldata->object, rdata->object, equal_tmp->object });
-            LoadOpcode(OPCODE_OR, { less_tmp->object, equal_tmp->object, co->object });
+            LoadOpcode(ctx, OPCODE_SMALLER, { ldata->object, rdata->object, less_tmp->object });
+            LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, equal_tmp->object });
+            LoadOpcode(ctx, OPCODE_OR, { less_tmp->object, equal_tmp->object, co->object });
         } else if (ctx->GreaterEqual() != nullptr) {
             Dpp_CObject *greater_tmp = MakeObject("");
             Dpp_CObject *equal_tmp = MakeObject("");
 
-            LoadOpcode(OPCODE_BIGGER, { ldata->object, rdata->object, greater_tmp->object });
-            LoadOpcode(OPCODE_EQ, { ldata->object, rdata->object, equal_tmp->object });
-            LoadOpcode(OPCODE_OR, { greater_tmp->object, equal_tmp->object, co->object });
+            LoadOpcode(ctx, OPCODE_BIGGER, { ldata->object, rdata->object, greater_tmp->object });
+            LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, equal_tmp->object });
+            LoadOpcode(ctx, OPCODE_OR, { greater_tmp->object, equal_tmp->object, co->object });
         }
         return co;
     }
@@ -1031,7 +1040,7 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(OPCODE_BAND, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_BAND, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -1052,7 +1061,7 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(OPCODE_BXOR, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_BXOR, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -1073,7 +1082,7 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(OPCODE_BOR, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_BOR, { ldata->object, rdata->object, co->object });
 
         return co;
     }
@@ -1093,7 +1102,7 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(OPCODE_MUL, { data->object, int_1->object, co->object });
+        LoadOpcode(ctx, OPCODE_MUL, { data->object, int_1->object, co->object });
 
         return co;
     }
@@ -1127,24 +1136,27 @@ private:
      * @return: void
      * Create a opcode and push it to main state(fObj->state)
      */
-    static void LoadOpcode(rt_opcode op,
-                    std::initializer_list<Object> l = {}) {
-        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, l));
+    static void LoadOpcode(antlr4::ParserRuleContext *ctx,
+        rt_opcode op,
+        std::initializer_list<Object> l = {}) {
+        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
     }
 
-    static void LoadOpcode(rt_opcode op,
+    static void LoadOpcode(antlr4::ParserRuleContext *ctx,
+        rt_opcode op,
         Heap<Object> &params) {
-        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, params));
+        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, params, GET_LINE(ctx), GET_POS(ctx)));
     }
 
     /*
      * @return: void
      * Reset the opcode in the state
      */
-    static void ResetOpcode(uint32_t pos,
-                     rt_opcode op,
-                     std::initializer_list<Object> l = {}) {
-        fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, l));
+    static void ResetOpcode(antlr4::ParserRuleContext *ctx,
+        uint32_t pos,
+        rt_opcode op,
+        std::initializer_list<Object> l = {}) {
+        fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
     }
 
     /*
@@ -1523,6 +1535,8 @@ private:
         return tmp;
     }
 private:
+    antlr4::ParserRuleContext *main_context = nullptr;
+
     Namespace *globalNamespace = new Namespace;
     Namespace *thisNamespace = globalNamespace;
     std::stack<Namespace *> namespaces;
@@ -1552,13 +1566,14 @@ private:
 };
 #include "export.h"
 
-forceinline dpp::vm _compile(antlr4::ANTLRInputStream input) {
+forceinline dpp::vm _compile(antlr4::ANTLRInputStream &input,
+    const std::string &file) {
     DXXLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     DXXParser parser(&tokens);
     DXXParser::MainContext *main = parser.main();
 
-    DXXVisitor visitor;
+    DXXVisitor visitor(file);
     FObject *fObj = anycast(FObject *, visitor.visit(main));
 
     return fObj;
@@ -1568,17 +1583,17 @@ NAMESPACE_DPP_BEGIN
 
 DXX_API dpp::vm compile(const std::string &code) {
     antlr4::ANTLRInputStream input(code);
-    return _compile(input);
+    return _compile(input, "<stdin>");
 }
 
-DXX_API dpp::vm compile(std::ifstream &ifs) {
+DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file) {
     antlr4::ANTLRInputStream input(ifs);
-    return _compile(input);
+    return _compile(input, file);
 }
 
-DXX_API dpp::vm compile(std::fstream &ifs) {
+DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file) {
     antlr4::ANTLRInputStream input(dynamic_cast<std::ifstream &>(ifs));
-    return _compile(input);
+    return _compile(input, file);
 }
 
 NAMESPACE_DPP_END

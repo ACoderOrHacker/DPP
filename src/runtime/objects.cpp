@@ -176,6 +176,10 @@ std::string IntObject::to_string(dpp::object *obj) {
     return std::to_string(dpp::get_int(obj));
 }
 
+std::string IntObject::to_datastring(dpp::object *obj) {
+    return std::to_string(dpp::get_int(obj));
+}
+
 dpp::object *FloatObject::add(dpp::object *lval, dpp::object *rval) {
     FloatNum rval_float;
     if (dpp::is_float(rval)) {
@@ -286,6 +290,10 @@ std::string FloatObject::to_string(dpp::object *obj) {
     return std::to_string(dpp::get_float(obj));
 }
 
+std::string FloatObject::to_datastring(dpp::object *obj) {
+    return std::to_string(dpp::get_float(obj));
+}
+
 dpp::object *StringObject::add(dpp::object *lval, dpp::object *rval) {
     return dpp::make_string(dpp::get_string(lval) + dpp::get_string(rval));
 }
@@ -319,18 +327,38 @@ std::string StringObject::to_string(dpp::object *obj) {
     return dpp::to_pchar(dpp::get_string(obj));
 }
 
+std::string StringObject::to_datastring(dpp::object *obj) {
+    return std::string("\"") + dpp::to_pchar(dpp::get_string(obj)) + "\"";
+}
+
 std::string ClassObject::to_string(dpp::object *obj) {
-    return "class " + obj->name;
+    return "<class " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string ErrorObject::to_string(dpp::object *obj) {
-    return "error " + obj->name;
+    return "<error " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string FunctionObject::to_string(dpp::object *obj) {
-    return "function " + obj->name;
+    return "<function " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string TypeObject::to_string(dpp::object *obj) {
-    return "type " + obj->name;
+    return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
+std::string ClassObject::to_datastring(dpp::object *obj) {
+    return "<class " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
+std::string ErrorObject::to_datastring(dpp::object *obj) {
+    return "<error " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
+std::string FunctionObject::to_datastring(dpp::object *obj) {
+    return "<function " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
+std::string TypeObject::to_datastring(dpp::object *obj) {
+    return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
