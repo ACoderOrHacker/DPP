@@ -46,7 +46,7 @@ public:
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
-                ("plugin,p", "run a plugin", cxxopts::value<std::string>())
+                ("plugin,p", "choose a plugin file", cxxopts::value<std::string>())
                 ("output, o", "set output directory", cxxopts::value<std::string()>())
                 ("args,a", "set arguments for plugins or another custom tools", cxxopts::value<std::vector<std::string>>())
                 ("command", "command in the custom tools", cxxopts::value<std::string>())
