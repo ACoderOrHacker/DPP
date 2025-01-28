@@ -158,7 +158,7 @@ public:
                 try {
                     dylib plugin_lib(plugin_file);
                     if (plugin_lib.has_symbol(command)) {
-                        auto plugin_func = plugin_lib.get_function<dpp::plugin_init_func>(plugin_id);
+                        auto plugin_func = plugin_lib.get_function<dpp::plugin_init_func>(command);
                         plugin_func(dpp::plugin_args{output_dir, args}); // run plugin
                     }
                 } catch (dylib::exception &) {
