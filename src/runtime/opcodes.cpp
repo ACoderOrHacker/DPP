@@ -416,21 +416,30 @@ void _or(dpp::vm vm) {
 	vm->obj_map.write(to, _c, true);
 }
 
-void _jmp(dpp::vm vm) {
-	Object _jmpto = vm->_theap->PopFront();
+void _jnt(dpp::vm vm) {
+    Object _jmpto = vm->_theap->PopFront();
 
-    if (vm->flags.get_flag<__OpcodeFlags::JMP_TRUE>()) {
-        if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-            vm->state.runat = _jmpto.id;
-        }
-        return;
-    } else if (vm->flags.get_flag<__OpcodeFlags::JMP_FALSE>()) {
-        if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-            vm->state.runat = _jmpto.id;
-        }
-        return;
+    if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
+        vm->state.runat = _jmpto.id;
     }
-	vm->state.runat = _jmpto.id;
+
+    vm->state.runat = _jmpto.id;
+}
+
+void _jnf(dpp::vm vm) {
+    Object _jmpto = vm->_theap->PopFront();
+
+    if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
+        vm->state.runat = _jmpto.id;
+    }
+
+    vm->state.runat = _jmpto.id;
+}
+
+void _jmp(dpp::vm vm) {
+    Object _jmpto = vm->_theap->PopFront();
+
+    vm->state.runat = _jmpto.id;
 }
 
 void _call(dpp::vm vm) {

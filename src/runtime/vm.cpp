@@ -57,7 +57,9 @@ const OpcodeFunc opcode_list[256] = {
 	&_smaller,
 	&_and,
 	&_or,
-	&_jmp,
+	&_jnt,
+    &_jnf,
+    &_jmp,
 	&_call,
     &_getret,
 	&_calln,
@@ -88,6 +90,8 @@ const char *opcode_name_list[256] = {
     "smaller",
     "and",
     "or",
+    "jnt",
+    "jnf",
     "jmp",
     "call",
     "getret",
@@ -100,23 +104,8 @@ const char *opcode_name_list[256] = {
     "method"
 };
 
-const char *flag_name_list[8] = {
-    "null",
-    "null",
-    "null",
-    "null",
-    "JMP_FALSE",
-    "JMP_TRUE",
-    "null",
-    "null"
-};
-
 VM_API const char *dpp::get_opcode_name(unsigned char opcode_id) {
     return opcode_name_list[opcode_id - 1];
-}
-
-VM_API const char *dpp::get_flag_name(uint8_t i) {
-    return flag_name_list[i - 1];
 }
 
 VM_API dpp::vm dpp::create_vm() {
@@ -153,7 +142,6 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
             vm->exit_code = EXIT_FAILURE;
             goto EXIT;
         }
-        ~vm->flags; // clear the flags
 
 		if(isfail == EXEC_FAILED && vm->_error != nullptr) {
             dpp::catch_error(vm);
@@ -182,10 +170,6 @@ EXIT:
 }
 
 VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
-	if(!opcode.flag.empty()) {
-		vm->flags = opcode.flag; // set the flags
-	}
-
     *vm->_theap = opcode.params; // write the params to the 'vm->_theap' for the opcode
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {

@@ -45,6 +45,8 @@ void _bigger(dpp::vm vm);
 void _smaller(dpp::vm vm);
 void _and(dpp::vm vm);
 void _or(dpp::vm vm);
+void _jnt(dpp::vm vm);
+void _jnf(dpp::vm vm);
 void _jmp(dpp::vm vm);
 void _call(dpp::vm vm);
 void _getret(dpp::vm vm);

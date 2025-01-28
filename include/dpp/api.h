@@ -253,28 +253,6 @@ forceinline std::string get_file_type(const std::string &magic_number) {
 }
 
 /**
- * @brief get flag name from flag
- *
- * @param flag the flag to get name
- * @return std::string the flag string
- */
-forceinline std::string get_flags_name(const OpcodeFlags flag) {
-    if(flag.empty()) {
-        return "null";
-    }
-
-    std::string s;
-    for(int i = 0; i < OpcodeFlags::flags_count; ++i) {
-        if(flag.get_flag((__OpcodeFlags)i)) {
-            s += dpp::get_flag_name(i);
-            s += " ";
-        }
-    }
-
-    return s;
-}
-
-/**
  * @brief output vm structure to command line
  *
  * @param vm the vm instance
@@ -286,7 +264,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
         for(auto &it : state.vmopcodes) {
             std::string s;
 
-            s += std::string("    .") + std::to_string(i) + "(" + dpp::get_flags_name(it.flag) + "): " + dpp::get_opcode_name(it.opcode) + " ";
+            s += std::string("    .") + std::to_string(i) + ": " + dpp::get_opcode_name(it.opcode) + " ";
 
             for (auto &param : it.params) {
                 s += std::string(param.isInGlobal ? GLOBAL_OBJECT_SHOW_SIGN : LOCAL_OBJECT_SHOW_SIGN) + std::to_string(param.id) + std::string(" ");

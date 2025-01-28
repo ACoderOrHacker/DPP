@@ -5,7 +5,6 @@
 #include <cereal/types/base_class.hpp>
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
-#include "flags.hpp"
 
 /*
  * The Status Code
@@ -13,16 +12,6 @@
 using STATUS = bool;
 constexpr bool STATUS_SUCCESS = true;
 constexpr bool STATUS_FAILED = false;
-
-/**
- * @brief Construct a new define flags object
- *
- * @details the flags in opcodes
- */
-DEFINE_FLAGS(OpcodeFlags,
-    JMP_TRUE,
-    JMP_FALSE
-);
 
 /**
  * namespaces define macros

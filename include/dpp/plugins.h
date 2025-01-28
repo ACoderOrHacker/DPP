@@ -13,7 +13,11 @@
 
 NAMESPACE_DPP_BEGIN
 
-using plugin_args = std::vector<std::string>;
+struct plugin_args {
+    fs::path output_dir;
+    std::vector<std::string> args;
+};
+
 using plugin_init_func = void (const plugin_args &);
 
 NAMESPACE_DPP_END

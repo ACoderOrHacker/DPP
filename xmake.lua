@@ -10,12 +10,17 @@ add_rules("mode.debug", "mode.release") -- debug mode and release mode
 set_languages("c++17") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
+local vs_runtime_MD = is_mode("debug") and "MDd" or "MD"
+set_runtimes(vs_runtime_MD)
+
 set_configdir("include")
 add_configfiles("include/config.h.in")
 
 -- requires
-add_requires("cereal 1.3.2", "cxxopts 3.2.1", "antlr4-runtime 4.13.2", "antlr4 4.13.2")
--- add_requires("termcolor 2.1.0")
+add_requires("antlr4-runtime 4.13.2")
+add_requires("antlr4 4.13.2")
+add_requires("cxxopts 3.2.1")
+add_requires("cereal 1.3.2")
 add_requires("doctest 2.4.11")
 
 -- include directories

@@ -69,7 +69,9 @@ enum rt_opcode : unsigned char {
 	OPCODE_SMALLER,
 	OPCODE_AND,
 	OPCODE_OR,
-	OPCODE_JMP,
+	OPCODE_JNT,
+    OPCODE_JNF,
+    OPCODE_JMP,
 	OPCODE_CALL,
     OPCODE_GETRET,
 	OPCODE_CALLN,
@@ -292,10 +294,9 @@ typedef struct _VMError {
 
 typedef struct _OpCode {
     rt_opcode opcode = OPCODE_START;
-	OpcodeFlags flag;
     Heap<Object> params;
 
-Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(flag), Dpp_NVP(params))
+Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(params))
 } OpCode;
 
 typedef Heap<Object> Tmp_Heap;
@@ -324,7 +325,6 @@ public:
 	std::stack<struct VMState> callstack;
     std::stack<Dpp_Object *> return_values;
 	struct VMState state;
-	OpcodeFlags flags;
 	int exit_code = EXIT_SUCCESS;
 
 Dpp_SERIALIZE(Dpp_NVP(modules), Dpp_NVP(obj_map),  Dpp_NVP(state))

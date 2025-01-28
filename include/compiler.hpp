@@ -252,12 +252,10 @@ private:
 };
 
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    OpcodeFlags flags = OpcodeFlags(),
     std::initializer_list<Object> l = {}) {
     OpCode _op;
     _op.params = *new Heap<Object>;
     _op.opcode = op;
-    _op.flag = flags;
 
     uint32_t i = 0;
     for (auto it : l) {
@@ -269,11 +267,9 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
 }
 
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    OpcodeFlags flags,
     Heap<Object> &params) {
     OpCode _op;
     _op.opcode = op;
-    _op.flag = flags;
     _op.params = params;
 
     return _op;
