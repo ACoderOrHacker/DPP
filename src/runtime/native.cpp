@@ -43,11 +43,12 @@ dpp::native_module dpp::open(const std::string &lib) {
 
 DXX_API dpp::proc dpp::get_proc(const dpp::native_module &m, const std::string &proc_id) {
     try {
-        return m.get_symbol(proc_id.c_str());
+        return m.get_symbol(proc_id);
     } catch (dylib::exception &) {
         throw std::runtime_error("Failed to get native proc address: " + proc_id);
     }
 }
 
-DXX_API void dpp::close(dpp::native_module) {
+DXX_API void dpp::close(dpp::native_module m) {
+    m.close();
 }

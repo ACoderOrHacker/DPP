@@ -67,7 +67,6 @@ target("io")
 
     add_deps("vm")
     add_packages("cereal")
-    add_rules("utils.symbols.export_all") -- for export
 target_end()
 
 xpack("dpp")

@@ -1,6 +1,6 @@
 #include "io.h"
 
-DXX_API dpp::object *out(dpp::vm vm) {
+_DXX_EXPORT_API dpp::object *out(dpp::vm vm) {
     Object o = vm->_theap->PopFront();
 
     dpp::object *obj = vm->obj_map.get(o);
