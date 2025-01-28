@@ -85,7 +85,7 @@ public:
 #if defined(_WIN32) || defined(_WIN64)
         handle = LoadLibrary(path.c_str());
 #else
-        handle = dlopen(path, RTLD_LAZY);
+        handle = dlopen(path.c_str(), RTLD_LAZY);
 #endif
         if (!handle) throw exception("no such file");
     }
