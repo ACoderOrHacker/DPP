@@ -1010,7 +1010,11 @@ RECURSIVE = YES
 # run.
 
 EXCLUDE                = ./doxygen-awesome-css/ \
-                         ./include/config.h
+                         ./include/config.h \
+                         ./node_modules/ \
+                         CHANGELOG.md \
+                         package.json \
+                         package-lock.json
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

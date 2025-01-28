@@ -81,7 +81,7 @@ public:
         }
         LoadOpcode(OPCODE_CALL, {main->object});
 
-        dpp::fmt::print(error_count, " errors found, ", warning_count, "warnings found.\n");
+        dpp::fmt::print(error_count, " errors found, ", warning_count, " warnings found.\n");
         if (error_count != 0) {
             exit(EXIT_FAILURE);
         }
@@ -1552,7 +1552,7 @@ private:
 };
 #include "export.h"
 
-DXX_API FObject *_compile(antlr4::ANTLRInputStream input) {
+forceinline dpp::vm _compile(antlr4::ANTLRInputStream input) {
     DXXLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     DXXParser parser(&tokens);
@@ -1566,17 +1566,17 @@ DXX_API FObject *_compile(antlr4::ANTLRInputStream input) {
 
 NAMESPACE_DPP_BEGIN
 
-DXX_API FObject *compile(const std::string &code) {
+DXX_API dpp::vm compile(const std::string &code) {
     antlr4::ANTLRInputStream input(code);
     return _compile(input);
 }
 
-DXX_API FObject *compile(std::ifstream &ifs) {
+DXX_API dpp::vm compile(std::ifstream &ifs) {
     antlr4::ANTLRInputStream input(ifs);
     return _compile(input);
 }
 
-DXX_API FObject *compile(std::fstream &ifs) {
+DXX_API dpp::vm compile(std::fstream &ifs) {
     antlr4::ANTLRInputStream input(dynamic_cast<std::ifstream &>(ifs));
     return _compile(input);
 }

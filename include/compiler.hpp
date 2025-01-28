@@ -1,25 +1,10 @@
-/*
-  MIT License
-
-  Copyright (c) 2023 ACoderOrHacker
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
+/**
+ * @file compiler.hpp
+ * @author ACoderOrHacker (sgy2788@163.com)
+ * @brief Defines compiler API and other compile-time structures
+ * 
+ * @copyright Copyright (c) 2025
+ * 
  */
 
 #include "macros.hpp"
@@ -43,22 +28,66 @@
 #define VOID_TYPE UINT_MAX
 #define OBJECT_TYPE (UINT_MAX - 1)
 
-DXX_API FObject *fObj = new FObject;
+/**
+ * @brief genrated vm by compiler
+ * 
+ */
+DXX_API dpp::vm fObj = new FObject;
 
 NAMESPACE_DPP_BEGIN
 
-DXX_API FObject *compile(const std::string &code);
-DXX_API FObject *compile(std::ifstream &ifs);
-DXX_API FObject *compile(std::fstream &ifs);
+/**
+ * @brief compile D++ code
+ * 
+ * @param code the D++ code string
+ * @return dpp::vm the vm instance
+ */
+DXX_API dpp::vm compile(const std::string &code);
+
+/**
+ * @brief compile D++ code
+ * 
+ * @param ifs the D++ code filestream
+ * @return dpp::vm the vm instance
+ */
+DXX_API dpp::vm compile(std::ifstream &ifs);
+
+/**
+ * @brief compile D++ code
+ * 
+ * @param ifs the D++ code filestream
+ * @return dpp::vm the vm instance
+ */
+DXX_API dpp::vm compile(std::fstream &ifs);
 
 NAMESPACE_DPP_END
 
+/**
+ * @brief the compile-time object in compiler
+ *
+ * @details include symbols, types, its object position, etc.
+ * 
+ */
 struct _Dpp_CObject;
-class RetTypeNeqError : std::exception {};
+
+/**
+ * @brief when the return type is not equal to the function's return type, throw this error
+ * 
+ */
+Dpp_DEFINE_ERROR(RetTypeNeqError)
+
 bool throw_when_neq = false;
 
+/**
+ * @brief the throw table in function
+ * 
+ */
 typedef std::unordered_map<std::string, struct _Dpp_CObject *> Throwtable;
 
+/**
+ * @brief the compile-time object informations(like final, static, inline, etc.)
+ * 
+ */
 struct INFOS {
 public:
     unsigned is_compiletime : 1;
@@ -174,6 +203,12 @@ public:
     }
 } Dpp_CObject;
 
+/**
+ * @brief the compile-time scope
+ *
+ * @details it often contains with brackets
+ * 
+ */
 class Namespace {
 public:
     Array<Dpp_CObject *> objects;
@@ -206,6 +241,12 @@ public:
     }
 };
 
+/**
+ * @brief iterator for Object::id
+ *
+ * @details when define a new object, the iterator will be increased
+ * 
+ */
 class IDIterator {
 public:
     IDIterator() {
@@ -251,10 +292,16 @@ private:
     uint32_t global;
 };
 
+/**
+ * @brief genrate a opcode from op and l
+ * 
+ * @param op the opcode
+ * @param l the opcode's paramters
+ * @return OpCode the genrated opcode
+ */
 DXX_API OpCode MakeOpCode(rt_opcode op,
     std::initializer_list<Object> l = {}) {
     OpCode _op;
-    _op.params = *new Heap<Object>;
     _op.opcode = op;
 
     uint32_t i = 0;
@@ -266,6 +313,13 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
     return _op;
 }
 
+/**
+ * @brief genrate a opcode from op and l
+ * 
+ * @param op the opcode
+ * @param params the opcode's paramters
+ * @return OpCode the genrated opcode
+ */
 DXX_API OpCode MakeOpCode(rt_opcode op,
     Heap<Object> &params) {
     OpCode _op;

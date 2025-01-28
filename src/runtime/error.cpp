@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdarg>
 #include "objects.hpp"
+#include "struct.hpp"
 #include "error.hpp"
 
 bool dpp::call_function(dpp::vm vm,
@@ -36,7 +37,7 @@ bool dpp::call_function(dpp::vm vm,
  * @param obj
  * @return FunctionObject *
  */
-DXX_API FunctionObject *dpp::get_error_handle(Dpp_Object *obj) {
+DXX_API FunctionObject *dpp::get_error_handle(dpp::object *obj) {
     acassert(!dpp::is_error(obj));
 
     if (((ErrorObject *)obj)->handles.empty()) {
