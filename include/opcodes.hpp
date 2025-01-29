@@ -52,7 +52,6 @@ void _call(dpp::vm vm);
 void _getret(dpp::vm vm);
 void _calln(dpp::vm vm);
 void _ret(dpp::vm vm);
-void _sign(dpp::vm vm);
 void _new(dpp::vm vm);
 void _del(dpp::vm vm);
 void _mov(dpp::vm vm);

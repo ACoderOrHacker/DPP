@@ -417,24 +417,29 @@ void _or(dpp::vm vm) {
 	vm->obj_map.write(to, _c, true);
 }
 
+// jmp when false
 void _jnt(dpp::vm vm) {
     Object _jmpto = vm->_theap->PopFront();
 
-    if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-        vm->state.runat = _jmpto.id;
+    try {
+        if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
+            vm->state.runat = _jmpto.id;
+        }
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
     }
-
-    vm->state.runat = _jmpto.id;
 }
 
 void _jnf(dpp::vm vm) {
     Object _jmpto = vm->_theap->PopFront();
 
-    if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-        vm->state.runat = _jmpto.id;
+    try {
+        if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
+            vm->state.runat = _jmpto.id;
+        }
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError, L"");
     }
-
-    vm->state.runat = _jmpto.id;
 }
 
 void _jmp(dpp::vm vm) {
@@ -521,37 +526,6 @@ void _import(dpp::vm vm) {
 
 }
 
-void _sign(dpp::vm vm) {
-
-}
-/*
-void _sign(dpp::vm vm) {
-	Object _signal = vm->_theap->PopFront();
-#ifdef __TEST
-	std::cout << GetBit(vm->flags, 0) << " " << GetBit(vm->flags, 1) << std::endl;
-#endif
-	if(GetBit(vm->flags, 0) == 1) {
-		// vm->_error bit
-		if(GetBit(vm->flags, 1) == 1) {
-			// set vm->_error function
-			vm->vm->_error_accept.write(_signal.id, vm->_theap->PopFront());
-		} else {
-			// throw vm->_error
-			vm->_error->PushData(_signal);
-		}
-	} else {
-		// signal bit
-		if(GetBit(vm->flags, 1) == 1) {
-
-			// set signal function
-			vm->signal_accept.write(_signal.id, vm->_theap->PopFront());
-		} else {
-			// push a signal to signal pool
-			vm->sig->PushData((SIGNAL)_signal.id);
-		}
-	}
-}
-*/
 void _new(dpp::vm vm) {
 	Object _type = vm->_theap->PopFront();
 	Object _to = vm->_theap->PopFront();
@@ -605,18 +579,3 @@ void _method(dpp::vm vm) {
 
     // TODO: Not Success
 }
-
-/*
-  void _convert(dpp::vm vm,
-  vm->_errorPool *vm->_error,
-  Tmp_Heap *vm->_theap) {
-  Object convert_id = vm->_theap->PopFront(); // convert_id is the 'pConvertList' id
-  Object _obj = vm->_theap->PopFront();
-  Object to = vm->_theap->PopFront();
-
-  dpp::object *obj = vm->obj_map.get(_obj);
-
-  dpp::object *rtn = vm->pConvertList[convert_id.id](vm->_error, obj);
-  vm->obj_map.write(to.id, rtn);
-  }
- */

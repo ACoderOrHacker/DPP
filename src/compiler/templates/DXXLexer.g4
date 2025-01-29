@@ -112,6 +112,8 @@ Virtual: 'virtual';
 
 Void: 'void';
 
+When: 'when';
+
 While: 'while';
 
 With: 'with';
@@ -130,7 +132,7 @@ LeftBrace: '{';
 
 RightBrace: '}';
 
-Arrow: '=>';
+Arrow: '->';
 
 Plus: '+';
 

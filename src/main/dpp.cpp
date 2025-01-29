@@ -1,8 +1,15 @@
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <ios>
 #include <memory>
 #include <ostream>
+#include <sstream>
+#if defined(_WIN32) || defined(_WIN64)
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "cereal/details/helpers.hpp"
 #include "cxxopts.hpp"
@@ -87,12 +94,16 @@ public:
                         fmt::print_error("error: cannot find '", it, "' source file\n");
                         return EXIT_FAILURE;
                     }
-                    dpp::vm vm = dpp::compile(ifs, it);
+                    dpp::vm vm = dpp::compile(ifs, it, true);
 
                     dpp::close_file(ifs);
                     auto filename = std::filesystem::path(it).filename().stem().string();
-                    std::ofstream fs;
-                    fs.open(output_dir / (filename + ".dppo"));
+                    std::ofstream fs = dpp::open_file<std::ofstream>((output_dir.string() + "/" + (filename + ".dppo")),
+                        std::ios_base::out | std::ios_base::binary,
+                        [](const std::string &file, std::ofstream &) -> void {
+                            fmt::print_error("cannot create file '", file + ".dppo", "'. maybe you have no premission to create.");
+                            exit(EXIT_FAILURE);
+                        });
                     dpp::serialize::save<FObject>(fs, *vm,
                         [](cereal::Exception &e) {
                             fmt::print_error("error: internal error\n");
@@ -105,13 +116,13 @@ public:
                 dpp::vm vm = dpp::create_vm();
 
                 std::string filename = result["run"].as<std::string>();
-                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in,
+                std::ifstream ifs = dpp::open_file<std::ifstream>(output_dir.string() + "/" + filename, std::ios_base::in | std::ios_base::binary,
                     [](const std::string &filename, std::ifstream &fs) -> void {
                         fmt::print_error("error: cannot find '", filename, "' binary file\n");
                         exit(EXIT_FAILURE);
                     });
 
-                *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(const_cast<std::ifstream &>(ifs)),
+                *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(ifs),
                     [](cereal::Exception &e) {
                         fmt::print_error("error: invaild input file\n");
                         fmt::print_error("    message: ", e.what(), "\n");
@@ -127,7 +138,7 @@ public:
                     [](const std::string &filename, std::ifstream &fs) -> void {
                         fmt::print_error("error: cannot find '", filename, "' source file\n");
                         exit(EXIT_FAILURE);
-                    });
+                    }, true);
                 exit(exit_code);
             } else if (result.count("list")) {
                 dpp::output_information();
@@ -143,7 +154,7 @@ public:
                     fmt::print_error("error: cannot find '", file, "' source file\n");
                     return EXIT_FAILURE;
                 }
-                vm = dpp::compile(ifs, file);
+                vm = dpp::compile(ifs, file, true);
                 dpp::close_file(ifs);
 
                 dpp::output_vm(vm, false);
@@ -175,7 +186,7 @@ public:
     }
 
 private:
-    fs::path output_dir;
+    fs::path output_dir = fs::current_path();
     std::vector<std::string> args;
     std::string command;
 };

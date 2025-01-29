@@ -1,0 +1,40 @@
+fun native("io", "out") out(o: object): void;
+
+fun main(): void {
+    a: int = 1;
+    b: int = 2;
+
+    when a == 1 {
+        out("a == 1 in when");
+    }
+
+    when {
+        b == 2 -> {
+            out("b == 2");
+        }
+        b == 3 -> {
+            out("b == 3");
+        }
+    }
+
+    when {
+        b == 1 -> {
+            out("b == 1");
+        }
+        a == 2 -> {
+            out("a == 2");
+        }
+        default -> {
+            out("default");
+        }
+    }
+
+    when {
+        b == 1 -> {
+            out("b == 1");
+        }
+        a == 1 -> {
+            out("a == 1");
+        }
+    }
+}

@@ -28,12 +28,19 @@
 # D++ Object Files
 *.dppo
 
+# Temp files
 /.xmake/
 **/.antlr/
 /local/
 
+# genrated config file
 /include/config.h
 
+# by VSCode Counter
 /.VSCodeCounter/
 
+# node modules
 /node_modules/
+
+# xmake genrated Visual Studio project
+/vsxmake2022/

@@ -7,8 +7,8 @@
  *
  */
 
-#include "macros.hpp"
 #ifndef _COMPILER_H
+#define _COMPILER_H
 
 #include <climits>
 #include <cstdint>
@@ -29,10 +29,12 @@
 #define OBJECT_TYPE (UINT_MAX - 1)
 
 /**
- * @brief genrated vm by compiler
+ * @brief when the return type is not equal to the function's return type, throw this error
  *
  */
-DXX_API dpp::vm fObj = new FObject;
+Dpp_DEFINE_ERROR(RetTypeNeqError)
+
+bool throw_when_neq = false;
 
 NAMESPACE_DPP_BEGIN
 
@@ -42,7 +44,7 @@ NAMESPACE_DPP_BEGIN
  * @param code the D++ code string
  * @return dpp::vm the vm instance
  */
-DXX_API dpp::vm compile(const std::string &code);
+DXX_API dpp::vm compile(const std::string &code, bool is_output = false);
 
 /**
  * @brief compile D++ code
@@ -50,7 +52,7 @@ DXX_API dpp::vm compile(const std::string &code);
  * @param ifs the D++ code filestream
  * @return dpp::vm the vm instance
  */
-DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file);
+DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file, bool is_output = false);
 
 /**
  * @brief compile D++ code
@@ -58,7 +60,7 @@ DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file);
  * @param ifs the D++ code filestream
  * @return dpp::vm the vm instance
  */
-DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file);
+DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file, bool is_output = false);
 
 NAMESPACE_DPP_END
 
@@ -69,14 +71,6 @@ NAMESPACE_DPP_END
  *
  */
 struct _Dpp_CObject;
-
-/**
- * @brief when the return type is not equal to the function's return type, throw this error
- *
- */
-Dpp_DEFINE_ERROR(RetTypeNeqError)
-
-bool throw_when_neq = false;
 
 /**
  * @brief the throw table in function

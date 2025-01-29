@@ -72,9 +72,7 @@ public:
     }
 
 
-    ~dylib() {
-        close();
-    }
+    ~dylib() = default;
 
     /**
      * @brief open file to handle
@@ -82,12 +80,15 @@ public:
      * @param path
      */
     void open(const std::string &path) {
+        bool isfailed = false;
 #if defined(_WIN32) || defined(_WIN64)
         handle = LoadLibrary(path.c_str());
+        isfailed = (GetLastError() != 0);
 #else
         handle = dlopen(path.c_str(), RTLD_LAZY);
+        isfailed = (!handle);
 #endif
-        if (!handle) throw exception("no such file");
+        if (isfailed) throw exception("error from open dylib");
     }
 
 #ifdef DYLIB_CPP17
@@ -121,13 +122,16 @@ public:
      */
     [[nodiscard]] native_symbol_type get_symbol(const std::string &name) const {
         native_symbol_type sym = nullptr;
+        bool isfailed = false;
 
 #if defined(_WIN32) || defined(_WIN64)
         sym = GetProcAddress(handle, name.c_str());
+        isfailed = (GetLastError() != 0);
 #else
         sym = dlsym(handle, name.c_str());
+        isfailed = (!sym);
 #endif
-        if (!sym) {
+        if (isfailed) {
             throw dylib::exception("no such symbol " + name);
         }
 
@@ -146,7 +150,7 @@ public:
         return reinterpret_cast<T *>(get_symbol(func));
     }
 
-    bool has_symbol(const std::string &name) const {
+    [[nodiscard]] bool has_symbol(const std::string &name) const {
         return get_symbol(name) != nullptr;
     }
 

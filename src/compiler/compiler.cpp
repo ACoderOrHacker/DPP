@@ -3,14 +3,22 @@
 #include "DXXParserBaseVisitor.h"
 #include "ParserRuleContext.h"
 #include "builtin.hpp"
+#include "dpp/api.h"
 #include "macros.hpp"
 #include "errors.hpp"
 #include "objects.hpp"
 #include "vm.hpp"
 #include "compiler.hpp"
+#include "compileinfos.h"
 #include <fstream>
 
 using namespace errors;
+
+/**
+ * @brief genrated vm by compiler
+ *
+ */
+DXX_API dpp::vm fObj = new FObject;
 
 #define GET_LINE(ctx) ((ctx)->getStart()->getLine())
 #define GET_POS(ctx) ((ctx)->getStart()->getCharPositionInLine())
@@ -27,14 +35,23 @@ using namespace errors;
  */
 #define REPORT_NPARAM(id) id(GET_LINE(ctx), GET_POS(ctx));
 
-void writeInfos(dpp::object *o, std::vector<DXXParser::InfoContext *> *infos) {
+/**
+ * @brief report an error or warning for the given context (ctx)
+ *
+ */
+#define REPORT_CTX(ctx, id, ...) REPORT(id, __VA_ARGS__)
 
-}
+#define REPORT_CTX_NPARAM(ctx, id) REPORT_NPARAM(id)
 
 #include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
-    explicit DXXVisitor(const std::string &file, FObject *_fObj = nullptr) {
+    explicit DXXVisitor(const std::string &file, FObject *_fObj = nullptr, bool _is_output = true) {
+        is_output = _is_output;
+        if (!is_output) {
+            dpp::switch_ostream(opts.rdbuf());
+        }
+
         if (_fObj != nullptr) fObj = _fObj;
         else fObj = dpp::create_vm();
 
@@ -70,6 +87,12 @@ public:
         fObj->obj_map.set_currentfile(file);
     }
 
+    /**
+     * @brief visit the root tree
+     *
+     * @param tree the AST
+     * @return std::any the virtual machine
+     */
     std::any visit(antlr4::tree::ParseTree *tree) override {
         reset_count();
 
@@ -95,9 +118,28 @@ public:
 
         RETURN:
         reset_count();
+        if (!is_output) {
+            dpp::switch_ostream();
+        }
         return fObj;
     }
 
+    /**
+     * @brief get compile-information
+     *
+     * @return dpp::compile_infos the compile-information
+     */
+    dpp::compile_infos get_compile_infos() {
+        dpp::compile_infos infos {globalNamespace, idIt};
+        return infos;
+    }
+
+    /**
+     * @brief split the quotes
+     *
+     * @param s the string
+     * @return std::string the splited string
+     */
     forceinline static std::string SpiltQuote(const std::string &s) {
         if (s.empty()) {
             return "";
@@ -107,8 +149,9 @@ public:
     }
 
     /*
-     * @return: NONE
-     * Create a block at fObj->state
+     * @brief Create a block at fObj->state
+     *
+     * @return std::any always NONE
      */
     std::any visitBlock(DXXParser::BlockContext *ctx) override {
         if(!blockNoNamespace) {
@@ -140,9 +183,14 @@ public:
         return NONE;
     }
 
+    std::any visitParens(DXXParser::ParensContext *ctx) override {
+        return DXXParserBaseVisitor::visit(ctx->data());
+    }
+
     /*
-     * @return: NONE
-     * Create 'import' opcodes
+     * @brief create import opcodes
+     *
+     * @return std::any always NONE
      */
     std::any visitImportLib(DXXParser::ImportLibContext *ctx) override {
         Heap<Object> params;
@@ -157,8 +205,9 @@ public:
     }
 
     /*
-     * @return: Dpp_CObject *
-     * Create a full function object - has head and body
+     * @brief create a full function object - has head and body
+     *
+     * @return std::any the function compile-time object
      */
     std::any visitFunction(DXXParser::FunctionContext *ctx) override {
         DXXParser::FunctionHeadContext *_ctx = ctx->functionHead();
@@ -211,10 +260,6 @@ public:
         return co;
     }
 
-    /*
-     * @return: Throwtable *
-     * Just a helper function of 'functionHead'
-     */
     std::any visitThrowtable(DXXParser::ThrowtableContext *ctx) override {
         Throwtable *throw_table = new Throwtable;
         if (ctx == nullptr) return throw_table;
@@ -227,10 +272,6 @@ public:
         return throw_table;
     }
 
-    /*
-     * @return: Heap<Dpp_Object *> *
-     * Just a helper function of 'functionHead'
-     */
     std::any visitParamList(DXXParser::ParamListContext *ctx) override {
         Heap<Dpp_CObject *> *param_list = new Heap<Dpp_CObject *>;
         Heap<Dpp_CObject *> *autovalues = new Heap<Dpp_CObject *>;
@@ -254,8 +295,9 @@ public:
     }
 
     /*
-     * @return: Dpp_CObject *
-     * return the type
+     * @brief get the type from context
+     *
+     * @return std::any the type compile-time object
      */
     std::any visitTheType(DXXParser::TheTypeContext *ctx) override {
         Dpp_CObject *co;
@@ -278,10 +320,6 @@ public:
         return co;
     }
 
-    /*
-     * @return: Dpp_CObject *
-     * Define a variable
-     */
 	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) override {
 		DXXParser::TheTypeContext *_type = ctx->theType();
 		std::vector<DXXParser::InfoContext *> infos = ctx->info();
@@ -315,10 +353,6 @@ public:
 		return to;
 	}
 
-    /*
-     * @return: NONE
-     * Move the value to the variable
-     */
 	std::any visitVarSet(DXXParser::VarSetContext *ctx) override {
 		Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
 		Dpp_CObject *val = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
@@ -328,10 +362,6 @@ public:
 		return NONE;
 	}
 
-    /*
-     * @return Dpp_CObject *
-     * Find a object in container
-     */
     std::any visitIdEx(DXXParser::IdExContext *ctx) override {
         const auto &idex = ctx->ID();
         const std::string &_container = (*idex.begin())->toString();
@@ -341,9 +371,6 @@ public:
         }
         Dpp_CObject *co = container;
         Object o = container->object;
-        if (container == nullptr) {
-            REPORT(E0001, _container);
-        }
         if (idex.size() == 1) goto END;
         if (container->type != FUNCTION_TYPE) {
             REPORT(E0004, _container);
@@ -366,10 +393,6 @@ public:
         return co;
     }
 
-    /*
-     * @return: NONE
-     * Create a object linked type
-     */
     std::any visitTypedef(DXXParser::TypedefContext *ctx) override {
         std::string id = ctx->ID()->toString();
         Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(ctx->theType()));
@@ -378,10 +401,6 @@ public:
         return NONE;
     }
 
-    /*
-     * @return: NONE
-     * Linking the constant to the enum variable
-     */
     std::any visitEnum(DXXParser::EnumContext *ctx) override {
         Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString(), false, true);
         enum_object->type = CLASS_TYPE;
@@ -390,7 +409,7 @@ public:
         for(auto it: ctx->enumSub()) {
             std::string id = it->ID()->toString();
             Integer _idata = _idata_it;
-            antlr4::tree::TerminalNode* node = it->IntegerData();
+            antlr4::tree::TerminalNode *node = it->IntegerData();
             if (node != nullptr) {
                 _idata = std::stoll(node->toString());
                 _idata_it = _idata;
@@ -407,40 +426,68 @@ public:
         return NONE;
     }
 
-    /*
-     * @return: NONE
-     * The if statement opcodes
-     */
-    std::any visitWithIf(DXXParser::WithIfContext *ctx) override {
+    /// when a {
+    ///   call-a ...
+    ///   call-b ...
+    /// }
+    /// opcode:
+    /// 0  a
+    /// 1  jnt(condition is a) 3  (3 -> state-sz - 1) (after visit block)
+    /// 2  call-a ...
+    /// 3  call-b ...
+    std::any visitWhen(DXXParser::WhenContext *ctx) override {
         Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
 
-        LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});// just a placeholder
+        LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
         visitBlock(ctx->block());
-        Object jmp_to = {true, block_end - 1};
+        Object jmp_to = {true /* unused */, block_end - 1};
         ResetOpcode(ctx, jmp_pos, OPCODE_JNT, { jmp_to, is_jmp->object });
 
         return NONE;
     }
 
-    /*
-     * @return: NONE
-     * The if statement opcodes
-     */
-    std::any visitWithIfExtends(DXXParser::WithIfExtendsContext *ctx) override {
+    /// when {
+    ///   a -> {
+    ///     call-a ...
+    ///   }
+    ///   b -> {
+    ///     call-b ...
+    ///   }
+    ///   default -> {
+    ///     call-c ...
+    ///   }
+    /// }
+    /// opcode:
+    /// 0  a
+    /// 1  jnt(condition is a) 3 (3 -> state-sz) (after visit block-a)
+    /// 2  call-a
+    /// 3  jmp {when_end}
+    /// 4  b
+    /// 5  jnt(condition is b) 7 (7 -> state-sz) (after visit block-b)
+    /// 6  call-b
+    /// 7  jmp {when_end}
+    /// 8 call-c
+    /// {when_end} = 8 (state-sz - 1)
+    std::any visitWhenExtends(DXXParser::WhenExtendsContext *ctx) override {
         Heap<uint32_t> placeholders;
 
-        for (auto it : ctx->withIfExtendsSub()) {
+        for (auto it : ctx->whenExtendsSub()) {
             Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it->data()));
 
             uint32_t jmp1 = fObj->state.vmopcodes.size();
 
-            LoadOpcode(ctx, OPCODE_JNT, { placeholder, placeholder });
+            LoadOpcode(it, OPCODE_JNT, { placeholder, placeholder });
             visitBlock(it->block());
             Object next_block_begin = { true, (uint32_t)(fObj->state.vmopcodes.size())};
-            ResetOpcode(ctx, jmp1, OPCODE_JNT, {next_block_begin, is_jmp->object});
-            LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});// just a placeholder
+            ResetOpcode(it, jmp1, OPCODE_JNT, {next_block_begin, is_jmp->object});
+            LoadOpcode(it, OPCODE_JMP, {placeholder});
             placeholders.PushData(fObj->state.vmopcodes.size() - 1);
+        }
+
+        DXXParser::DefaultStatementContext *Default = ctx->defaultStatement();
+        if (Default != nullptr) {
+            visitBlock(Default->block());
         }
 
         for (uint32_t _placeholder : placeholders) {
@@ -454,7 +501,7 @@ public:
      * @return: NONE
      * Make 'switch' opcode
      */
-    std::any visitWithSwitchStatement(DXXParser::WithSwitchStatementContext *ctx) override {
+    std::any visitWhenSwitchStatement(DXXParser::WhenSwitchStatementContext *ctx) override {
         // TODO: Not success
         return NONE;
     }
@@ -1563,17 +1610,23 @@ private:
     Heap<Dpp_CObject *> *func_autovalues = nullptr;
 
     Object placeholder = {true, UINT_MAX};
+
+    std::ostringstream opts;
+
+    /// Configures
+    bool is_output = true; // is output errors and verboses
 };
 #include "export.h"
 
 forceinline dpp::vm _compile(antlr4::ANTLRInputStream &input,
-    const std::string &file) {
+    const std::string &file,
+    bool is_output = false) {
     DXXLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     DXXParser parser(&tokens);
     DXXParser::MainContext *main = parser.main();
 
-    DXXVisitor visitor(file);
+    DXXVisitor visitor(file, nullptr, is_output);
     FObject *fObj = anycast(FObject *, visitor.visit(main));
 
     return fObj;
@@ -1581,19 +1634,19 @@ forceinline dpp::vm _compile(antlr4::ANTLRInputStream &input,
 
 NAMESPACE_DPP_BEGIN
 
-DXX_API dpp::vm compile(const std::string &code) {
+DXX_API dpp::vm compile(const std::string &code, bool is_output) {
     antlr4::ANTLRInputStream input(code);
-    return _compile(input, "<stdin>");
+    return _compile(input, "<stdin>", is_output);
 }
 
-DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file) {
+DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file, bool is_output) {
     antlr4::ANTLRInputStream input(ifs);
-    return _compile(input, file);
+    return _compile(input, file, is_output);
 }
 
-DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file) {
+DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file, bool is_output) {
     antlr4::ANTLRInputStream input(dynamic_cast<std::ifstream &>(ifs));
-    return _compile(input, file);
+    return _compile(input, file, is_output);
 }
 
 NAMESPACE_DPP_END

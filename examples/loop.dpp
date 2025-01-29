@@ -2,8 +2,8 @@ fun native("io", "out") out(o: object): void;
 
 fun main(): void {
     i: int = 0;
-    while(i < 10) {
-        with if (i == 5) {
+    while (i < 10) {
+        when i == 5 {
             break;
         }
 
@@ -16,7 +16,7 @@ fun main(): void {
     i2: int = 0;
     while (i2 < 10) {
         ++i2;
-        with if (i2 == 5) {
+        when i2 == 5 {
             continue;
         }
 

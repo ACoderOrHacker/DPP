@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <cstdarg>
 #include "fmt.h"
@@ -63,7 +64,7 @@ DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
         callstack.pop();
     }
 
-    exit(1);
+    exit(EXIT_FAILURE);
 }
 
 /**

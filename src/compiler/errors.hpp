@@ -27,7 +27,7 @@ inline void reset_count() {
  */
 #define E(...) \
     do { \
-        dpp::fmt::print_error("error(", line, pos, "): ", __VA_ARGS__, "\n"); \
+        dpp::fmt::print_error("error(", line, ", ", pos, "): ", __VA_ARGS__, "\n"); \
         ++error_count; \
     } while(0);
 

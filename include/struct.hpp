@@ -77,7 +77,6 @@ enum rt_opcode : unsigned char {
     OPCODE_GETRET,
 	OPCODE_CALLN,
 	OPCODE_RET,
-	OPCODE_SIGN,
 	OPCODE_NEW,
     OPCODE_DEL,
 	OPCODE_MOV,
@@ -198,9 +197,8 @@ public:
 	public:
 		std::string name;
         uint32_t type = 0;
-		char info = 0; // see doc/object/info.md
 
-Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type), Dpp_NVP(info))
+Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type))
 };
 
 forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }

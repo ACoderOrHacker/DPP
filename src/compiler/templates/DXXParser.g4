@@ -109,18 +109,18 @@ varDefineNoSet: Var? info* ID Colon theType;
 varSet: idEx assigns data;
 
 withStatement:
-	withIf // Done
-	| withIfExtends // Done
-	| withSwitchStatement;
+	when // Done
+	| whenExtends // Done
+	| whenSwitchStatement;
 
-withIf: With If LeftParen data RightParen block;
+when: When data block;
 
-withIfExtends: With If LeftBrace withIfExtendsSub* RightBrace;
+whenExtends: When LeftBrace whenExtendsSub* defaultStatement? RightBrace;
 
-withIfExtendsSub: data Arrow block;
+whenExtendsSub: data Arrow block;
 
-withSwitchStatement:
-	With LeftParen data RightParen LeftBrace caseStatement* defaultStatement? RightBrace;
+whenSwitchStatement:
+	When data LeftBrace caseStatement* defaultStatement? RightBrace;
 
 caseStatement: constant Arrow block;
 

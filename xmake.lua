@@ -10,8 +10,8 @@ add_rules("mode.debug", "mode.release") -- debug mode and release mode
 set_languages("c++17") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
 
-local vs_runtime_MD = is_mode("debug") and "MDd" or "MD"
-set_runtimes(vs_runtime_MD)
+--local vs_runtime_MD = is_mode("debug") and "MDd" or "MD"
+--set_runtimes(vs_runtime_MD)
 
 set_configdir("include")
 add_configfiles("include/config.h.in")

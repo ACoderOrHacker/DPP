@@ -1,5 +1,8 @@
+fun native("io", "out") out(var o: object): void;
+
 using a = int;
 
 fun main(): void {
     b: a = 1;
+    out(b);
 }

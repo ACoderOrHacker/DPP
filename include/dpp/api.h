@@ -153,10 +153,11 @@ forceinline void switch_errorstream(std::streambuf *stream = __stderr) {
  */
 forceinline int run_script(const std::string &filename,
         void(* failed)(const std::string &, std::ifstream &) =
-            [](const std::string &, std::ifstream &) -> void {}) {
+            [](const std::string &, std::ifstream &) -> void {},
+        bool is_output = false) {
     std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios_base::in, failed);
 
-    dpp::vm vm = dpp::compile(ifs, filename);
+    dpp::vm vm = dpp::compile(ifs, filename, is_output);
     dpp::close_file<std::ifstream>(ifs);
 
     return dpp::run(vm, false);

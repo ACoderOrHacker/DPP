@@ -34,19 +34,25 @@ DXX_API std::wstring stringToWstring(std::string str) {
 }
 
 dpp::native_module dpp::open(const std::string &lib) {
+    dpp::native_module m;
     try {
-        return dpp::native_module(lib);
+        m.open(lib);
     } catch (dylib::exception &) {
         throw std::runtime_error("Failed to open native library:" + lib);
     }
+
+    return m;
 }
 
 DXX_API dpp::proc dpp::get_proc(const dpp::native_module &m, const std::string &proc_id) {
+    dylib::native_symbol_type sym;
     try {
-        return m.get_symbol(proc_id);
+        sym = m.get_symbol(proc_id);
     } catch (dylib::exception &) {
         throw std::runtime_error("Failed to get native proc address: " + proc_id);
     }
+
+    return sym;
 }
 
 DXX_API void dpp::close(dpp::native_module m) {
