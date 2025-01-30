@@ -26,6 +26,7 @@ enum BUILTIN : uint32_t {
 	BUILTIN_NO_MEMORY_ERROR, /* NoMemoryError */
 	BUILTIN_LIB_NO_SYMBOL_ERROR, /* NoSymbolError */
 	BUILTIN_DIVIDE_ZERO_ERROR, /* DivideZeroError */
+    BUILTIN_NO_METHOD_ERROR,
     INT_TYPE,
     FLOAT_TYPE,
     STRING_TYPE,
@@ -112,5 +113,11 @@ DXX_API const std::vector<dpp::object *> &get_builtins();
  *
  */
 #define Dpp_DivideZeroError _BUILTINS(BUILTIN_DIVIDE_ZERO_ERROR)
+
+/**
+ * @brief reference to 'NoMethodError'
+ *
+ */
+#define Dpp_NoMethodError _BUILTINS(BUILTIN_NO_METHOD_ERROR)
 
 #endif // !_DXX_BUILTIN_H

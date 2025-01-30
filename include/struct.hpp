@@ -29,6 +29,8 @@
 #include <string>
 #include <stack>
 #include <cereal/types/stack.hpp>
+#include <cereal/types/unordered_map.hpp>
+#include <unordered_map>
 
 #if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(disable : 4267)
@@ -209,7 +211,7 @@ public:
 	public:
 		std::string name;
         uint32_t type = 0;
-        Array<std::shared_ptr<Dpp_Object>> methods;
+        std::unordered_map<std::string, std::shared_ptr<Dpp_Object>> methods;
 
 Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type), Dpp_NVP(methods))
 };

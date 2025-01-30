@@ -588,11 +588,25 @@ void _method(dpp::vm vm) {
     if (dpp::is_string(method_obj)) {
         String method_name = dpp::get_string(method_obj);
 
-        for (auto &method : container->methods) {
-            if (method->name == method_name) {
-                vm->obj_map.write(_to, method.get(), true);
+        dpp::object *it_container = container;
+        dpp::object *type_object = _BUILTINS(TYPE_TYPE);
+        dpp::object *found_method = nullptr;
+        while (it_container != type_object) {
+            const auto &it = container->methods.find(method_name);
+            if (it != container->methods.end()) {
+                // found it
+                found_method = it->second.get();
             }
+
+            it_container = vm->obj_map.get({true, it_container->type});
         }
+
+        if (found_method == nullptr) {
+            dpp::set_error(vm, Dpp_NoMethodError, Dpp_TEXT("method '") + method_name + Dpp_TEXT("' not found"));
+            return;
+        }
+
+        vm->obj_map.write(_to, found_method, true);
     }
     // TODO: Not Success
 }
