@@ -3,12 +3,20 @@
 #include "objects.hpp"
 #include "struct.hpp"
 
+dpp::object *type_object = []() -> dpp::object * {
+    dpp::object *o = dpp::make_type(create_ptr(dpp::new_object<TypeObject>()));
+    o->name = "type";
+    TypeObject *typeo = dpp::to_type(o);
+    typeo->type = create_ptr(o);
+    return o;
+}();
+
 template<typename T>
 dpp::object *mk_type(const std::string &id) {
     dpp::object *o = dpp::make_type(create_ptr(dpp::new_object<T>()));
     o->name = id;
     TypeObject *typeo = dpp::to_type(o);
-    typeo->type = create_ptr(o);
+    typeo->type = create_ptr(type_object);
 
 	return o;
 }
@@ -28,8 +36,7 @@ const std::vector<dpp::object *> builtins = {
 	mk_type<ClassObject>("class"),
 	mk_type<ErrorObject>("error"),
 	mk_type<FunctionObject>("function"),
-    mk_type<TypeObject>("type")
-
+    type_object
 };
 
 DXX_API const std::vector<dpp::object *> &get_builtins() {
