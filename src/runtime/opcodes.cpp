@@ -575,6 +575,7 @@ void _mov(dpp::vm vm) {
 void _method(dpp::vm vm) {
     Object _container = vm->_theap->PopFront();
     Object _method = vm->_theap->PopFront();
+    Object _to = vm->_theap->PopFront();
 
     dpp::object *container = vm->obj_map.get(_container);
 
@@ -587,7 +588,11 @@ void _method(dpp::vm vm) {
     if (dpp::is_string(method_obj)) {
         String method_name = dpp::get_string(method_obj);
 
-
+        for (auto &method : container->methods) {
+            if (method->name == method_name) {
+                vm->obj_map.write(_to, method.get(), true);
+            }
+        }
     }
     // TODO: Not Success
 }
