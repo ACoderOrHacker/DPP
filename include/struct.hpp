@@ -209,8 +209,9 @@ public:
 	public:
 		std::string name;
         uint32_t type = 0;
+        Array<std::shared_ptr<Dpp_Object>> methods;
 
-Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type))
+Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type), Dpp_NVP(methods))
 };
 
 forceinline DXX_API std::string object_to_string(Dpp_Object *obj) { acassert(obj == nullptr); return obj->to_string(obj); }

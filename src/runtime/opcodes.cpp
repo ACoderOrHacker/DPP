@@ -576,5 +576,18 @@ void _method(dpp::vm vm) {
     Object _container = vm->_theap->PopFront();
     Object _method = vm->_theap->PopFront();
 
+    dpp::object *container = vm->obj_map.get(_container);
+
+    if (container == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("cannot call method on null object"));
+        return;
+    }
+
+    dpp::object *method_obj = vm->obj_map.get(_method);
+    if (dpp::is_string(method_obj)) {
+        String method_name = dpp::get_string(method_obj);
+
+
+    }
     // TODO: Not Success
 }

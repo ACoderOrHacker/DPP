@@ -61,11 +61,11 @@ jobs:
 
     - name: Set Arch
       run: |
+        xmake config -m release -y
         xmake f -a ${{matrix.arch}} -y
 
     - name: Build project
       run: |
-        xmake config -m release -y
         xmake build -y
 
     - name: Package project
