@@ -16,8 +16,8 @@ NAMESPACE_DPP_BEGIN
         template<typename T> T load(std::istream &istream,
                                     void (*failed)(cereal::Exception &) = []() {}) {
             try {
-                cereal::PortableBinaryInputArchive archive(istream);
-                // cereal::JSONInputArchive archive(istream);
+                // cereal::PortableBinaryInputArchive archive(istream);
+                cereal::JSONInputArchive archive(istream);
                 T object {};
                 archive(object);
 
@@ -31,8 +31,8 @@ NAMESPACE_DPP_BEGIN
         template<typename T> STATUS save(std::ostream &fs, const T &object,
                                         void (*failed)(cereal::Exception &) = [](cereal::Exception &) {}) {
             try {
-                cereal::PortableBinaryOutputArchive archive(fs);
-                // cereal::JSONOutputArchive archive(fs);
+                // cereal::PortableBinaryOutputArchive archive(fs);
+                cereal::JSONOutputArchive archive(fs);
                 archive(object);
             } catch (cereal::Exception &e) {
                 failed(e);

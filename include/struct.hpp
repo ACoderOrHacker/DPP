@@ -45,7 +45,16 @@
 
 typedef long long Integer;
 typedef double FloatNum;
-typedef std::wstring String;
+
+#ifdef Dpp_USING_STRING
+using String = std::string;
+using Char = char;
+#define Dpp_TEXT(str) str
+#else
+using String = std::wstring;
+using Char = wchar_t;
+#define Dpp_TEXT(str) L##str
+#endif
 
 struct VMState;
 class Dpp_Object;
@@ -190,6 +199,9 @@ public:
         virtual std::string to_datastring(Dpp_Object *) {
             throw NoOperatorError();
         }
+        virtual std::string get_typeid() {
+            throw NoOperatorError();
+        }
         virtual Dpp_Object *notval(Dpp_Object *) {
             throw NoOperatorError();
         }
@@ -295,7 +307,7 @@ private:
 		return const_cast<Array<std::shared_ptr<Dpp_Object>> *>(&*(mappings.begin() + mapping_id - 1));
 	}
 
-Dpp_SERIALIZE(Dpp_NVP(global))
+Dpp_SERIALIZE(Dpp_NVP(global), Dpp_NVP(currentfile))
 };
 
 typedef struct _VMError {

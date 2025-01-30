@@ -9,6 +9,7 @@ includes("@builtin/xpack")
 add_rules("mode.debug", "mode.release") -- debug mode and release mode
 set_languages("c++17") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
+add_defines("Dpp_USING_STRING") -- for string
 
 --local vs_runtime_MD = is_mode("debug") and "MDd" or "MD"
 --set_runtimes(vs_runtime_MD)

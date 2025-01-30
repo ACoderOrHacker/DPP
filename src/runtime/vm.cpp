@@ -106,10 +106,11 @@ VM_API const char *dpp::get_opcode_name(unsigned char opcode_id) {
     return opcode_name_list[opcode_id - 1];
 }
 
-VM_API dpp::vm dpp::create_vm() {
+VM_API dpp::vm dpp::create_vm(bool add_builtin) {
+    dpp::vm vm = new FObject;
+    if (!add_builtin) return vm;
 	const auto &builtins = get_builtins();
 
-	dpp::vm vm = new FObject;
 	for(uint32_t i = 0; i < BUILTIN::BUILTIN_END; ++i) {
 		vm->obj_map.write({ true, i }, builtins.at(i));
 	}

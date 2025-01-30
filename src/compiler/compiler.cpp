@@ -1243,9 +1243,9 @@ private:
      * And Push the string constant to the object pool
      */
     Dpp_CObject *MakeString(const std::string &s) {
-        String wstr = stringToWstring(s);
+        const String &str = s;
         Object o = allocMapping(true);
-        Dpp_Object *obj = dpp::make_string(wstr);
+        Dpp_Object *obj = dpp::make_string(str);
         obj->name = s;
         obj->type = STRING_TYPE;
         Dpp_CObject *co = MakeConst(o, obj);

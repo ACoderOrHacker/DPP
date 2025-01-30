@@ -91,6 +91,7 @@ public:
     dpp::object *smaller(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
 
 Dpp_OBJECT_SERIALIZE(val)
 };
@@ -113,6 +114,7 @@ public:
     dpp::object *smaller(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
 
 Dpp_OBJECT_SERIALIZE(val)
 };
@@ -131,8 +133,9 @@ public:
     dpp::object *equal(dpp::object *, dpp::object *) override;
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
 
-Dpp_OBJECT_SERIALIZE(dpp::to_pchar(val))
+Dpp_OBJECT_SERIALIZE(val)
 };
 
 Dpp_REGISTER_TYPE_EX(string, StringObject, val)
@@ -144,6 +147,7 @@ public:
 public:
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
 Dpp_OBJECT_SERIALIZE(members)
 };
 
@@ -156,6 +160,7 @@ public:
 public:
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
 Dpp_OBJECT_SERIALIZE(state)
 };
 
@@ -168,6 +173,7 @@ public:
 public:
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
 Dpp_EMPTY_OBJECT_SERIALIZE() // C1001 WHEN USE Dpp_OBJECT_SERIALIZE()
 };
 
@@ -177,11 +183,12 @@ Dpp_TYPE(TypeObject) {
 Dpp_TYPE_REGISTER_METHOD(TypeObject)
 public:
     TypeObject() { type = nullptr; }
-    dpp::object *type;
+    std::shared_ptr<dpp::object> type;
 public:
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
-Dpp_OBJECT_SERIALIZE(create_ptr<dpp::object>(type))
+    std::string get_typeid() override;
+Dpp_OBJECT_SERIALIZE(type)
 };
 
 Dpp_REGISTER_TYPE_EX(type, TypeObject, type)
@@ -213,6 +220,12 @@ forceinline std::string to_hex(const T &val) {
     std::stringstream ss;
     ss << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << val;
     return "0x" + ss.str();
+}
+
+forceinline std::string get_typeid(dpp::object *obj) {
+    acassert(obj == nullptr);
+
+    return (obj->name == "null" ? "null" : obj->get_typeid());
 }
 
 NAMESPACE_DPP_END

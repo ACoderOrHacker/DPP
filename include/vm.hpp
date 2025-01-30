@@ -50,7 +50,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID);
 NAMESPACE_DPP_BEGIN
 
 VM_API const char *get_opcode_name(unsigned char opcode_id);
-VM_API dpp::vm create_vm();
+VM_API dpp::vm create_vm(bool add_builtin = true);
 VM_API bool exec(const OpCode &, dpp::vm);
 VM_API int run(FObject *fObj, bool noExit = false);
 

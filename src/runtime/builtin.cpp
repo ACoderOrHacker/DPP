@@ -1,11 +1,14 @@
 #include "builtin.hpp"
+#include "acdpp.h"
 #include "objects.hpp"
 #include "struct.hpp"
 
 template<typename T>
 dpp::object *mk_type(const std::string &id) {
-    dpp::object *o = dpp::make_type(dpp::new_object<T>());
+    dpp::object *o = dpp::make_type(create_ptr(dpp::new_object<T>()));
     o->name = id;
+    TypeObject *typeo = dpp::to_type(o);
+    typeo->type = create_ptr(o);
 
 	return o;
 }

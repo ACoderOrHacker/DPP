@@ -99,7 +99,7 @@ public:
                     dpp::close_file(ifs);
                     auto filename = std::filesystem::path(it).filename().stem().string();
                     std::ofstream fs = dpp::open_file<std::ofstream>((output_dir.string() + "/" + (filename + ".dppo")),
-                        std::ios_base::out | std::ios_base::binary,
+                        std::ios::binary,
                         [](const std::string &file, std::ofstream &) -> void {
                             fmt::print_error("cannot create file '", file + ".dppo", "'. maybe you have no premission to create.");
                             exit(EXIT_FAILURE);
@@ -113,10 +113,10 @@ public:
                     fs.close();
                 }
             } else if (result.count("run")) {
-                dpp::vm vm = dpp::create_vm();
+                dpp::vm vm = dpp::create_vm(false);
 
                 std::string filename = result["run"].as<std::string>();
-                std::ifstream ifs = dpp::open_file<std::ifstream>(output_dir.string() + "/" + filename, std::ios_base::in | std::ios_base::binary,
+                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios::binary,
                     [](const std::string &filename, std::ifstream &fs) -> void {
                         fmt::print_error("error: cannot find '", filename, "' binary file\n");
                         exit(EXIT_FAILURE);

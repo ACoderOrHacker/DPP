@@ -324,11 +324,11 @@ dpp::object *StringObject::equal(dpp::object *lval, dpp::object *rval) {
 }
 
 std::string StringObject::to_string(dpp::object *obj) {
-    return dpp::to_pchar(dpp::get_string(obj));
+    return dpp::get_string(obj);
 }
 
 std::string StringObject::to_datastring(dpp::object *obj) {
-    return std::string("\"") + dpp::to_pchar(dpp::get_string(obj)) + "\"";
+    return std::string("\"") + dpp::get_string(obj) + "\"";
 }
 
 std::string ClassObject::to_string(dpp::object *obj) {
@@ -361,4 +361,32 @@ std::string FunctionObject::to_datastring(dpp::object *obj) {
 
 std::string TypeObject::to_datastring(dpp::object *obj) {
     return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
+std::string IntObject::get_typeid() {
+    return "int";
+}
+
+std::string FloatObject::get_typeid() {
+    return "float";
+}
+
+std::string StringObject::get_typeid() {
+    return "string";
+}
+
+std::string ClassObject::get_typeid() {
+    return "class";
+}
+
+std::string ErrorObject::get_typeid() {
+    return "error";
+}
+
+std::string FunctionObject::get_typeid() {
+    return "function";
+}
+
+std::string TypeObject::get_typeid() {
+    return "type";
 }

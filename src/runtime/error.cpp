@@ -55,7 +55,7 @@ DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
     auto files = vm->files;
     callstack.push(vm->state);
 
-    fmt::print_error(vm->_error->err->name, ": ", dpp::to_pchar(vm->_error->msg), "(most recent call first)\n");
+    fmt::print_error(vm->_error->err->name, ": ", vm->_error->msg, "(most recent call first)\n");
     while (callstack.size() > 0) {
         auto &state = callstack.top();
         OpCode op = state.vmopcodes.GetData(state.runat);
@@ -77,7 +77,7 @@ DXX_API void dpp::catch_error(dpp::vm vm) {
     acassert(vm == nullptr);
 
     dpp::object *error = vm->_error->err;
-    std::wstring &msg = vm->_error->msg;
+    String &msg = vm->_error->msg;
 
     acassert(!dpp::is_error(error));
 
