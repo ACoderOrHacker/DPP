@@ -52,6 +52,13 @@ target("dpp")
 
     add_deps("compiler", "vm")
     add_packages("cxxopts", "cereal")
+
+    add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
+	add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
+    add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
+    add_installfiles("$(projectdir)/CHANGELOG.md")
+    add_installfiles("$(projectdir)/LICENSE")
+    add_installfiles("$(projectdir)/README.md")
 target_end()
 
 target("tests")
@@ -84,21 +91,15 @@ xpack("dpp")
     set_licensefile("LICENSE")
     set_title("D++ Programming Language")
 
-    add_sourcefiles("(src/**)")
-    add_sourcefiles("(include/**)")
-    add_sourcefiles("(examples/**)")
-    add_sourcefiles("CHANGELOG.md")
-    add_sourcefiles("LICENSE")
-    add_sourcefiles("README.md")
+    add_sourcefiles("$(projectdir)/(src/*)")
+    add_sourcefiles("$(projectdir)/(include/*)")
+    add_sourcefiles("$(projectdir)/examples/*")
+    add_sourcefiles("$(projectdir)/CHANGELOG.md")
+    add_sourcefiles("$(projectdir)/LICENSE")
+    add_sourcefiles("$(projectdir)/README.md")
 
     -- set install targets
     add_targets("dpp", "vm", "compiler")
-    add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
-    add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
-    add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
-    add_installfiles("$(projectdir)/CHANGELOG.md")
-    add_installfiles("$(projectdir)/LICENSE")
-    add_installfiles("$(projectdir)/README.md")
 
     -- std libraries
     add_targets("io")
