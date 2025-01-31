@@ -2,7 +2,7 @@
 set_xmakever("2.9.3")
 
 set_project("D++")
-set_version("0.1.2")
+set_version("0.1.3")
 
 includes("@builtin/xpack")
 
@@ -76,6 +76,38 @@ target("io")
     add_deps("vm")
     add_packages("cereal")
 target_end()
+
+task("tag")
+    on_run(function ()
+        import("core.base.option")
+
+        local tag_action = option.get("action")
+
+        if tag_action == "create" then
+            os.runv("git", {"switch", "master"})
+            os.runv("git", {"merge", "dev"})
+            os.runv("git", {"tag", "-a", "v$(version)", "-m", "release $(version)"})
+            os.runv("git", {"push", "--tags"})
+            os.runv("git", {"switch", "dev"})
+        else
+            os.runv("git", {"tag", "-d", "v$(version)"})
+            os.runv("git", {"push", "--delete", "v$(version)"})
+        end
+    end)
+
+    set_menu {
+        usage = "xmake tag [create|delete]",
+        description = "create/delete a tag for the current version",
+
+        options =
+        {
+            {"a", "action", "kv", "create", "set action to create or delete"
+                          , "    - create"
+                          , "    - delete"}
+            , {}
+        }
+    }
+task_end()
 
 xpack("dpp")
     -- set formats
