@@ -13,6 +13,6 @@ xmake
 ## Usage
 
 ### venv
-- create: dpp -p --commands venv -o [your venv folder]
-- activate: dpp -p --commands venv -a activate:[venv folder]
-- deactivate: dpp -p --commands venv -a deactivate:[venv folder]
+- create: dpp -p builtin --commands venv -o [your venv folder]
+- activate: dpp -p builtin --commands venv -a activate:[venv folder]
+- deactivate: dpp -p builtin --commands venv -a deactivate:[venv folder]

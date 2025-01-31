@@ -182,7 +182,7 @@ forceinline int run_script(const std::string &filename,
  * @return std::string the formated string
  */
 forceinline std::string get_compile_time() {
-    return std::string(__DATE__) + __TIME__;
+    return std::string(__DATE__) + ", " + __TIME__;
 }
 
 /**

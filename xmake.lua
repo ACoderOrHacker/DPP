@@ -56,6 +56,7 @@ target("dpp")
     add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
 	add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
     add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
+    add_installfiles("$(projectdir)/scripts/*", {prefixdir = "scripts"})
     add_installfiles("$(projectdir)/CHANGELOG.md")
     add_installfiles("$(projectdir)/LICENSE")
     add_installfiles("$(projectdir)/README.md")
@@ -86,6 +87,7 @@ option("enable-plugins")
 
         add_files("src/plugins/*.cpp")
 
+        add_deps("vm")
         add_packages("cereal")
     target_end()
 option_end()
@@ -147,6 +149,7 @@ xpack("dpp")
     add_sourcefiles("$(projectdir)/(src/*)")
     add_sourcefiles("$(projectdir)/(include/*)")
     add_sourcefiles("$(projectdir)/examples/*")
+    add_sourcefiles("$(projectdir)/scripts/*")
     add_sourcefiles("$(projectdir)/CHANGELOG.md")
     add_sourcefiles("$(projectdir)/LICENSE")
     add_sourcefiles("$(projectdir)/README.md")
@@ -156,4 +159,19 @@ xpack("dpp")
 
     -- std libraries
     add_targets("io")
+
+    after_package(function (package)
+        os.addenvs({PATH = package:installdir() .. "/scripts/"})
+    end)
 xpack_end()
+
+xpack_component("LongPath")
+    set_default(false)
+    set_title("Add scripts/ to PATH")
+    set_description("")
+    on_installcmd(function (component, batchcmds)
+        batchcmds:rawcmd("nsis", [[
+    ; Add scripts/ to PATH
+    SetEnv PATH "%PATH%;$INSTDIR/scripts/"
+    ]])
+     end)

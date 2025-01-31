@@ -30,23 +30,20 @@ void create(const std::string &path,
     /// Write activate/deactivate script
     std::ofstream activate_bat;
     activate_bat.open(opt_path / "scripts" / "activate.bat");
-    activate_bat << "set DXX_VIRTUAL_ENV=" << path << "\n";
-    activate_bat << "set DXX_OLD_VIRTUAL_ENV=%PATH%";
-    activate_bat << "set PATH=%DXX_VIRTUAL_ENV%/scripts;%PATH%\n";
+    activate_bat << "set DXX_OLD_VIRTUAL_ENV=%PATH%\n";
+    activate_bat << "set PATH=" << path << "/scripts;%PATH%\n";
     activate_bat.close();
 
     std::ofstream deactivate_bat;
     deactivate_bat.open(opt_path / "scripts" / "deactivate.bat");
-    deactivate_bat << "set PATH=%DXX_OLD_VIRTUAL_ENV%";
-    deactivate_bat << "set DXX_OLD_VIRTUAL_ENV=";
-    deactivate_bat << "set DXX_VIRTUAL_ENV=";
+    deactivate_bat << "set PATH=%DXX_OLD_VIRTUAL_ENV%\n";
+    deactivate_bat << "set DXX_OLD_VIRTUAL_ENV=\n";
     deactivate_bat.close();
 
     std::ofstream activate_sh;
     activate_sh.open(opt_path / "scripts" / "activate.sh");
-    activate_sh << "export DXX_VIRTUAL_ENV=" << path << "\n";
     activate_sh << "export DXX_OLD_VIRTUAL_ENV=$PATH\n";
-    activate_sh << "export PATH=$DXX_VIRTUAL_ENV/scripts:$PATH\n";
+    activate_sh << "export PATH=" << path << "/scripts:$PATH\n";
     activate_sh.close();
 
     std::ofstream deactivate_sh;
@@ -121,12 +118,18 @@ _DXX_EXPORT_API void venv(const dpp::plugin_args &args) {
     std::vector<fs::path> files;
     dpp::get_files(files, args.dpp_executable_file.parent_path());
 
+
+    if (args.args.empty()) {
+        dpp::venv::create(args.output_dir.string(),
+            files,
+            true);
+    }
     for (auto &it : args.args) {
-        if (args.args.empty()) {
+        if (it == "create") {
             dpp::venv::create(args.output_dir.string(),
                 files,
                 true);
-        } else if (dpp::startswith(it, "activate:")) {
+        }else if (dpp::startswith(it, "activate:")) {
             dpp::venv::activate(it.substr(std::string_view("activate:").size()));
         } else if (dpp::startswith(it, "deactivate:")) {
             dpp::venv::activate(it.substr(std::string_view("deactivate:").size()));

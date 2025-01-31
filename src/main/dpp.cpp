@@ -53,10 +53,10 @@ public:
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
-                ("plugin,p", "choose a plugin file", cxxopts::value<std::string>()->default_value("plugins"))
+                ("plugin,p", "choose a plugin file", cxxopts::value<std::string>()->default_value("builtin"))
                 ("output, o", "set output directory", cxxopts::value<std::string>())
                 ("args,a", "set arguments for plugins or another custom tools", cxxopts::value<std::vector<std::string>>())
-                ("command", "command in the custom tools", cxxopts::value<std::string>())
+                ("command,cmd", "command in the custom tools", cxxopts::value<std::string>()->default_value("venv"))
             ;
 
             if (argc == 1) {
@@ -70,6 +70,10 @@ public:
             // options for cli
             if (result.count("output")) {
                 output_dir = result["output"].as<std::string>();
+                const auto &path = fs::path(output_dir);
+                if (path.is_relative()) {
+                    output_dir = fs::current_path() / path;
+                }
             }
 
             if (result.count("args")) {
@@ -163,15 +167,21 @@ public:
                 dpp::output_information();
                 std::cout << "\n\n";
 
-                const std::string &plugin_file = result["plugin"].as<std::string>();
-                const std::string &command = result["command"].as<std::string>();
-
+                std::string plugin_file = result["plugin"].as<std::string>();
+                if (plugin_file == "builtin") plugin_file = "plugins";
                 try {
-                    dylib plugin_lib(plugin_file);
+                    dylib plugin_lib(plugin_file, true);
+
+                    fmt::print_success("plugin '", plugin_file, "' loaded\n\n");
                     if (plugin_lib.has_symbol(command)) {
                         auto plugin_func = plugin_lib.get_function<dpp::plugin_init_func>(command);
                         plugin_func(dpp::plugin_args{output_dir, argv[0], args}); // run plugin
+                    } else {
+                        fmt::print_error("command '", command, "' not found in plugin '", plugin_file, "'\n");
+                        return EXIT_FAILURE;
                     }
+
+                    fmt::print_success("\ncommand run successfully\n");
                 } catch (dylib::exception &) {
                     fmt::print_error("error: cannot find command '", command, "' in plugin '", plugin_file, "'\n");
                     return EXIT_FAILURE;

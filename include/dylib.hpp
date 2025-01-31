@@ -151,7 +151,12 @@ public:
     }
 
     [[nodiscard]] bool has_symbol(const std::string &name) const {
-        return get_symbol(name) != nullptr;
+        try {
+            const auto &sym = get_symbol(name);
+            return true;
+        } catch (dylib::exception &) {
+            return false;
+        }
     }
 
 private:
