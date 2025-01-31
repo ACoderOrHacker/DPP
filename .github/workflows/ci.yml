@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - master
-      - dev
     tags:
       - "v*"
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
   release:
     types: [published]
