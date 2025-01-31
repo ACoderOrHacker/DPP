@@ -99,7 +99,7 @@ task("tag")
             os.runv("git", {"push", "origin", "--delete", tag_version})
 
             os.runv("git", {"tag"})
-            cprint("${green} tag " .. tag_version .. "deleted")
+            cprint("${green}tag " .. tag_version .. "deleted")
         end
     end)
 
