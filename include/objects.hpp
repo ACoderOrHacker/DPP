@@ -181,15 +181,26 @@ Dpp_TYPE(TypeObject) {
 Dpp_TYPE_REGISTER_METHOD(TypeObject)
 public:
     TypeObject() { type = nullptr; }
-    std::shared_ptr<dpp::object> type;
+    std::shared_ptr<dpp::object> typeinstance;
 public:
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
     std::string get_typeid() override;
-Dpp_OBJECT_SERIALIZE(type)
+Dpp_OBJECT_SERIALIZE(typeinstance)
 };
 
-Dpp_REGISTER_TYPE_EX(type, TypeObject, type)
+Dpp_REGISTER_TYPE_EX(type, TypeObject, typeinstance)
+
+Dpp_TYPE(VoidObject) {
+Dpp_TYPE_REGISTER_METHOD(VoidObject)
+public:
+    std::string to_string(dpp::object *) override;
+    std::string to_datastring(dpp::object *) override;
+    std::string get_typeid() override;
+Dpp_EMPTY_OBJECT_SERIALIZE()
+};
+
+Dpp_REGISTER_TYPE(void, VoidObject)
 
 NAMESPACE_DPP_BEGIN
 

@@ -467,10 +467,8 @@ void _call(dpp::vm vm) {
 }
 
 void _ret(dpp::vm vm) {
-    // TODO: _ret cannot use like null object
-    dpp::object *val = nullptr;
     if (!vm->_theap->isEmpty()) {
-        val = vm->obj_map.get(vm->_theap->PopFront())->move(val);
+        vm->return_values.push(vm->obj_map.get(vm->_theap->PopFront()));
     }
 
 	vm->state = vm->callstack.top();
@@ -478,8 +476,6 @@ void _ret(dpp::vm vm) {
     vm->obj_map.pop_mapping();
 
     vm->files.pop();
-
-    vm->return_values.push(val);
 }
 
 void _getret(dpp::vm vm) {
@@ -589,16 +585,18 @@ void _method(dpp::vm vm) {
         String method_name = dpp::get_string(method_obj);
 
         dpp::object *it_container = container;
-        dpp::object *type_object = _BUILTINS(TYPE_TYPE);
         dpp::object *found_method = nullptr;
-        while (it_container != type_object) {
+
+        // instance havs a type, and the type's type is Dpp_TypeType,
+        // Dpp_TypeType's type is itself
+        while (it_container != Dpp_TypeType) {
             const auto &it = container->methods.find(method_name);
             if (it != container->methods.end()) {
                 // found it
                 found_method = it->second.get();
             }
 
-            it_container = vm->obj_map.get({true, it_container->type});
+            it_container = it_container->type.get();
         }
 
         if (found_method == nullptr) {
@@ -608,5 +606,4 @@ void _method(dpp::vm vm) {
 
         vm->obj_map.write(_to, found_method, true);
     }
-    // TODO: Not Success
 }

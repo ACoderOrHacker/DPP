@@ -34,7 +34,7 @@ enum BUILTIN : uint32_t {
     ERROR_TYPE,
     FUNCTION_TYPE,
     TYPE_TYPE,
-
+    VOID_TYPE,
     BUILTIN_END // the builtin list end
 };
 
@@ -119,5 +119,53 @@ DXX_API const std::vector<dpp::object *> &get_builtins();
  *
  */
 #define Dpp_NoMethodError _BUILTINS(BUILTIN_NO_METHOD_ERROR)
+
+/**
+ * @brief reference to 'int'
+ *
+ */
+#define Dpp_IntType _BUILTINS(INT_TYPE)
+
+/**
+ * @brief reference to 'float'
+ *
+ */
+#define Dpp_FloatType _BUILTINS(FLOAT_TYPE)
+
+/**
+ * @brief reference to 'string'
+ *
+ */
+#define Dpp_StringType _BUILTINS(STRING_TYPE)
+
+/**
+ * @brief reference to 'class'
+ *
+ */
+#define Dpp_ClassType _BUILTINS(CLASS_TYPE)
+
+/**
+ * @brief reference to 'error'
+ *
+ */
+#define Dpp_ErrorType _BUILTINS(ERROR_TYPE)
+
+/**
+ * @brief reference to 'function'
+ *
+ */
+#define Dpp_FunctionType _BUILTINS(FUNCTION_TYPE)
+
+/**
+ * @brief reference to 'type'
+ *
+ */
+#define Dpp_TypeType _BUILTINS(TYPE_TYPE)
+
+/**
+ * @brief reference to 'void'
+ *
+ */
+#define Dpp_VoidType _BUILTINS(VOID_TYPE)
 
 #endif // !_DXX_BUILTIN_H

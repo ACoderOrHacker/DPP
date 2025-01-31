@@ -210,7 +210,7 @@ public:
 
 	public:
 		std::string name;
-        uint32_t type = 0;
+        std::shared_ptr<Dpp_Object> type = nullptr;
         std::unordered_map<std::string, std::shared_ptr<Dpp_Object>> methods;
 
 Dpp_SERIALIZE(Dpp_NVP(name), Dpp_NVP(type), Dpp_NVP(methods))

@@ -347,6 +347,10 @@ std::string TypeObject::to_string(dpp::object *obj) {
     return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
+std::string VoidObject::to_string(dpp::object *obj) {
+    return "<void " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
 std::string ClassObject::to_datastring(dpp::object *obj) {
     return "<class " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
@@ -361,6 +365,10 @@ std::string FunctionObject::to_datastring(dpp::object *obj) {
 
 std::string TypeObject::to_datastring(dpp::object *obj) {
     return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+}
+
+std::string VoidObject::to_datastring(dpp::object *obj) {
+    return "<void " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string IntObject::get_typeid() {
@@ -389,4 +397,8 @@ std::string FunctionObject::get_typeid() {
 
 std::string TypeObject::get_typeid() {
     return "type";
+}
+
+std::string VoidObject::get_typeid() {
+    return "void";
 }

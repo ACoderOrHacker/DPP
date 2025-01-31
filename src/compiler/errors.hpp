@@ -51,7 +51,7 @@ inline void reset_count() {
  */
 #define W(...) \
     do { \
-        dpp::fmt::print_warning("error(", line, pos, "): ", __VA_ARGS__, "\n"); \
+        dpp::fmt::print_warning("warning(", line, ", ", pos, "): ", __VA_ARGS__, "\n"); \
         ++warning_count; \
     } while(0);
 
@@ -61,7 +61,7 @@ inline void reset_count() {
  */
 #define W_NO_LP(...) \
     do { \
-        dpp::fmt::print_warning("error: ", __VA_ARGS__, "\n"); \
+        dpp::fmt::print_warning("warning: ", __VA_ARGS__, "\n"); \
         ++warning_count; \
     } while(0);
 
@@ -284,8 +284,10 @@ inline void E0024(LP) {
  * @brief E0025: cannot convert from type to other type
  *
  */
-inline void E0025(LP) {
-    E("cannot convert from type to other type");
+inline void E0025(LP,
+    const std::string &src,
+    const std::string &dst) {
+    E("cannot convert from ", src, " to ", dst);
 }
 
 /**

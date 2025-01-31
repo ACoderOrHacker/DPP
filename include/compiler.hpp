@@ -12,11 +12,14 @@
 
 #include <climits>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <fstream>
 #include <unordered_map>
 #include <stack>
 #include <initializer_list>
+#include "objects.hpp"
+#include "struct.hpp"
 
 #undef _DXX_EXPORT
 #include "acdpp.h"
@@ -25,8 +28,8 @@
 #include "metadata.h"
 #include "export.h"
 
-#define VOID_TYPE UINT_MAX
-#define OBJECT_TYPE (UINT_MAX - 1)
+#define OBJECT_TYPE (UINT_MAX)
+#define Dpp_ObjectType (nullptr)
 
 /**
  * @brief when the return type is not equal to the function's return type, throw this error
@@ -61,6 +64,11 @@ DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file, bool is_out
  * @return dpp::vm the vm instance
  */
 DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file, bool is_output = false);
+
+/**
+ * @brief get Dpp_VoidType
+ *
+ */
 
 NAMESPACE_DPP_END
 
@@ -165,7 +173,7 @@ public:
     std::string id;
     struct INFOS infos;
     bool isNone = false;
-    uint32_t type = OBJECT_TYPE;
+    dpp::object *type = Dpp_ObjectType;
     Array<_Dpp_CObject *> subs;
     void *metadata[8] = {};
 public:
@@ -175,8 +183,7 @@ public:
         }
 
 #define METADATA_EQ(pos, type) (*_cast(type *, co->metadata[(pos)]) == *_cast(type *, metadata[(pos)]))
-        switch(type) {
-            case FUNCTION_TYPE:
+        if (dpp::get_type(type).get() == Dpp_FunctionType) {
             if (co->infos != infos) return false;
 
             if (METADATA_EQ(function::FUNCTION_METADATA::PARAMS, Heap<_Dpp_CObject *>)      &&
@@ -189,10 +196,9 @@ public:
                 }
                 return true;
             }
-
-            default:
-            return true;
         }
+
+        return true;
 #undef METADATA_EQ
     }
 } Dpp_CObject;

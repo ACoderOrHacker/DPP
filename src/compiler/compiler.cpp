@@ -2,6 +2,7 @@
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
 #include "ParserRuleContext.h"
+#include "acdpp.h"
 #include "builtin.hpp"
 #include "dpp/api.h"
 #include "macros.hpp"
@@ -9,6 +10,7 @@
 #include "objects.hpp"
 #include "vm.hpp"
 #include "compiler.hpp"
+#include <bcrypt.h>
 #include "compileinfos.h"
 #include <fstream>
 
@@ -43,6 +45,10 @@ DXX_API dpp::vm fObj = new FObject;
 
 #define REPORT_CTX_NPARAM(ctx, id) REPORT_NPARAM(id)
 
+inline std::string get_ctypeid(Dpp_CObject *co) {
+    return co->type == Dpp_ObjectType ? "object" : co->type->get_typeid();
+}
+
 #include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
@@ -74,7 +80,7 @@ public:
             Dpp_CObject *type = new Dpp_CObject;
             type->id = id;
             type->object = { true, type_id};
-            type->type = TYPE_TYPE;
+            type->type = Dpp_TypeType;
             globalNamespace->objects.write(type);
         };
 
@@ -103,7 +109,7 @@ public:
             W0002();
             goto RETURN;
         }
-        if (main->type != FUNCTION_TYPE) {
+        if (main->type != Dpp_FunctionType) {
             E0006();
         }
         if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
@@ -329,7 +335,7 @@ public:
 		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
 		Dpp_CObject *data;
         Dpp_CObject *to = MakeObject(id, true);
-        to->type = type->object.id;
+        to->type = type->object == Object{true, OBJECT_TYPE} ? Dpp_ObjectType : fObj->obj_map.get(type->object); // TODO: may be have bug
         Dpp_CObject *result = FindObject(to);
         if (result != nullptr) {
             REPORT(E0002, id);
@@ -372,7 +378,7 @@ public:
         Dpp_CObject *co = container;
         Object o = container->object;
         if (idex.size() == 1) goto END;
-        if (container->type != FUNCTION_TYPE) {
+        if (container->type != Dpp_FunctionType) {
             REPORT(E0004, _container);
         }
 
@@ -403,7 +409,7 @@ public:
 
     std::any visitEnum(DXXParser::EnumContext *ctx) override {
         Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString(), false, true);
-        enum_object->type = CLASS_TYPE;
+        enum_object->type = Dpp_ClassType;
         Integer _idata_it = 0;
 
         for(auto it: ctx->enumSub()) {
@@ -515,7 +521,7 @@ public:
         uint32_t state_end = fObj->state.vmopcodes.size() - 1;
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
-        if (data->type != INT_TYPE) {
+        if (data->type != Dpp_IntType) {
             REPORT_NPARAM(E0014);
         }
 
@@ -558,7 +564,7 @@ public:
         in_loop = false;
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
 
-        if (data->type != INT_TYPE) {
+        if (data->type != Dpp_IntType) {
             REPORT_NPARAM(E0014);
         }
 
@@ -617,7 +623,7 @@ public:
         DXXParser::DataContext *_data = ctx->data();
 
         if (_data == nullptr) {
-            if (return_value->type != VOID_TYPE) {
+            if (return_value->type != Dpp_VoidType) {
                 REPORT_NPARAM(E0013);
             }
 
@@ -625,10 +631,10 @@ public:
         }
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
-        if (data->type == VOID_TYPE) {
+        if (data->type == Dpp_VoidType) {
             REPORT_NPARAM(E0011);
         }
-        if (return_value->type != data->type && return_value->type != OBJECT_TYPE) {
+        if (return_value->type != data->type && return_value->type != Dpp_ObjectType) {
             REPORT_NPARAM(E0012);
         }
 
@@ -648,7 +654,7 @@ public:
         Heap<Dpp_CObject *> param_list;
 
 
-        if(func->type != FUNCTION_TYPE && func->infos.native_function.empty()) {
+        if(func->type != Dpp_FunctionType && func->infos.native_function.empty()) {
             REPORT(E0018, func->id);
         }
 
@@ -687,15 +693,15 @@ public:
                 }
 
                 Dpp_CObject *arg = params->GetData(i);
-                if (call_arg->type == VOID_TYPE) {
+                if (call_arg->type == Dpp_VoidType) {
                     REPORT_NPARAM(E0024);
                 }
-                if (call_arg->type == OBJECT_TYPE && arg->type != OBJECT_TYPE) {
+                if (call_arg->type == Dpp_ObjectType && arg->type != Dpp_ObjectType) {
                     REPORT_NPARAM(W0001);
                 }
-                if (call_arg->type != arg->type && arg->type != OBJECT_TYPE) {
+                if (call_arg->type != arg->type && arg->type != Dpp_ObjectType) {
                     // TODO: there need two types
-                    REPORT_NPARAM(E0025);
+                    REPORT(E0025, get_ctypeid(call_arg), get_ctypeid(arg));
                 }
             }
 
@@ -840,9 +846,9 @@ public:
 
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (data->type == VOID_TYPE) {
+        if (data->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -866,9 +872,9 @@ public:
         rt_opcode op = OPCODE_START;
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if(data->type == VOID_TYPE) {
+        if(data->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -892,9 +898,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
         LoadOpcode(ctx, OPCODE_AND, { ldata->object, rdata->object, co->object });
@@ -912,9 +918,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
         LoadOpcode(ctx, OPCODE_OR, { ldata->object, rdata->object, co->object });
@@ -932,9 +938,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
         LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, co->object });
@@ -958,9 +964,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -987,9 +993,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1014,9 +1020,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1041,9 +1047,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1081,9 +1087,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1102,9 +1108,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1123,9 +1129,9 @@ public:
         Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
         Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (ldata->type == VOID_TYPE || rdata->type == VOID_TYPE) {
+        if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1143,9 +1149,9 @@ public:
         Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         Dpp_CObject *co = MakeObject("");
         Dpp_CObject *int_1 = MakeInteger(-1);
-        co->type = INT_TYPE;
+        co->type = Dpp_IntType;
 
-        if (data->type == VOID_TYPE) {
+        if (data->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -1216,7 +1222,7 @@ private:
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
         _co->id = obj->name;
-        _co->type = obj->type;
+        _co->type = obj->type.get();
 
         if (!obj->name.empty()) {
             globalNamespace->RemoveObject(_co);
@@ -1237,47 +1243,32 @@ private:
         return _co;
     }
 
-    /*
-     * @return: Dpp_CObject *
-     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of StringObject
-     * And Push the string constant to the object pool
-     */
     Dpp_CObject *MakeString(const std::string &s) {
         const String &str = s;
         Object o = allocMapping(true);
         Dpp_Object *obj = dpp::make_string(str);
         obj->name = s;
-        obj->type = STRING_TYPE;
+        obj->type = create_ptr(Dpp_StringType);
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;
     }
 
-    /*
-     * @return: Dpp_CObject *
-     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of IntegerObject
-     * And Push the string constant to the object pool
-     */
     Dpp_CObject *MakeInteger(Integer idata) {
         Object o = allocMapping(true);
         Dpp_Object *obj = dpp::make_int(idata);
         obj->name = std::to_string(idata);
-        obj->type = INT_TYPE;
+        obj->type = create_ptr(Dpp_IntType);
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;
     }
 
-    /*
-     * @return: Dpp_CObject *
-     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of IntegerObject
-     * And Push the string constant to the object pool
-     */
     Dpp_CObject* MakeFloating(FloatNum data) {
         Object o = allocMapping(true);
         Dpp_Object* obj = dpp::make_float(data);
         obj->name = std::to_string(data);
-        obj->type = FLOAT_TYPE;
+        obj->type = create_ptr(Dpp_FloatType);
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;
@@ -1304,7 +1295,7 @@ private:
         co->metadata[function::RETURN_TYPE] = ret;
         co->metadata[function::THROW_TABLE] = throws;
         co->metadata[function::FUNCTION_METADATA::AUTOVALUES] = autovalues;
-        co->type = FUNCTION_TYPE;
+        co->type = Dpp_FunctionType;
         co->isNone = isNone;
 
         Dpp_CObject *result = nullptr;

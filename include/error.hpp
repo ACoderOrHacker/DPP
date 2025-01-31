@@ -7,6 +7,8 @@
  *
  */
 
+#ifndef _ERROR_HPP
+#define _ERROR_HPP
 #include "acdpp.h"
 #include "struct.hpp"
 #include "objects.hpp"
@@ -136,3 +138,5 @@ DXX_API void __StdErrorHandleCatch(dpp::vm vm);
 DXX_API void catch_error(dpp::vm vm);
 
 NAMESPACE_DPP_END
+
+#endif // !_ERROR_HPP

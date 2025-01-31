@@ -8,6 +8,7 @@ dpp::object *type_object = []() -> dpp::object * {
     o->name = "type";
     TypeObject *typeo = dpp::to_type(o);
     typeo->type = create_ptr(o);
+
     return o;
 }();
 
@@ -16,7 +17,7 @@ dpp::object *mk_type(const std::string &id) {
     dpp::object *o = dpp::make_type(create_ptr(dpp::new_object<T>()));
     o->name = id;
     TypeObject *typeo = dpp::to_type(o);
-    typeo->type = create_ptr(type_object);
+    o->type = create_ptr(type_object);
 
 	return o;
 }
@@ -37,7 +38,8 @@ const std::vector<dpp::object *> builtins = {
 	mk_type<ClassObject>("class"),
 	mk_type<ErrorObject>("error"),
 	mk_type<FunctionObject>("function"),
-    type_object
+    type_object,
+    mk_type<VoidObject>("void")
 };
 
 DXX_API const std::vector<dpp::object *> &get_builtins() {
