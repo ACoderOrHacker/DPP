@@ -80,18 +80,20 @@ target_end()
 task("tag")
     on_run(function ()
         import("core.base.option")
+        import("core.project.project")
 
         local tag_action = option.get("action")
+        local tag_version = "v" .. project.version()
 
         if tag_action == "create" then
             os.runv("git", {"switch", "master"})
             os.runv("git", {"merge", "dev"})
-            os.runv("git", {"tag", "-a", "v$(version)", "-m", "release $(version)"})
-            os.runv("git", {"push", "--tags"})
+            os.runv("git", {"tag", "-a", tag_version, "-m", "release " .. tag_version})
+            os.runv("git", {"push", "origin", "--tags"})
             os.runv("git", {"switch", "dev"})
         else
-            os.runv("git", {"tag", "-d", "v$(version)"})
-            os.runv("git", {"push", "--delete", "v$(version)"})
+            os.runv("git", {"tag", "-d", tag_version})
+            os.runv("git", {"push", "origin", "--delete", tag_version})
         end
     end)
 
