@@ -77,6 +77,19 @@ target("io")
     add_packages("cereal")
 target_end()
 
+option("enable-plugins")
+    set_default(true)
+    set_showmenu(true)
+
+    target("plugins")
+        set_kind("shared")
+
+        add_files("src/plugins/*.cpp")
+
+        add_packages("cereal")
+    target_end()
+option_end()
+
 task("tag")
     on_run(function ()
         import("core.base.option")

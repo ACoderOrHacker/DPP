@@ -21,7 +21,8 @@
 #include <filesystem>
 #include <streambuf>
 #include <string>
-#include "macros.hpp"
+#include "acdpp.h"
+#include <dpp/defines.h>
 
 #ifdef _DXX_EXPORT
 #undef _DXX_EXPORT
@@ -48,6 +49,18 @@ NAMESPACE_DPP_BEGIN
 const auto __stdout = std::cout.rdbuf();
 const auto __stdin = std::cin.rdbuf();
 const auto __stderr = std::cerr.rdbuf();
+
+/**
+ * @brief check if a string start with a prefix
+ *
+ * @param str a string
+ * @param prefix the prefix
+ * @return true the string start with the prefix
+ * @return false the string not start with the prefix
+ */
+bool startswith(const std::string &str, const std::string &prefix) {
+    return str.rfind(prefix, 0) == 0;
+}
 
 /**
  * @brief open a file with openmode

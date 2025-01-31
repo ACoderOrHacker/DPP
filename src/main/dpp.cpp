@@ -53,7 +53,7 @@ public:
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
-                ("plugin,p", "choose a plugin file", cxxopts::value<std::string>())
+                ("plugin,p", "choose a plugin file", cxxopts::value<std::string>()->default_value("plugins"))
                 ("output, o", "set output directory", cxxopts::value<std::string>())
                 ("args,a", "set arguments for plugins or another custom tools", cxxopts::value<std::vector<std::string>>())
                 ("command", "command in the custom tools", cxxopts::value<std::string>())
@@ -170,7 +170,7 @@ public:
                     dylib plugin_lib(plugin_file);
                     if (plugin_lib.has_symbol(command)) {
                         auto plugin_func = plugin_lib.get_function<dpp::plugin_init_func>(command);
-                        plugin_func(dpp::plugin_args{output_dir, args}); // run plugin
+                        plugin_func(dpp::plugin_args{output_dir, argv[0], args}); // run plugin
                     }
                 } catch (dylib::exception &) {
                     fmt::print_error("error: cannot find command '", command, "' in plugin '", plugin_file, "'\n");

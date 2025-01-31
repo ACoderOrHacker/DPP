@@ -9,12 +9,14 @@
 
 #ifndef DPP_PLUGINS_H
 #define DPP_PLUGINS_H
-#include "dpp/api.h"
+#include <dpp/api.h>
+#include <filesystem>
 
 NAMESPACE_DPP_BEGIN
 
 struct plugin_args {
     fs::path output_dir;
+    fs::path dpp_executable_file;
     std::vector<std::string> args;
 };
 

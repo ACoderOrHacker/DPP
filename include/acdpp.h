@@ -10,6 +10,7 @@
 #include <memory> // for std::shared_ptr and std::make_shared
 #include "config.h"
 
+
 /**
  * @brief DXX_API macro
  *
