@@ -10,7 +10,6 @@
 #include "objects.hpp"
 #include "vm.hpp"
 #include "compiler.hpp"
-#include <bcrypt.h>
 #include "compileinfos.h"
 #include <fstream>
 
