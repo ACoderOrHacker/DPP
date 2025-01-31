@@ -93,7 +93,7 @@ task("tag")
             os.runv("git", {"switch", "dev"})
 
             os.runv("git", {"tag"})
-            cprint("${green} tag " .. tag_version .. "created")
+            cprint("${green}tag " .. tag_version .. "created")
         else
             os.runv("git", {"tag", "-d", tag_version})
             os.runv("git", {"push", "origin", "--delete", tag_version})
@@ -119,7 +119,7 @@ task_end()
 
 xpack("dpp")
     -- set formats
-    set_formats("zip", "targz", "nsis", "runself", "deb", "rpm", "srpm")
+    set_formats("zip", "targz", "nsis", "runself", "deb")
 
     set_basename("dpp-$(version)-$(plat)-$(arch)")
 
