@@ -52,6 +52,7 @@ public:
                 ("compile,c", "compile sources", cxxopts::value<std::vector<std::string>>())
                 ("run,r", "run object files", cxxopts::value<std::string>())
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
+                ("debug, d", "debug codes", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
                 ("plugin,p", "choose a plugin file", cxxopts::value<std::string>()->default_value("builtin"))
                 ("output, o", "set output directory", cxxopts::value<std::string>())
@@ -144,6 +145,28 @@ public:
                         exit(EXIT_FAILURE);
                     }, true);
                 exit(exit_code);
+            } else if (result.count("debug")) {
+                dpp::output_information();
+                fmt::print("Standard Debug Tools\n\n");
+
+                std::string filename = result["debug"].as<std::string>();
+                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios::binary,
+                    [](const std::string &filename, std::ifstream &fs) -> void {
+                        fmt::print_error("error: cannot find '", filename, "' binary file\n");
+                        exit(EXIT_FAILURE);
+                    });
+
+                dpp::vm vm;
+                *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(ifs),
+                    [](cereal::Exception &e) {
+                        fmt::print_error("error: invaild input file\n");
+                        fmt::print_error("    message: ", e.what(), "\n");
+                        exit(EXIT_FAILURE);
+                    });
+
+                ifs.close();
+
+                // TODO: debug tools
             } else if (result.count("list")) {
                 dpp::output_information();
                 std::cout << "\n\n";
