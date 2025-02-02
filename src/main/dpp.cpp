@@ -4,21 +4,15 @@
 #include <ios>
 #include <memory>
 #include <ostream>
-#include <sstream>
-#if defined(_WIN32) || defined(_WIN64)
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
 
-#include "cereal/details/helpers.hpp"
+#include "cereal/archives/json.hpp"
 #include "cxxopts.hpp"
 #include "fmt.h"
-#include "serialize.hpp"
+#include "dpp/configs.h"
 #include "dpp/api.h"
 #include "dpp/plugins.h"
-#include "struct.hpp"
-#include "vm.hpp"
+#include "native.hpp"
+#include "serialize.hpp"
 
 namespace fmt = dpp::fmt;
 
@@ -54,6 +48,7 @@ public:
                 ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
                 ("debug, d", "debug codes", cxxopts::value<std::string>())
                 ("list,l", "list information in object files", cxxopts::value<std::string>())
+                ("export,e", "export standard configures (always for debug)", cxxopts::value<std::string>())
                 ("plugin,p", "choose a plugin file", cxxopts::value<std::string>()->default_value("builtin"))
                 ("output, o", "set output directory", cxxopts::value<std::string>())
                 ("args,a", "set arguments for plugins or another custom tools", cxxopts::value<std::vector<std::string>>())
@@ -91,50 +86,24 @@ public:
                 fmt::print("Standard D++ Compiler & Runtime v", dpp::get_version_string(dpp::get_version()), "\n");
             } else if (result.count("compile")) {
                 for (auto &it : result["compile"].as<std::vector<std::string>>()) {
-                    std::ifstream ifs;
+                    std::ifstream ifs = dpp::open_file<std::ifstream>(it, std::ios::binary,
+                        [](const std::string &filename, std::ifstream &fs) -> void {
+                            fmt::print_error("error: cannot find '", filename, "' source file\n");
+                            exit(EXIT_FAILURE);
+                        });
 
-                    try {
-                        ifs = dpp::open_file<std::ifstream>(it);
-                    } catch(std::runtime_error &) {
-                        fmt::print_error("error: cannot find '", it, "' source file\n");
-                        return EXIT_FAILURE;
-                    }
                     dpp::vm vm = dpp::compile(ifs, it, true);
 
                     dpp::close_file(ifs);
-                    auto filename = std::filesystem::path(it).filename().stem().string();
-                    std::ofstream fs = dpp::open_file<std::ofstream>((output_dir.string() + "/" + (filename + ".dppo")),
-                        std::ios::binary,
-                        [](const std::string &file, std::ofstream &) -> void {
-                            fmt::print_error("cannot create file '", file + ".dppo", "'. maybe you have no premission to create.");
-                            exit(EXIT_FAILURE);
-                        });
-                    dpp::serialize::save<FObject>(fs, *vm,
-                        [](cereal::Exception &e) {
-                            fmt::print_error("error: internal error\n");
-                            fmt::print_error("    message: ", e.what(), "\n");
-                            exit(EXIT_FAILURE);
-                        });
-                    fs.close();
+
+                    dpp::set_vm((output_dir.string() + "/" + (dpp::get_stem(it) + ".dppo")), vm);
                 }
             } else if (result.count("run")) {
-                dpp::vm vm = dpp::create_vm(false);
-
                 std::string filename = result["run"].as<std::string>();
-                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios::binary,
-                    [](const std::string &filename, std::ifstream &fs) -> void {
-                        fmt::print_error("error: cannot find '", filename, "' binary file\n");
-                        exit(EXIT_FAILURE);
-                    });
 
-                *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(ifs),
-                    [](cereal::Exception &e) {
-                        fmt::print_error("error: invaild input file\n");
-                        fmt::print_error("    message: ", e.what(), "\n");
-                        exit(EXIT_FAILURE);
-                    });
+                dpp::runtime_config cfg;
+                dpp::vm vm = dpp::get_vm(filename, cfg);
 
-                ifs.close();
                 dpp::run(vm);
             } else if (result.count("run-script")) {
                 std::string filename = result["run-script"].as<std::string>();
@@ -150,21 +119,9 @@ public:
                 fmt::print("Standard Debug Tools\n\n");
 
                 std::string filename = result["debug"].as<std::string>();
-                std::ifstream ifs = dpp::open_file<std::ifstream>(filename, std::ios::binary,
-                    [](const std::string &filename, std::ifstream &fs) -> void {
-                        fmt::print_error("error: cannot find '", filename, "' binary file\n");
-                        exit(EXIT_FAILURE);
-                    });
 
-                dpp::vm vm;
-                *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(ifs),
-                    [](cereal::Exception &e) {
-                        fmt::print_error("error: invaild input file\n");
-                        fmt::print_error("    message: ", e.what(), "\n");
-                        exit(EXIT_FAILURE);
-                    });
-
-                ifs.close();
+                dpp::runtime_config cfg;
+                dpp::vm vm = dpp::get_vm(filename, cfg);
 
                 // TODO: debug tools
             } else if (result.count("list")) {
@@ -185,6 +142,18 @@ public:
                 dpp::close_file(ifs);
 
                 dpp::output_vm(vm, false);
+            } else if (result.count("export")) {
+                dpp::output_information();
+                std::cout << "\n\n";
+
+                std::string type = result["export"].as<std::string>();
+                std::string filename;
+                if (type == "runtime-cfg") {
+                    filename = "dpp-standard-runtime-cfg.json";
+                    std::ofstream ofs = dpp::open_file<std::ofstream>((output_dir / filename).string(), std::ios::out);
+                    dpp::serialize::save<dpp::runtime_config, cereal::JSONOutputArchive>(ofs, dpp::runtime_config());
+                    dpp::close_file(ofs);
+                }
             } else if (result.count("plugin")) {
                 dpp::output_information();
                 std::cout << "\n\n";

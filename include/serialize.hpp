@@ -13,11 +13,10 @@
 
 NAMESPACE_DPP_BEGIN
     NAMESPACE_BEGIN(serialize)
-        template<typename T> T load(std::istream &istream,
+        template<typename T, typename Archive = cereal::PortableBinaryInputArchive> T load(std::istream &istream,
                                     void (*failed)(cereal::Exception &) = []() {}) {
             try {
-                // cereal::PortableBinaryInputArchive archive(istream);
-                cereal::JSONInputArchive archive(istream);
+                Archive archive(istream);
                 T object {};
                 archive(object);
 
@@ -28,11 +27,10 @@ NAMESPACE_DPP_BEGIN
             }
         }
 
-        template<typename T> STATUS save(std::ostream &fs, const T &object,
+        template<typename T, typename Archive = cereal::PortableBinaryOutputArchive> STATUS save(std::ostream &fs, const T &object,
                                         void (*failed)(cereal::Exception &) = [](cereal::Exception &) {}) {
             try {
-                // cereal::PortableBinaryOutputArchive archive(fs);
-                cereal::JSONOutputArchive archive(fs);
+                Archive archive(fs);
                 archive(object);
             } catch (cereal::Exception &e) {
                 failed(e);
@@ -42,7 +40,7 @@ NAMESPACE_DPP_BEGIN
 
             return STATUS_SUCCESS;
         }
-    NAMESPACE_END
+NAMESPACE_END
 NAMESPACE_DPP_END
 
 #endif // !DPP_SERIALIZATION

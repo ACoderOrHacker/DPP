@@ -21,17 +21,17 @@
 #include <filesystem>
 #include <streambuf>
 #include <string>
-#include "acdpp.h"
+#include <cereal/details/helpers.hpp>
+#include "cereal/archives/json.hpp"
+#include "configs.h"
 #include <dpp/defines.h>
 
 #ifdef _DXX_EXPORT
 #undef _DXX_EXPORT
 #endif // _DXX_EXPORT
 
-#ifdef WIN32
-#define NOMINMAX
-#endif
-
+#include "struct.hpp"
+#include "serialize.hpp"
 #include "vm.hpp"
 #include "compiler.hpp"
 #include "fmt.h"
@@ -125,6 +125,24 @@ forceinline bool get_files(std::vector<fs::path> &files, const fs::path &path,
         failed(e);
     }
     return false;
+}
+
+/**
+ * @brief get stem from file
+ *
+ * @param path the file path
+ */
+forceinline std::string get_stem(const fs::path &path) {
+    return path.filename().stem().string();
+}
+
+/**
+ * @brief get stem from file
+ *
+ * @param path the file path
+ */
+forceinline std::string get_stem(const std::string &path) {
+    return fs::path(path).filename().stem().string();
 }
 
 /**
@@ -253,9 +271,84 @@ forceinline std::string get_version_string(Version ver) {
 }
 
 /**
+ * @brief get a virtual machine from files
+ *
+ * @param file the file name
+ * @param cfg the runtime configures
+ * @param nofile_failed the callback when file not found
+ * @param load_failed the callback when load failed
+ * @param cfg_failed the callback when load runtime configures failed
+ */
+forceinline dpp::vm get_vm(const std::string &file, dpp::runtime_config &cfg,
+    void (* nofile_failed)(const std::string &, std::ifstream &) = [](const std::string &file, std::ifstream &) -> void {
+                            fmt::print_error("cannot open file '", file, "'\n");
+                            exit(EXIT_FAILURE);
+                        },
+    void (* load_failed)(cereal::Exception &) = [](cereal::Exception &e) {
+                        fmt::print_error("error: invaild input file\n");
+                        fmt::print_error("    message: ", e.what(), "\n");
+                        exit(EXIT_FAILURE);
+                    },
+    void (* cfg_failed)(cereal::Exception &) = [](cereal::Exception &e) {
+                        fmt::print_error("error: invaild input file\n");
+                        fmt::print_error("    message: ", e.what(), "\n");
+                        exit(EXIT_FAILURE);
+                    }) {
+    std::ifstream fs = dpp::open_file<std::ifstream>(file,
+                        std::ios::binary,
+                        nofile_failed);
+
+    dpp::vm vm = dpp::create_vm(false);
+    *vm = dpp::serialize::load<FObject>(dynamic_cast<std::istream &>(fs),
+                    load_failed);
+
+    const fs::path &filepath = fs::path(file);
+    const fs::path &cfgpath = filepath.parent_path() / (dpp::get_stem(filepath) + ".runtime-cfg.json");
+    if (fs::exists(cfgpath)) {
+        std::ifstream cfg_fs(cfgpath);
+        cfg = dpp::serialize::load<dpp::runtime_config, cereal::JSONInputArchive>(cfg_fs, cfg_failed);
+        dpp::close_file(cfg_fs);
+    } else {
+        cfg = dpp::runtime_config();
+    }
+
+    dpp::close_file(fs);
+    return vm;
+}
+
+/**
+ * @brief create a virtual machine to files
+ *
+ * @param file the file name
+ * @param vm the virtual machine
+ * @param create_failed the callback when create files
+ * @param load_failed the callback whne load failed
+ */
+forceinline dpp::vm set_vm(const std::string &file, dpp::vm vm,
+    void (* create_failed)(const std::string &, std::ofstream &) = [](const std::string &file, std::ofstream &) -> void {
+        fmt::print_error("error: cannot create '", get_stem(file), ".dppo", "'. maybe you have no premission.\n");
+        exit(EXIT_FAILURE);
+    },
+    void (* load_failed)(cereal::Exception &) = [](cereal::Exception &e) {
+                            fmt::print_error("error: internal error\n");
+                            fmt::print_error("    message: ", e.what(), "\n");
+                            exit(EXIT_FAILURE);
+                        }) {
+    std::ofstream ofs = dpp::open_file<std::ofstream>(file, std::ios::binary,
+        create_failed);
+
+    dpp::serialize::save<FObject>(ofs, *vm,
+                        load_failed);
+
+    dpp::close_file(ofs);
+
+    return vm;
+}
+
+/**
  * @brief get the file type from magic number
  *
- * @param MagicNumber
+ * @param magic_number
  * @return std::string the file type string
  */
 forceinline std::string get_file_type(const std::string &magic_number) {
