@@ -25,6 +25,7 @@ x: int = 3 | 4;
 y: int = -k;
 
 fun main(): void {
+    out("opt-start");
     out(a);
     out(" ");
     out(c);
@@ -66,4 +67,5 @@ fun main(): void {
     out(x);
     out(" ");
     out(y);
+    out("opt-end");
 }

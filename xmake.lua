@@ -60,6 +60,43 @@ target("dpp")
     add_installfiles("$(projectdir)/CHANGELOG.md")
     add_installfiles("$(projectdir)/LICENSE")
     add_installfiles("$(projectdir)/README.md")
+
+    after_build(function (target)
+        os.rm("$(buildir)/$(plat)/$(arch)/*.dppo")
+        for _, file in ipairs("$(projectdir)/examples/*.dpp") do
+            os.cp(file, "$(buildir)/$(plat)/$(arch)/" .. (is_mode("debug") and "debug/" or "release/"))
+        end
+    end)
+
+    add_tests("test-enum-compile", {runargs = {"-c", "enum.dpp"}})
+    add_tests("test-enum-run", {runargs = {"-r", "enum.dppo"}, pass_outputs = "1 2 114514"})
+
+    add_tests("test-typedef-compile", {runargs = {"-c", "typedef.dpp"}})
+    add_tests("test-typedef-run", {runargs = {"-r", "typedef.dppo"}, pass_outputs = "1"})
+
+    add_tests("test-variable-compile", {runargs = {"-c", "variable.dpp"}})
+    add_tests("test-variable-run", {runargs = {"-r", "variable.dppo"}, pass_outputs = "114514 1919810 \"Hello, world!\""})
+
+    -- add_tests("test-operators-compile", {runargs = {"-c", "operators.dpp"}})
+    -- add_tests("test-operators-run", {runargs = {"-r", "operators.dppo"}, pass_outputs = "opt-start-2 0 0 1 0 1 12 2 3 7 -1 48 0 1 0 1 0 7 0 7 -12opt-end"})
+
+    add_tests("test-new-delete-compile", {runargs = {"-c", "new-delete.dpp"}})
+    add_tests("test-new-delete-run", {runargs = {"-r", "new-delete.dppo"}, pass_outputs = ""})
+
+    add_tests("test-when-compile", {runargs = {"-c", "when.dpp"}})
+    add_tests("test-when-run", {runargs = {"-r", "when.dppo"}, pass_outputs = "a == 1 in whenb == 2defaulta == 1"})
+
+    add_tests("test-loop-compile", {runargs = {"-c", "loop.dpp"}})
+    add_tests("test-loop-run", {runargs = {"-r", "loop.dppo"}, pass_outputs = "01234 12346789100"})
+
+    add_tests("test-goto-compile", {runargs = {"-c", "goto.dpp"}})
+    add_tests("test-goto-run", {runargs = {"-r", "goto.dppo"}, pass_outputs = "start end"})
+
+    add_tests("test-function-compile", {runargs = {"-c", "function.dpp"}})
+    add_tests("test-function-run", {runargs = {"-r", "function.dppo"}, pass_outputs = "2"})
+
+    add_tests("test-test-compile", {runargs = {"-c", "test.dpp"}})
+    add_tests("test-test-run", {runargs = {"-r", "test.dppo"}, pass_outputs = "Hello World"})
 target_end()
 
 target("tests")
@@ -160,12 +197,10 @@ xpack("dpp")
     -- std libraries
     add_targets("io")
 
-    after_package(function (package)
-        os.addenvs({PATH = package:installdir() .. "/scripts/"})
-    end)
+    add_components("scripts-path")
 xpack_end()
 
-xpack_component("LongPath")
+xpack_component("scripts-path")
     set_default(false)
     set_title("Add scripts/ to PATH")
     set_description("")

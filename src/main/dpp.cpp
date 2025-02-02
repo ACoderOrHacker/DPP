@@ -162,7 +162,6 @@ public:
                 dpp::close_file(ifs);
 
                 dpp::output_vm(vm, false);
-                dpp::delete_vm(vm);
             } else if (result.count("plugin")) {
                 dpp::output_information();
                 std::cout << "\n\n";

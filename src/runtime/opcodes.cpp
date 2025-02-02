@@ -468,7 +468,7 @@ void _call(dpp::vm vm) {
 
 void _ret(dpp::vm vm) {
     if (!vm->_theap->isEmpty()) {
-        vm->return_values.push(vm->obj_map.get(vm->_theap->PopFront()));
+        vm->return_values.push(vm->obj_map.get(vm->_theap->PopFront())->move(nullptr));
     }
 
 	vm->state = vm->callstack.top();
