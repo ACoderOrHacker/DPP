@@ -24,6 +24,7 @@
 
 #ifndef _STRUCT_H
 #define _STRUCT_H
+#include <map>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -86,7 +87,6 @@ enum rt_opcode : unsigned char {
     OPCODE_JMP,
 	OPCODE_CALL,
     OPCODE_GETRET,
-	OPCODE_CALLN,
 	OPCODE_RET,
 	OPCODE_NEW,
     OPCODE_DEL,
@@ -347,17 +347,18 @@ public:
 	Tmp_Heap *_theap;
     VMError *_error = nullptr;
 public:
-    Array<dpp::native_module> NativeModules;
-	Array<std::string> modules;
+    std::unordered_map<std::string, dylib> libraries;
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
     std::stack<Dpp_Object *> return_values;
 	struct VMState state;
 	int exit_code = EXIT_SUCCESS;
+
+    bool is_next = true; // is run next opcode?
 public:
     std::stack<std::string> files; // storge files
 
-Dpp_SERIALIZE(Dpp_NVP(modules), Dpp_NVP(obj_map),  Dpp_NVP(state), Dpp_NVP(files))
+Dpp_SERIALIZE(Dpp_NVP(obj_map),  Dpp_NVP(state), Dpp_NVP(files))
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);

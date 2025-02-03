@@ -24,7 +24,6 @@
 #include <string>
 #include "objects.hpp"
 #include "builtin.hpp"
-#include "native.hpp"
 #include "struct.hpp"
 
 dpp::object *IntObject::add(dpp::object *lval, dpp::object *rval) {

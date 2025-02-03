@@ -30,6 +30,7 @@ SOFTWARE.
 #include <cereal/archives/portable_binary.hpp>
 #include <cereal/archives/json.hpp>
 #include "builtin.hpp"
+#include "native.hpp"
 #include "struct.hpp"
 #include "macros.hpp"
 #include "acassert.h"
@@ -151,15 +152,27 @@ Dpp_EMPTY_OBJECT_SERIALIZE()
 
 Dpp_REGISTER_TYPE(class, ClassObject)
 
+struct NativeFunc {
+    std::string lib;
+    std::string func_id;
+    bool is_native = false;
+
+    NATIVE_FUNC native_func;
+
+Dpp_SERIALIZE(Dpp_NVP(lib), Dpp_NVP(func_id), Dpp_NVP(is_native))
+};
+
 Dpp_TYPE(FunctionObject) {
 Dpp_TYPE_REGISTER_METHOD(FunctionObject)
 public:
-    struct VMState state;
+    struct VMState state; // for normal function
+    std::shared_ptr<NativeFunc> function = nullptr; // for native function
+
 public:
     std::string to_string(dpp::object *) override;
     std::string to_datastring(dpp::object *) override;
     std::string get_typeid() override;
-Dpp_OBJECT_SERIALIZE(state)
+Dpp_OBJECT_SERIALIZE(state, function)
 };
 
 Dpp_REGISTER_TYPE(function, FunctionObject)

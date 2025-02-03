@@ -389,16 +389,6 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
     auto gmap = vm->obj_map.getGlobalMapping();
 
     fmt::print("\n");
-    if (vm->modules.size() == 0) { fmt::print("modules: {}\n"); }
-    else {
-        fmt::print("modules: {\n");
-        for(auto &it: vm->modules) {
-            fmt::print("    ", it, "\n");
-        }
-        fmt::print("}\n");
-    }
-
-    fmt::print("\n");
     if (vm->state.vmopcodes.isEmpty()) { fmt::print("state: {}\n"); }
     else {
         fmt::print("state: {\n");

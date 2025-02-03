@@ -449,10 +449,38 @@ void _jmp(dpp::vm vm) {
 }
 
 void _call(dpp::vm vm) {
-    vm->files.push(vm->obj_map.get_currentfile());
-
 	Object _func = vm->_theap->PopFront();
     FunctionObject *func = (FunctionObject *)vm->obj_map.get(_func);
+
+    // if is native
+    if (func->function != nullptr && func->function->is_native) {
+        // the function is native function
+        const auto &it = vm->libraries.find(func->function->lib);
+
+        try {
+            if (it != vm->libraries.end()) {
+                func->function->native_func = (*it).second.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
+            } else {
+                dylib lib(func->function->lib);
+                func->function->native_func = lib.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
+                vm->libraries.insert(std::make_pair(func->function->lib, lib));
+            }
+        } catch (dylib::exception &) {
+            dpp::set_error(vm, Dpp_LibNoSymbolError, Dpp_TEXT("symbol '") + func->name + Dpp_TEXT("' not found"));
+            return;
+            // Dpp_LibNoSymbolError ref to no library OR no symbol
+        }
+
+        dpp::object *ret = func->function->native_func(vm);
+        if (ret != nullptr && !vm->_theap->isEmpty()) {
+            Object _to = vm->_theap->PopFront();
+            vm->obj_map.write(_to, ret, true);
+        }
+
+        return;
+    }
+
+    vm->files.push(vm->obj_map.get_currentfile());
 
     uint32_t func_mapping_id = vm->obj_map.getLastCreateID();
     vm->obj_map.create_mapping(func_mapping_id);
@@ -464,6 +492,7 @@ void _call(dpp::vm vm) {
     }
     vm->callstack.push(vm->state);
     vm->state = func->state;
+    vm->is_next = false;
 }
 
 void _ret(dpp::vm vm) {
@@ -486,35 +515,6 @@ void _getret(dpp::vm vm) {
         vm->obj_map.write(to, val, true);
     }
     vm->return_values.pop();
-}
-
-void _calln(dpp::vm vm) {
-	// call native function
-	Object _lib = vm->_theap->PopFront();
-	Object _func = vm->_theap->PopFront();
-
-	dpp::object *call_func = vm->obj_map.get(_func);
-
-	if(dpp::is_string(call_func)) {
-		String native_func = dpp::get_string(call_func);
-
-        dpp::proc proc;
-        try {
-            proc = dpp::get_proc(vm->NativeModules[_lib.id], native_func);
-        } catch (std::runtime_error &) {
-            dpp::set_error(vm, Dpp_LibNoSymbolError, Dpp_TEXT("symbol '") + native_func + Dpp_TEXT("' not found"));
-			return;
-        }
-
-		NATIVE_FUNC func = (NATIVE_FUNC)proc;
-		dpp::object *ret = func(vm);
-        if (ret != nullptr && !vm->_theap->isEmpty()) {
-            Object _to = vm->_theap->PopFront();
-            vm->obj_map.write(_to, ret, true);
-        }
-    } else {
-        dpp::set_error(vm, Dpp_TypeNotRightError, Dpp_TEXT("internal error at calln opcode, the native function is not a string"));
-    }
 }
 
 void _import(dpp::vm vm) {

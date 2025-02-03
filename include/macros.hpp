@@ -38,6 +38,18 @@ constexpr bool STATUS_FAILED = false;
     template <typename Archive> \
     void serialize(Archive &ar) { ar(__VA_ARGS__); }
 
+#define Dpp_LOAD(archive) \
+    private: \
+    friend class cereal::access; \
+    template <typename Archive> \
+    void load(Archive &archive)
+
+#define Dpp_SAVE(archive) \
+    private: \
+    friend class cereal::access; \
+    template <typename Archive> \
+    void save(Archive &archive) const
+
 #define Dpp_OBJECT_SERIALIZE(...) Dpp_SERIALIZE(cereal::base_class<dpp::object>(this), __VA_ARGS__)
 #define Dpp_EMPTY_OBJECT_SERIALIZE() Dpp_SERIALIZE(cereal::base_class<dpp::object>(this))
 #define Dpp_NVP(name) CEREAL_NVP(name)

@@ -62,4 +62,5 @@ forceinline std::shared_ptr<T> create_ptr(T *ptr_) {
 
 	return ptr;
 }
+
 #endif // !_DXX_CONFIG_H

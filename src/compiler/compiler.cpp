@@ -7,11 +7,14 @@
 #include "dpp/api.h"
 #include "macros.hpp"
 #include "errors.hpp"
+#include "metadata.h"
 #include "objects.hpp"
+#include "struct.hpp"
 #include "vm.hpp"
 #include "compiler.hpp"
 #include "compileinfos.h"
 #include <fstream>
+#include <memory>
 
 using namespace errors;
 
@@ -648,7 +651,7 @@ public:
      */
     std::any visitFunctionCall(DXXParser::FunctionCallContext *ctx) override {
         Dpp_CObject *func = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
-        Dpp_CObject *co = MakeObject("");
+        Dpp_CObject *co = ((Dpp_CObject *)(func->metadata[function::FUNCTION_METADATA::RETURN_TYPE]))->object == Object {true, VOID_TYPE} ? NONE : MakeObject("");
         Heap<Object> params;
         Heap<Dpp_CObject *> param_list;
 
@@ -716,31 +719,15 @@ public:
 
 
         if(!func->infos.native_function.empty()) {
-            // native function
-            params.PushData(MakeString(func->id)->object);
-
-            uint32_t i = 0;
-            bool isFound = false;
-            for (auto &it : fObj->modules) {
-                if (it == func->infos.native_library) {
-                    params.PushData({true, i});
-                    isFound = true;
-                    break;
-                }
-                ++i;
-            }
-
-            if (!isFound) {
-                REPORT(E0021, func->infos.native_library);
-            }
-
-            LoadOpcode(ctx, OPCODE_CALLN, params);
+            params.PushData(func->object);
+            if (co != NONE) params.PushEnd(co->object);
+            LoadOpcode(ctx, OPCODE_CALL, params);
             return co;
         }
 
         params.PushData(func->object);
         LoadOpcode(ctx, OPCODE_CALL, params);
-        LoadOpcode(ctx, OPCODE_GETRET, { co->object });
+        if (co != NONE) LoadOpcode(ctx, OPCODE_GETRET, { co->object });
 
         return co;
     }
@@ -1297,6 +1284,15 @@ private:
         co->type = Dpp_FunctionType;
         co->isNone = isNone;
 
+        if (!co->infos.native_library.empty()) {
+            FunctionObject *fun = dynamic_cast<FunctionObject *>(func);
+
+            fun->function = std::make_shared<NativeFunc>();
+            fun->function->is_native = true;
+            fun->function->lib = co->infos.native_library;
+            fun->function->func_id = co->infos.native_function;
+        }
+
         Dpp_CObject *result = nullptr;
 
         try {
@@ -1315,6 +1311,7 @@ private:
             thisNamespace->RemoveObject(result);
             thisNamespace->objects.write(co);
             co->object = result->object;
+
             fObj->obj_map.write(co->object, func, true);
             co->isNone = false;
             delete result;
@@ -1322,7 +1319,6 @@ private:
             return co;
         }
 
-        if(!co->infos.native_library.empty()) fObj->modules.write(co->infos.native_library);
         fObj->obj_map.write(o, func);
         globalNamespace->objects.write(co);
         return co;

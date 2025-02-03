@@ -62,7 +62,6 @@ const OpcodeFunc opcode_list[256] = {
     &_jmp,
 	&_call,
     &_getret,
-	&_calln,
 	&_ret,
 	&_new,
     &_del,
@@ -94,7 +93,6 @@ const char *opcode_name_list[256] = {
     "jmp",
     "call",
     "getret",
-    "calln",
     "ret",
     "new",
     "del",
@@ -119,17 +117,6 @@ VM_API dpp::vm dpp::create_vm(bool add_builtin) {
 }
 
 VM_API int dpp::run(dpp::vm vm, bool noExit) {
-    uint32_t i = 0;
-    for (auto &it : vm->modules) {
-        try {
-            vm->NativeModules.write(i, dpp::open(it), true /* unused */);
-        } catch(std::runtime_error &) {
-            fmt::print_error("startup: cannot load dynamic library ", it, "\n");
-            vm->exit_code = EXIT_FAILURE;
-            goto EXIT;
-        }
-    }
-
 	while(vm->state.vmopcodes.size() > vm->state.runat) {
 		const OpCode &opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
 
@@ -156,7 +143,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
             continue;
         }
 
-        if (opcode.opcode != OPCODE_CALL) ++vm->state.runat;
+        if (vm->is_next) ++vm->state.runat;
 	}
 
 EXIT:
@@ -169,6 +156,7 @@ EXIT:
 }
 
 VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
+    vm->is_next = true;
     *vm->_theap = opcode.params; // write the params to the 'vm->_theap' for the opcode
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
