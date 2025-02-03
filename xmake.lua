@@ -181,7 +181,7 @@ xpack("dpp")
     set_author("ACoderOrHacker")
     set_license("MIT")
     set_licensefile("LICENSE")
-    set_title("D++ Programming Language")
+    set_title("The D++ Programming Language")
 
     add_sourcefiles("$(projectdir)/(src/*)")
     add_sourcefiles("$(projectdir)/(include/*)")
@@ -197,16 +197,5 @@ xpack("dpp")
     -- std libraries
     add_targets("io")
 
-    add_components("scripts-path")
 xpack_end()
 
-xpack_component("scripts-path")
-    set_default(false)
-    set_title("Add scripts/ to PATH")
-    set_description("")
-    on_installcmd(function (component, batchcmds)
-        batchcmds:rawcmd("nsis", [[
-    ; Add scripts/ to PATH
-    SetEnv PATH "%PATH%;$INSTDIR/scripts/"
-    ]])
-     end)

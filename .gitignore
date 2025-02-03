@@ -44,3 +44,6 @@
 
 # xmake genrated Visual Studio project
 /vsxmake2022/
+
+# TODO: docs not successful
+/docs/
