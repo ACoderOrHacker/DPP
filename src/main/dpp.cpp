@@ -101,7 +101,7 @@ public:
             } else if (result.count("run")) {
                 std::string filename = result["run"].as<std::string>();
 
-                dpp::runtime_config cfg;
+                struct dpp::runtime_config cfg;
                 dpp::vm vm = dpp::get_vm(filename, cfg);
 
                 dpp::run(vm);
@@ -120,7 +120,7 @@ public:
 
                 std::string filename = result["debug"].as<std::string>();
 
-                dpp::runtime_config cfg;
+                struct dpp::runtime_config cfg;
                 dpp::vm vm = dpp::get_vm(filename, cfg);
 
                 // TODO: debug tools
@@ -147,13 +147,14 @@ public:
                 std::cout << "\n\n";
 
                 std::string type = result["export"].as<std::string>();
-                std::string filename;
+                std::string file;
                 if (type == "runtime-cfg") {
-                    filename = "dpp-standard-runtime-cfg.json";
-                    std::ofstream ofs = dpp::open_file<std::ofstream>((output_dir / filename).string(), std::ios::out);
-                    dpp::serialize::save<dpp::runtime_config, cereal::JSONOutputArchive>(ofs, dpp::runtime_config());
-                    dpp::close_file(ofs);
+                    file = (output_dir / "dpp-standard-runtime-cfg.json").string();
+                    struct dpp::runtime_config cfg {};
+                    dpp::write_runtime_config(file, cfg);
                 }
+
+                fmt::print_success("exported '", file, "' successfully\n");
             } else if (result.count("plugin")) {
                 dpp::output_information();
                 std::cout << "\n\n";

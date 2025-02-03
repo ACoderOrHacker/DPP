@@ -18,7 +18,6 @@
 #include <fstream>
 #include <ios>
 #include <stdexcept>
-#include <filesystem>
 #include <streambuf>
 #include <string>
 #include <cereal/details/helpers.hpp>
@@ -39,10 +38,6 @@
 #include "error.hpp"
 
 #define None nullptr
-#define GLOBAL_OBJECT_SHOW_SIGN "@"
-#define LOCAL_OBJECT_SHOW_SIGN "%"
-
-namespace fs = std::filesystem;
 
 NAMESPACE_DPP_BEGIN
 
@@ -305,9 +300,7 @@ forceinline dpp::vm get_vm(const std::string &file, dpp::runtime_config &cfg,
     const fs::path &filepath = fs::path(file);
     const fs::path &cfgpath = filepath.parent_path() / (dpp::get_stem(filepath) + ".runtime-cfg.json");
     if (fs::exists(cfgpath)) {
-        std::ifstream cfg_fs(cfgpath);
-        cfg = dpp::serialize::load<dpp::runtime_config, cereal::JSONInputArchive>(cfg_fs, cfg_failed);
-        dpp::close_file(cfg_fs);
+        cfg = read_runtime_config(cfgpath.string());
     } else {
         cfg = dpp::runtime_config();
     }

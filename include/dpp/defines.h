@@ -9,9 +9,15 @@
 
 #ifndef _DEFINES_H
 #define _DEFINES_H
+#include <filesystem>
 #include "acdpp.h"
 #include "acassert.h"
 #include "macros.hpp"
+
+#define GLOBAL_OBJECT_SHOW_SIGN "@"
+#define LOCAL_OBJECT_SHOW_SIGN "%"
+
+namespace fs = std::filesystem;
 
 
 #endif // !_DEFINES_H
