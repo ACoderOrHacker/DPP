@@ -23,6 +23,7 @@ add_requires("antlr4 4.13.2")
 add_requires("cxxopts 3.2.1")
 add_requires("cereal 1.3.2")
 add_requires("doctest 2.4.11")
+add_requires("jemalloc 5.3.0")
 
 -- include directories
 add_includedirs("include", "src")
@@ -33,7 +34,7 @@ target("vm")
     set_kind("shared")
     add_files("src/runtime/*.cpp")
 
-    add_packages("cereal")
+    add_packages("cereal", "jemalloc")
 target_end()
 
 target("compiler")
@@ -43,7 +44,7 @@ target("compiler")
 
     add_rules("@antlr4/lexer", "@antlr4/parser", {visitor = true, listener = false})
     add_deps("vm")
-    add_packages("antlr4-runtime", "antlr4", "cereal")
+    add_packages("antlr4-runtime", "antlr4", "cereal", "jemalloc")
 target_end()
 
 target("dpp")
@@ -51,7 +52,7 @@ target("dpp")
     add_files("src/main/dpp.cpp")
 
     add_deps("compiler", "vm")
-    add_packages("cxxopts", "cereal")
+    add_packages("cxxopts", "cereal", "jemalloc")
 
     add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
 	add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
@@ -77,8 +78,8 @@ target("dpp")
     add_tests("test-variable-compile", {runargs = {"-c", "variable.dpp"}})
     add_tests("test-variable-run", {runargs = {"-r", "variable.dppo"}, pass_outputs = "114514 1919810 \"Hello, world!\""})
 
-    -- add_tests("test-operators-compile", {runargs = {"-c", "operators.dpp"}})
-    -- add_tests("test-operators-run", {runargs = {"-r", "operators.dppo"}, pass_outputs = "opt-start-2 0 0 1 0 1 12 2 3 7 -1 48 0 1 0 1 0 7 0 7 -12opt-end"})
+    add_tests("test-operators-compile", {runargs = {"-c", "operators.dpp"}})
+    add_tests("test-operators-run", {runargs = {"-r", "operators.dppo"}, pass_outputs = "opt-start-2 0 0 1 0 1 12 2 3 7 -1 48 0 1 0 1 0 7 0 7 -12opt-end"})
 
     add_tests("test-new-delete-compile", {runargs = {"-c", "new-delete.dpp"}})
     add_tests("test-new-delete-run", {runargs = {"-r", "new-delete.dppo"}, pass_outputs = ""})

@@ -24,8 +24,8 @@
 #endif // _DXX_API
 #define _DXX_EXPORT_API extern "C" __declspec(dllexport)
 #else
-#define DXX_API
-#define _DXX_EXPORT_API extern "C"
+#define DXX_API __attribute__((visibility("default")))
+#define _DXX_EXPORT_API extern "C" __attribute__((visibility("default")))
 #endif
 
 /**

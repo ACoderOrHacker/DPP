@@ -96,9 +96,8 @@ enum rt_opcode : unsigned char {
 };
 
 typedef struct _Object {
-public:
-	bool isInGlobal = true;
-	uint32_t id = 0;
+    bool isInGlobal = true;
+    uint32_t id = 0;
 
 	bool operator ==(const _Object &o) const { return (this->id == o.id &&
                                         this->isInGlobal == o.isInGlobal); }
