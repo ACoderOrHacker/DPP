@@ -461,12 +461,12 @@ void _call(dpp::vm vm) {
             if (it != vm->libraries.end()) {
                 func->function->native_func = (*it).second.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
             } else {
-                dylib lib(func->function->lib);
+                dylib lib(func->function->lib, true);
                 func->function->native_func = lib.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
                 vm->libraries.insert(std::make_pair(func->function->lib, lib));
             }
-        } catch (dylib::exception &) {
-            dpp::set_error(vm, Dpp_LibNoSymbolError, Dpp_TEXT("symbol '") + func->name + Dpp_TEXT("' not found"));
+        } catch (dylib::exception &e) {
+            dpp::set_error(vm, Dpp_LibNoSymbolError, e.what());
             return;
             // Dpp_LibNoSymbolError ref to no library OR no symbol
         }

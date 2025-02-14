@@ -78,7 +78,10 @@ void activate(const std::string &path) {
     "sh";
 #endif
     if (fs::exists(activate_file)) {
-        system((shell + " " + activate_file).c_str());
+        std::ignore = system((shell + " " + activate_file).c_str());
+    } else {
+        fmt::print_error("activate file not found.\n");
+        return;
     }
 }
 

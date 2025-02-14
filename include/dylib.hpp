@@ -81,14 +81,19 @@ public:
      */
     void open(const std::string &path) {
         bool isfailed = false;
+        std::string extra = "unknown error";
 #if defined(_WIN32) || defined(_WIN64)
         handle = LoadLibrary(path.c_str());
         isfailed = (GetLastError() != 0);
+        extra = GetLastError();
 #else
         handle = dlopen(path.c_str(), RTLD_LAZY);
         isfailed = (!handle);
+
+        const char *err = dlerror();
+        extra = err ? err : "unknown error";
 #endif
-        if (isfailed) throw exception("error from open dylib");
+        if (isfailed) throw exception("dylib open error: " + extra);
     }
 
 #ifdef DYLIB_CPP17
