@@ -104,7 +104,10 @@ void deactivate(const std::string &path) {
     "sh";
 #endif
     if (fs::exists(deactivate_file)) {
-        system((shell + " " + deactivate_file).c_str());
+        std::ignore = system((shell + " " + deactivate_file).c_str());
+    } else {
+        fmt::print_error("deactive file not found.\n");
+        return;
     }
 }
 

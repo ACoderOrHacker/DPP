@@ -242,7 +242,7 @@ fragment Simpleescapesequence:
 
 fragment SIGN: '-';
 
-fragment ESC: '\\' [\\'"] ;
+fragment ESC: '\\' [\\'"/bfnrt] ;
 
 Whitespace: [ \t]+ -> skip;
 
@@ -250,7 +250,7 @@ Newline: ('\r' '\n'? | '\n') -> skip;
 
 BlockComment: '/*' .*? '*/' -> skip;
 
-LineComment: '//' ~ [\r\n]* -> skip;
+LineComment: ('//' | '#' ) ~ [\r\n]* -> skip;
 
 IntegerData:  [0-9]+;
 

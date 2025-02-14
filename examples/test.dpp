@@ -1,6 +1,6 @@
 fun native("io", "out") out(o: object): void;
 
-s: string = "Hello World";
+s: string = "Hello World\n";
 // shit: string = 1;
 
 fun main(): void {
