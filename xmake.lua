@@ -55,66 +55,56 @@ target("dpp")
     add_packages("cxxopts", "cereal", "jemalloc")
 
     add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
-	add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
-    add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
-    add_installfiles("$(projectdir)/scripts/*", {prefixdir = "scripts"})
-    add_installfiles("$(projectdir)/CHANGELOG.md")
-    add_installfiles("$(projectdir)/LICENSE")
-    add_installfiles("$(projectdir)/README.md")
+    add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
 
-    after_build(function (target)
-        os.rm("$(buildir)/$(plat)/$(arch)/*.dppo")
-        for _, file in ipairs("$(projectdir)/examples/*.dpp") do
-            os.cp(file, "$(buildir)/$(plat)/$(arch)/" .. (is_mode("debug") and "debug/" or "release/"))
-        end
-    end)
+    -- TODO: FATAL no compile tests
+    for _, file in ipairs(os.files("$(projectdir)/examples/*")) do
+        local basename = path.basename(file)
+        add_tests(file .. "-compile", {runargs = {"-c", file}})
+    end
 
-    add_tests("test-enum-compile", {runargs = {"-c", "enum.dpp"}})
-    add_tests("test-enum-run", {runargs = {"-r", "enum.dppo"}, pass_outputs = "1 2 114514"})
-
-    add_tests("test-typedef-compile", {runargs = {"-c", "typedef.dpp"}})
-    add_tests("test-typedef-run", {runargs = {"-r", "typedef.dppo"}, pass_outputs = "1"})
-
-    add_tests("test-variable-compile", {runargs = {"-c", "variable.dpp"}})
-    add_tests("test-variable-run", {runargs = {"-r", "variable.dppo"}, pass_outputs = "114514 1919810 \"Hello, world!\""})
-
-    add_tests("test-operators-compile", {runargs = {"-c", "operators.dpp"}})
-    add_tests("test-operators-run", {runargs = {"-r", "operators.dppo"}, pass_outputs = "opt-start-2 0 0 1 0 1 12 2 3 7 -1 48 0 1 0 1 0 7 0 7 -12opt-end"})
-
-    add_tests("test-new-delete-compile", {runargs = {"-c", "new-delete.dpp"}})
-    add_tests("test-new-delete-run", {runargs = {"-r", "new-delete.dppo"}, pass_outputs = ""})
-
-    add_tests("test-when-compile", {runargs = {"-c", "when.dpp"}})
-    add_tests("test-when-run", {runargs = {"-r", "when.dppo"}, pass_outputs = "a == 1 in whenb == 2defaulta == 1"})
-
-    add_tests("test-loop-compile", {runargs = {"-c", "loop.dpp"}})
-    add_tests("test-loop-run", {runargs = {"-r", "loop.dppo"}, pass_outputs = "01234 12346789100"})
-
-    add_tests("test-goto-compile", {runargs = {"-c", "goto.dpp"}})
-    add_tests("test-goto-run", {runargs = {"-r", "goto.dppo"}, pass_outputs = "start end"})
-
-    add_tests("test-function-compile", {runargs = {"-c", "function.dpp"}})
-    add_tests("test-function-run", {runargs = {"-r", "function.dppo"}, pass_outputs = "2"})
-
-    add_tests("test-test-compile", {runargs = {"-c", "test.dpp"}})
-    add_tests("test-test-run", {runargs = {"-r", "test.dppo"}, pass_outputs = "Hello World"})
+    add_tests("enum-run", {runargs = {"-r", "enum.dppo"}, pass_outputs = "1 2 114514"})
+    add_tests("typedef-run", {runargs = {"-r", "typedef.dppo"}, pass_outputs = "1"})
+    add_tests("variable-run", {runargs = {"-r", "variable.dppo"}, pass_outputs = "114514 1919810 \"Hello, world!\""})
+    add_tests("operators-run", {runargs = {"-r", "operators.dppo"}, pass_outputs = "opt-start-2 0 0 1 0 1 12 2 3 7 -1 48 0 1 0 1 0 7 0 7 -12opt-end"})
+    add_tests("new-delete-run", {runargs = {"-r", "new-delete.dppo"}, pass_outputs = ""})
+    add_tests("when-run", {runargs = {"-r", "when.dppo"}, pass_outputs = "a == 1 in whenb == 2defaulta == 1"})
+    add_tests("loop-run", {runargs = {"-r", "loop.dppo"}, pass_outputs = "01234 12346789100"})
+    add_tests("goto-run", {runargs = {"-r", "goto.dppo"}, pass_outputs = "start end"})
+    add_tests("function-run", {runargs = {"-r", "function.dppo"}, pass_outputs = "2"})
+    add_tests("test-run", {runargs = {"-r", "test.dppo"}, pass_outputs = "Hello World\n"})
 target_end()
 
-target("tests")
-    set_kind("binary")
-    add_files("src/tests/*.cpp")
+-- std targets
+for _, dir in ipairs(os.dirs("src/std/*")) do
+    local basename = path.basename(dir)
+    target(basename)
+        set_kind("shared")
+        add_files(path.join(dir, "*.cpp"))
 
-    add_deps("compiler", "vm")
-    add_packages("doctest", "cereal")
-target_end()
+        set_prefixdir("packages-dpp/packages/std/native")
 
-target("io")
-    set_kind("shared")
-    add_files("src/std/io/*.cpp")
+        add_deps("vm")
+        add_packages("cereal")
 
-    add_deps("vm")
-    add_packages("cereal")
-target_end()
+        after_install(function (target)
+            -- TODO: copy all the dpp files
+        end)
+    target_end()
+end
+
+option("enable-tests")
+    set_default(false)
+    set_showmenu(true)
+
+    target("tests")
+        set_kind("binary")
+        add_files("src/tests/*.cpp")
+
+        add_deps("compiler", "vm")
+        add_packages("doctest", "cereal")
+    target_end()
+option_end()
 
 option("enable-plugins")
     set_default(true)
@@ -129,6 +119,12 @@ option("enable-plugins")
         add_packages("cereal")
     target_end()
 option_end()
+
+target("conf")
+    set_kind("phony")
+
+    add_installfiles("$(projectdir)/conf/*", {prefixdir = "etc/dpp/"})
+target_end()
 
 task("tag")
     on_run(function ()
@@ -178,11 +174,17 @@ xpack("dpp")
 
     -- set base information
     set_homepage("https://ACoderOrHacker.github.io/DPP")
-    set_description("A Programming Language based on c++17")
+    set_description("The D++ Programming Language")
     set_author("ACoderOrHacker")
     set_license("MIT")
     set_licensefile("LICENSE")
     set_title("The D++ Programming Language")
+
+    add_installfiles("$(projectdir)/examples/*", {prefixdir = "examples"})
+    add_installfiles("$(projectdir)/scripts/*", {prefixdir = "scripts"})
+    add_installfiles("$(projectdir)/CHANGELOG.md")
+    add_installfiles("$(projectdir)/LICENSE")
+    add_installfiles("$(projectdir)/README.md")
 
     add_sourcefiles("$(projectdir)/(src/*)")
     add_sourcefiles("$(projectdir)/(include/*)")

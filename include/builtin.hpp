@@ -25,6 +25,7 @@ enum BUILTIN : uint32_t {
 	BUILTIN_TYPE_NOT_RIGHT_ERROR, /* TypeNotRightError */
 	BUILTIN_NO_MEMORY_ERROR, /* NoMemoryError */
 	BUILTIN_LIB_NO_SYMBOL_ERROR, /* NoSymbolError */
+    BUILTIN_MODULE_NOT_FOUND_ERROR, /* ModuleNotFoundError */
 	BUILTIN_DIVIDE_ZERO_ERROR, /* DivideZeroError */
     BUILTIN_NO_METHOD_ERROR,
     INT_TYPE,
@@ -107,6 +108,11 @@ DXX_API const std::vector<dpp::object *> &get_builtins();
  *
  */
 #define Dpp_LibNoSymbolError _BUILTINS(BUILTIN_LIB_NO_SYMBOL_ERROR)
+
+/**
+ * @brief reference to 'ModuleNotFoundError'
+ */
+#define Dpp_ModuleNotFoundError _BUILTINS(BUILTIN_MODULE_NOT_FOUND_ERROR)
 
 /**
  * @brief reference to 'DivideZeroError'

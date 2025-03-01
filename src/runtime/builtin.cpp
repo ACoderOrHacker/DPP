@@ -30,6 +30,7 @@ const std::vector<dpp::object *> builtins = {
     newErrorObject("TypeNotRightError"), /* Dpp_TypeNotRightError */
     newErrorObject("NoMemoryError"), /* Dpp_NoMemoryError */
     newErrorObject("NoSymbolError"), /* Dpp_LibNoSymbolError */
+    newErrorObject("ModuleNotFoundError"), /* Dpp_ModuleNotFoundError */
     newErrorObject("DivideZeroError"), /* Dpp_DivideZeroError */
     newErrorObject("NoMethodError"), /* Dpp_NoMethodError */
     mk_type<IntObject>("int"),

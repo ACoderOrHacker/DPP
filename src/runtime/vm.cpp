@@ -143,7 +143,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
             continue;
         }
 
-        if (vm->is_next) ++vm->state.runat;
+        ++vm->state.runat;
 	}
 
 EXIT:
@@ -156,7 +156,6 @@ EXIT:
 }
 
 VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
-    vm->is_next = true;
     *vm->_theap = opcode.params; // write the params to the 'vm->_theap' for the opcode
 
 	if(opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {

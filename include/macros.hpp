@@ -23,7 +23,10 @@ constexpr bool STATUS_FAILED = false;
 #define NAMESPACE_BASE_BEGIN NAMESPACE_BEGIN(base)
 #define NAMESPACE_BASE_END NAMESPACE_END
 
-#define Dpp_DEFINE_ERROR(id) class id : std::exception{};
+#define Dpp_DEFINE_ERROR(id) class id : public std::runtime_error { \
+public: \
+    explicit id(const std::string &msg = "") : std::runtime_error(msg) {} \
+};
 #define Dpp_TYPE(id) class DXX_API id : public Dpp_Object
 #define Dpp_TYPE_REGISTER_METHOD(id) \
     public: \

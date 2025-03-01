@@ -461,14 +461,17 @@ void _call(dpp::vm vm) {
             if (it != vm->libraries.end()) {
                 func->function->native_func = (*it).second.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
             } else {
-                dylib lib(func->function->lib, true);
+                std::filesystem::path lib_pth = vm->module_searcher.search(dylib::decoration(func->function->lib));
+                dylib lib(lib_pth);
                 func->function->native_func = lib.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
                 vm->libraries.insert(std::make_pair(func->function->lib, lib));
             }
         } catch (dylib::exception &e) {
             dpp::set_error(vm, Dpp_LibNoSymbolError, e.what());
             return;
-            // Dpp_LibNoSymbolError ref to no library OR no symbol
+        } catch (dpp::ModuleNotFoundError &e) {
+            dpp::set_error(vm, Dpp_ModuleNotFoundError, e.what());
+            return;
         }
 
         dpp::object *ret = func->function->native_func(vm);
@@ -492,7 +495,7 @@ void _call(dpp::vm vm) {
     }
     vm->callstack.push(vm->state);
     vm->state = func->state;
-    vm->is_next = false;
+    vm->state.runat = -1;
 }
 
 void _ret(dpp::vm vm) {

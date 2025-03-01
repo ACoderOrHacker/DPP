@@ -39,6 +39,7 @@
 #pragma warning(disable : 4251)
 #endif // _MSC_VER
 
+#include "searcher.hpp"
 #include "acassert.h"
 #include "acdpp.h"
 #include "macros.hpp"
@@ -351,9 +352,8 @@ public:
 	std::stack<struct VMState> callstack;
     std::stack<Dpp_Object *> return_values;
 	struct VMState state;
+    dpp::searcher module_searcher;
 	int exit_code = EXIT_SUCCESS;
-
-    bool is_next = true; // is run next opcode?
 public:
     std::stack<std::string> files; // storge files
 

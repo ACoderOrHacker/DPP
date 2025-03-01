@@ -61,7 +61,7 @@ public:
 
     dylib(const std::string &lib, bool decorations = true) {
         std::string libname;
-        if (decorations) libname = prefix + lib + suffix;
+        if (decorations) libname = decoration(lib);
         else libname = lib;
 
         open(libname);
@@ -73,6 +73,10 @@ public:
 
 
     ~dylib() = default;
+
+    static inline std::string decoration(const std::string &lib) {
+        return prefix + lib + suffix;
+    }
 
     /**
      * @brief open file to handle
