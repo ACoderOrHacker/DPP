@@ -27,7 +27,7 @@
 #include "objects.hpp"
 
 // Runtime Variables
-Object null;
+dpp::mapid null;
 
 Dpp_Object *Dpp_Object::operator +(Dpp_Object *obj) {
     return add(this, obj);

@@ -28,7 +28,7 @@
 #include "metadata.h"
 #include "export.h"
 
-#define OBJECT_TYPE (UINT_MAX)
+#define OBJECT_TYPE (INT32_MAX)
 #define Dpp_ObjectType (nullptr)
 
 /**
@@ -169,7 +169,7 @@ public:
 
 typedef struct _Dpp_CObject {
 public:
-	Object object;
+	dpp::mapid object;
     std::string id;
     struct INFOS infos;
     bool isNone = false;
@@ -288,8 +288,8 @@ public:
         return global;
     }
 private:
-    std::stack<uint32_t> idIt;
-    uint32_t global;
+    std::stack<int32_t> idIt;
+    int32_t global;
 };
 
 /**
@@ -300,7 +300,7 @@ private:
  * @return OpCode the genrated opcode
  */
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    std::initializer_list<Object> l = {},
+    std::initializer_list<dpp::mapid> l = {},
     uint32_t line = 0,
     uint32_t pos = 0) {
     OpCode _op;
@@ -325,7 +325,7 @@ DXX_API OpCode MakeOpCode(rt_opcode op,
  * @return OpCode the genrated opcode
  */
 DXX_API OpCode MakeOpCode(rt_opcode op,
-    Heap<Object> &params,
+    Heap<dpp::mapid> &params,
     uint32_t line,
     uint32_t pos) {
     OpCode _op;

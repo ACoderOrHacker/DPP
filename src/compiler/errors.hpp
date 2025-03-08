@@ -291,6 +291,13 @@ inline void E0025(LP,
 }
 
 /**
+ * @brief E0026: fatal to genrate mapping id because the state has too much objects
+*/
+inline void E0026() {
+    E_NO_LP("fatal to genrate mapping id because the state has too much objects")
+}
+
+/**
  * @brief W0001: object value to not object type value maybe error
  *
  */

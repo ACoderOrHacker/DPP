@@ -367,7 +367,7 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
             s += std::string("    .") + std::to_string(i) + ": " + dpp::get_opcode_name(it.opcode) + " ";
 
             for (auto &param : it.params) {
-                s += std::string(param.isInGlobal ? GLOBAL_OBJECT_SHOW_SIGN : LOCAL_OBJECT_SHOW_SIGN) + std::to_string(param.id) + std::string(" ");
+                s += std::string(param.is_global() ? GLOBAL_OBJECT_SHOW_SIGN : LOCAL_OBJECT_SHOW_SIGN) + std::to_string(param.get_id()) + std::string(" ");
             }
             fmt::print(s, "\n");
 

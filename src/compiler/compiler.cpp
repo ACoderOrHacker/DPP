@@ -67,9 +67,9 @@ public:
         block_end = 0;
 
         // init the globalNamespace
-        uint32_t builtin_it = 0;
+        int32_t builtin_it = 0;
         for (; builtin_it < BUILTIN_END; ++builtin_it) {
-            Object o{ true, builtin_it };
+            dpp::mapid o({ true, builtin_it });
             Dpp_Object *obj = fObj->obj_map.get(o);
             Dpp_CObject *co = new Dpp_CObject;
 
@@ -78,7 +78,7 @@ public:
             globalNamespace->objects.write(co);
         }
 
-        auto make_type = [&, this](const std::string &id, uint32_t type_id) {
+        auto make_type = [&, this](const std::string &id, int32_t type_id) {
             Dpp_CObject *type = new Dpp_CObject;
             type->id = id;
             type->object = { true, type_id};
@@ -178,7 +178,7 @@ public:
                 REPORT(E0009, id);
             }
 
-            uint32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
+            int32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
             ResetOpcode(ctx, it.second, OPCODE_JMP, { {true, pos} });
         }
         gotos.clear();
@@ -201,7 +201,7 @@ public:
      * @return std::any always NONE
      */
     std::any visitImportLib(DXXParser::ImportLibContext *ctx) override {
-        Heap<Object> params;
+        Heap<dpp::mapid> params;
 
         for (auto it : ctx->idEx()->ID()) {
             Dpp_CObject *mod = MakeString(it->toString());
@@ -337,7 +337,7 @@ public:
 		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
 		Dpp_CObject *data;
         Dpp_CObject *to = MakeObject(id, true);
-        to->type = type->object == Object{true, OBJECT_TYPE} ? Dpp_ObjectType : fObj->obj_map.get(type->object); // TODO: may be have bug
+        to->type = type->object == dpp::mapid({true, OBJECT_TYPE}) ? Dpp_ObjectType : fObj->obj_map.get(type->object); // TODO: may be have bug
         Dpp_CObject *result = FindObject(to);
         if (result != nullptr) {
             REPORT(E0002, id);
@@ -378,7 +378,7 @@ public:
             REPORT(E0001, _container);
         }
         Dpp_CObject *co = container;
-        Object o = container->object;
+        dpp::mapid o = container->object;
         if (idex.size() == 1) goto END;
         if (container->type != Dpp_FunctionType) {
             REPORT(E0004, _container);
@@ -391,7 +391,7 @@ public:
             if (sub == nullptr) {
                 REPORT(E0005, co->id, method->id);
             }
-            Object tmp = allocMapping();
+            dpp::mapid tmp = allocMapping();
 
             LoadOpcode(ctx, OPCODE_METHOD, {container->object, method->object, tmp});
             o = tmp;
@@ -449,7 +449,7 @@ public:
 
         LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
         visitBlock(ctx->block());
-        Object jmp_to = {true /* unused */, block_end - 1};
+        dpp::mapid jmp_to = {true /* unused */, static_cast<int32_t>(block_end - 1)};
         ResetOpcode(ctx, jmp_pos, OPCODE_JNT, { jmp_to, is_jmp->object });
 
         return NONE;
@@ -487,7 +487,7 @@ public:
 
             LoadOpcode(it, OPCODE_JNT, { placeholder, placeholder });
             visitBlock(it->block());
-            Object next_block_begin = { true, (uint32_t)(fObj->state.vmopcodes.size())};
+            dpp::mapid next_block_begin = { true, (int32_t)(fObj->state.vmopcodes.size())};
             ResetOpcode(it, jmp1, OPCODE_JNT, {next_block_begin, is_jmp->object});
             LoadOpcode(it, OPCODE_JMP, {placeholder});
             placeholders.PushData(fObj->state.vmopcodes.size() - 1);
@@ -499,7 +499,7 @@ public:
         }
 
         for (uint32_t _placeholder : placeholders) {
-            ResetOpcode(ctx, _placeholder, OPCODE_JMP, { {true, (uint32_t)fObj->state.vmopcodes.size() - 1} });
+            ResetOpcode(ctx, _placeholder, OPCODE_JMP, { {true, (int32_t)fObj->state.vmopcodes.size() - 1} });
         }
 
         return NONE;
@@ -535,15 +535,15 @@ public:
         // visitBlock(_block);
         in_loop = false;
 
-        ResetOpcode(ctx, jmp1, OPCODE_JNT, { {true, (uint32_t)(fObj->state.vmopcodes.size())}, data->object });
-        LoadOpcode(ctx, OPCODE_JMP, { {true, state_end}});
+        ResetOpcode(ctx, jmp1, OPCODE_JNT, { {true, (int32_t)(fObj->state.vmopcodes.size())}, data->object });
+        LoadOpcode(ctx, OPCODE_JMP, { {true, (int32_t)state_end}});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)loop_end} });
         }
         for (auto it : continues) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end - 1} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)(loop_end - 1)} });
         }
         breaks.clear();
         continues.clear();
@@ -570,14 +570,14 @@ public:
             REPORT_NPARAM(E0014);
         }
 
-        LoadOpcode(ctx, OPCODE_JNF, { {true, state_end}, data->object });
+        LoadOpcode(ctx, OPCODE_JNF, { {true, (int32_t)state_end}, data->object });
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)loop_end} });
         }
         for (auto it : continues) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, loop_end - 1} });
+            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)(loop_end - 1)} });
         }
         breaks.clear();
         continues.clear();
@@ -651,8 +651,8 @@ public:
      */
     std::any visitFunctionCall(DXXParser::FunctionCallContext *ctx) override {
         Dpp_CObject *func = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
-        Dpp_CObject *co = ((Dpp_CObject *)(func->metadata[function::FUNCTION_METADATA::RETURN_TYPE]))->object == Object {true, VOID_TYPE} ? NONE : MakeObject("");
-        Heap<Object> params;
+        Dpp_CObject *co = ((Dpp_CObject *)(func->metadata[function::FUNCTION_METADATA::RETURN_TYPE]))->object == dpp::mapid {true, VOID_TYPE} ? NONE : MakeObject("");
+        Heap<dpp::mapid> params;
         Heap<Dpp_CObject *> param_list;
 
 
@@ -1153,22 +1153,21 @@ private:
     inline bool isInGlobal() { return globalNamespace == thisNamespace; }
 
     /*
-     * @return: Object
-     * Create a Object structure from the iterator
+     * @return: dpp::mapid
+     * Create a dpp::mapid structure from the iterator
      */
-    Object allocMapping(bool isConst = false) {
-        if (isConst) {
-            uint32_t it = idIt.GetGlobalIterator();
-            idIt.IncGlobalIterator();
+    dpp::mapid allocMapping(bool isConst = false) {
+        int32_t it = idIt.GetGlobalIterator();
 
-            return {true, it};
-        } else {
-            uint32_t it = idIt.GetTopIterator();
-            idIt.IncIterator();
-
-            return {isInGlobal(), it};
+        if (!(it > INT32_MIN && it < INT32_MAX)) {
+            // TODO: MAY BE WE NEED A THROW
+            E0026();
         }
 
+
+        idIt.IncGlobalIterator();
+
+        return dpp::mapid(isConst ? true : isInGlobal(), it);
     }
 
     /*
@@ -1177,13 +1176,13 @@ private:
      */
     static void LoadOpcode(antlr4::ParserRuleContext *ctx,
         rt_opcode op,
-        std::initializer_list<Object> l = {}) {
+        std::initializer_list<dpp::mapid> l = {}) {
         fObj->state.vmopcodes.PushEnd(MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
     }
 
     static void LoadOpcode(antlr4::ParserRuleContext *ctx,
         rt_opcode op,
-        Heap<Object> &params) {
+        Heap<dpp::mapid> &params) {
         fObj->state.vmopcodes.PushEnd(MakeOpCode(op, params, GET_LINE(ctx), GET_POS(ctx)));
     }
 
@@ -1194,16 +1193,16 @@ private:
     static void ResetOpcode(antlr4::ParserRuleContext *ctx,
         uint32_t pos,
         rt_opcode op,
-        std::initializer_list<Object> l = {}) {
+        std::initializer_list<dpp::mapid> l = {}) {
         fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
     }
 
     /*
      * @return: Dpp_CObject *
-     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md)
+     * Make a 'Compile-time dpp::mapid'(See at doc/compiler/compile-time-object.md)
      * And Push the constant to the object pool
      */
-    Dpp_CObject *MakeConst(Object o, Dpp_Object *obj,
+    Dpp_CObject *MakeConst(dpp::mapid o, Dpp_Object *obj,
                             bool isCheck = true, bool noWrite = false) {
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
@@ -1231,7 +1230,7 @@ private:
 
     Dpp_CObject *MakeString(const std::string &s) {
         const String &str = s;
-        Object o = allocMapping(true);
+        dpp::mapid o = allocMapping(true);
         Dpp_Object *obj = dpp::make_string(str);
         obj->name = s;
         obj->type = create_ptr(Dpp_StringType);
@@ -1241,7 +1240,7 @@ private:
     }
 
     Dpp_CObject *MakeInteger(Integer idata) {
-        Object o = allocMapping(true);
+        dpp::mapid o = allocMapping(true);
         Dpp_Object *obj = dpp::make_int(idata);
         obj->name = std::to_string(idata);
         obj->type = create_ptr(Dpp_IntType);
@@ -1251,7 +1250,7 @@ private:
     }
 
     Dpp_CObject* MakeFloating(FloatNum data) {
-        Object o = allocMapping(true);
+        dpp::mapid o = allocMapping(true);
         Dpp_Object* obj = dpp::make_float(data);
         obj->name = std::to_string(data);
         obj->type = create_ptr(Dpp_FloatType);
@@ -1262,7 +1261,7 @@ private:
 
     /*
      * @return: Dpp_CObject *
-     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of FunctionObject
+     * Make a 'Compile-time dpp::mapid'(See at doc/compiler/compile-time-object.md) of FunctionObject
      * And Push the function object to the object pool
      */
     Dpp_CObject *MakeFunction(DXXParser::FunctionContext *ctx,
@@ -1273,7 +1272,7 @@ private:
             Dpp_CObject *ret,
             Throwtable *throws,
             bool isNone) {
-        Object o = allocMapping(true);
+        dpp::mapid o = allocMapping(true);
         Dpp_CObject *co = MakeConst(o, func, false, true);
         co->id = func->name;
         co->infos = infos;
@@ -1326,7 +1325,7 @@ private:
 
     /*
      * @return: Dpp_CObject *
-     * Make a 'Compile-time Object'(See at doc/compiler/compile-time-object.md) of label
+     * Make a 'Compile-time dpp::mapid'(See at doc/compiler/compile-time-object.md) of label
      * And Push the string constant to the object pool
      */
     Dpp_CObject *MakeLabel(const std::string &_label,
@@ -1399,7 +1398,7 @@ private:
      * Get a run-time object(constant) from compile-time object
      */
     static Dpp_Object *GetConstFromCObject(Dpp_CObject *co) {
-        if(!co->object.isInGlobal) return nullptr;
+        if(!co->object.is_global()) return nullptr;
 
         return fObj->obj_map.get(co->object);
     }
@@ -1595,7 +1594,7 @@ private:
     Dpp_CObject *func_param_autovalue = nullptr;
     Heap<Dpp_CObject *> *func_autovalues = nullptr;
 
-    Object placeholder = {true, UINT_MAX};
+    dpp::mapid placeholder;
 
     std::ostringstream opts;
 

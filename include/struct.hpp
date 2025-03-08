@@ -63,6 +63,47 @@ using Char = wchar_t;
 struct VMState;
 class Dpp_Object;
 
+NAMESPACE_DPP_BEGIN
+
+
+class mapid {
+private:
+    /// sign bit : 1 when the object is global
+    int32_t id;
+public:
+    mapid() = default;
+    
+    mapid(bool is_global, int32_t id) : id(is_global ? -std::abs(id) : std::abs(id)) {}
+    
+    explicit mapid(std::pair<bool, int32_t> &map) : id(map.first ? -std::abs(map.second) : std::abs(map.second)) {}
+
+    ~mapid() = default;
+
+    bool is_global() const {
+        return (static_cast<uint32_t>(id) >> 31) != 0;
+    }
+    
+    int32_t get_id() const {
+        return std::abs(id);
+    }
+
+    int32_t data() const {
+        return id;
+    }
+
+    bool operator ==(const mapid &other) const {
+        return this->data() == other.data();
+    }
+
+    bool operator !=(const mapid &other) const {
+        return this->data() != other.data();
+    }
+    
+Dpp_SERIALIZE(Dpp_NVP(id))
+};
+
+NAMESPACE_DPP_END
+
 enum rt_opcode : unsigned char {
     OPCODE_START,
     OPCODE_IMPORT,
@@ -95,17 +136,6 @@ enum rt_opcode : unsigned char {
     OPCODE_METHOD,
     OPCODE_END
 };
-
-typedef struct _Object {
-    bool isInGlobal = true;
-    uint32_t id = 0;
-
-	bool operator ==(const _Object &o) const { return (this->id == o.id &&
-                                        this->isInGlobal == o.isInGlobal); }
-    bool operator !=(const _Object &o) const { return !(*this == o); }
-
-Dpp_SERIALIZE(Dpp_NVP(isInGlobal), Dpp_NVP(id))
-} Object;
 
 struct _Version {
 	unsigned char low;
@@ -231,28 +261,28 @@ public:
 
 	uint32_t getLastCreateID() { return mappings.size() + 1; }
 
-    Dpp_Object *get(Object o, uint32_t mapping_id) {
+    Dpp_Object *get(dpp::mapid o, uint32_t mapping_id) {
         Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o, mapping_id);
-        Dpp_Object *obj = ((*func_mapping)[o.id]).get();
+        Dpp_Object *obj = ((*func_mapping)[o.get_id()]).get();
 
 		return obj;
     }
 
-	Dpp_Object *get(Object o) {
+	Dpp_Object *get(dpp::mapid o) {
 		Array<std::shared_ptr<Dpp_Object>> *func_mapping = getMapping(o);
-        Dpp_Object *obj = ((*func_mapping)[o.id]).get();
+        Dpp_Object *obj = ((*func_mapping)[o.get_id()]).get();
 
 		return obj;
 	}
 
-	void write(Object o, Dpp_Object *obj, bool isRewrite = false) {
+	void write(dpp::mapid o, Dpp_Object *obj, bool isRewrite = false) {
 		Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o);
         auto ptr = std::make_shared<Dpp_Object>();
         ptr.reset(obj);
 		if(!isRewrite) {
-            func_mapping->write(o.id, ptr);
+            func_mapping->write(o.get_id(), ptr);
         } else {
-            func_mapping->rewrite(o.id, ptr);
+            func_mapping->rewrite(o.get_id(), ptr);
         }
 	}
 
@@ -295,16 +325,16 @@ private:
     std::string currentfile;
     Array<std::shared_ptr<Dpp_Object>> global;
 	Array<Array<std::shared_ptr<Dpp_Object>>> mappings;
-    auto getMapping(Object &_o) -> Array<std::shared_ptr<Dpp_Object>> * {
-		if (_o.isInGlobal) {
+    inline auto getMapping(dpp::mapid _o) -> Array<std::shared_ptr<Dpp_Object>> * {
+		if (_o.is_global()) {
 			return &global;
 		}
 
 		return const_cast<Array<std::shared_ptr<Dpp_Object>> *>(&*(--mappings.end()));
 	}
 
-    auto getMapping(Object &_o, uint32_t mapping_id) -> Array<std::shared_ptr<Dpp_Object>> * {
-		if (_o.isInGlobal) {
+    inline auto getMapping(dpp::mapid _o, uint32_t mapping_id) -> Array<std::shared_ptr<Dpp_Object>> * {
+		if (_o.is_global()) {
 			return &global;
 		}
 		return const_cast<Array<std::shared_ptr<Dpp_Object>> *>(&*(mappings.begin() + mapping_id - 1));
@@ -320,14 +350,14 @@ typedef struct _VMError {
 
 typedef struct _OpCode {
     rt_opcode opcode = OPCODE_START;
-    Heap<Object> params;
+    Heap<dpp::mapid> params;
     uint32_t line = 1;
     uint16_t pos = 0;
 
 Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(params), Dpp_NVP(line), Dpp_NVP(pos))
 } OpCode;
 
-typedef Heap<Object> Tmp_Heap;
+typedef Heap<dpp::mapid> Tmp_Heap;
 
 struct VMState {
 	Heap<OpCode> vmopcodes;

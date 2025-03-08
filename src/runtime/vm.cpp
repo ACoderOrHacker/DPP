@@ -109,7 +109,7 @@ VM_API dpp::vm dpp::create_vm(bool add_builtin) {
     if (!add_builtin) return vm;
 	const auto &builtins = get_builtins();
 
-	for(uint32_t i = 0; i < BUILTIN::BUILTIN_END; ++i) {
+	for(int32_t i = 0; i < BUILTIN::BUILTIN_END; ++i) {
 		vm->obj_map.write({ true, i }, builtins.at(i));
 	}
 

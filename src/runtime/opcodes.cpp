@@ -35,9 +35,9 @@ struct Version version; // Runtime Machine Version
 
 void _add(dpp::vm vm) {
 
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -59,9 +59,9 @@ void _add(dpp::vm vm) {
 }
 
 void _sub(dpp::vm vm) {
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -86,9 +86,9 @@ void _mul(dpp::vm vm) {
 #ifdef __TEST
 	std::cout << "add" << std::endl;
 #endif
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -110,9 +110,9 @@ void _mul(dpp::vm vm) {
 }
 
 void _div(dpp::vm vm) {
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -138,9 +138,9 @@ void _div(dpp::vm vm) {
 }
 
 void _mod(dpp::vm vm) {
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -166,8 +166,8 @@ void _mod(dpp::vm vm) {
 }
 
 void _bneg(dpp::vm vm) {
-	Object _obj = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _obj = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *obj = vm->obj_map.get(_obj);
 
@@ -183,9 +183,9 @@ void _bneg(dpp::vm vm) {
 }
 
 void _band(dpp::vm vm) {
-	Object _lnum = vm->_theap->PopFront();
-	Object _rnum = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lnum = vm->_theap->PopFront();
+    dpp::mapid _rnum = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lnum = vm->obj_map.get(_lnum);
 	dpp::object *rnum = vm->obj_map.get(_rnum);
@@ -207,9 +207,9 @@ void _band(dpp::vm vm) {
 }
 
 void _bor(dpp::vm vm) {
-	Object _lnum = vm->_theap->PopFront();
-	Object _rnum = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lnum = vm->_theap->PopFront();
+    dpp::mapid _rnum = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lnum = vm->obj_map.get(_lnum);
 	dpp::object *rnum = vm->obj_map.get(_rnum);
@@ -231,9 +231,9 @@ void _bor(dpp::vm vm) {
 }
 
 void _bxor(dpp::vm vm) {
-	Object _lnum = vm->_theap->PopFront();
-	Object _rnum = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lnum = vm->_theap->PopFront();
+    dpp::mapid _rnum = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lnum = vm->obj_map.get(_lnum);
 	dpp::object *rnum = vm->obj_map.get(_rnum);
@@ -255,9 +255,9 @@ void _bxor(dpp::vm vm) {
 }
 
 void _shl(dpp::vm vm) {
-	Object _num = vm->_theap->PopFront();
-	Object _shl_count = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _num = vm->_theap->PopFront();
+    dpp::mapid _shl_count = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *num = vm->obj_map.get(_num);
 	dpp::object *shl_count = vm->obj_map.get(_shl_count);
@@ -279,9 +279,9 @@ void _shl(dpp::vm vm) {
 }
 
 void _shr(dpp::vm vm) {
-	Object _num = vm->_theap->PopFront();
-	Object _shr_count = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _num = vm->_theap->PopFront();
+    dpp::mapid _shr_count = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *num = vm->obj_map.get(_num);
 	dpp::object *shr_count = vm->obj_map.get(_shr_count);
@@ -303,8 +303,8 @@ void _shr(dpp::vm vm) {
 }
 
 void _not(dpp::vm vm) {
-	Object _obj = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _obj = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *obj = vm->obj_map.get(_obj);
 	dpp::object *_c = nullptr;
@@ -319,9 +319,9 @@ void _not(dpp::vm vm) {
 }
 
 void _eq(dpp::vm vm) {
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -344,9 +344,9 @@ void _eq(dpp::vm vm) {
 }
 
 void _bigger(dpp::vm vm) {
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -369,9 +369,9 @@ void _bigger(dpp::vm vm) {
 }
 
 void _smaller(dpp::vm vm) {
-	Object _lval = vm->_theap->PopFront();
-	Object _rval = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lval = vm->_theap->PopFront();
+    dpp::mapid _rval = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lval);
 	dpp::object *robj = vm->obj_map.get(_rval);
@@ -394,9 +394,9 @@ void _smaller(dpp::vm vm) {
 }
 
 void _and(dpp::vm vm) {
-	Object _lobj = vm->_theap->PopFront();
-	Object _robj = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lobj = vm->_theap->PopFront();
+    dpp::mapid _robj = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lobj);
 	dpp::object *robj = vm->obj_map.get(_robj);
@@ -406,9 +406,9 @@ void _and(dpp::vm vm) {
 }
 
 void _or(dpp::vm vm) {
-	Object _lobj = vm->_theap->PopFront();
-	Object _robj = vm->_theap->PopFront();
-	Object to = vm->_theap->PopFront();
+    dpp::mapid _lobj = vm->_theap->PopFront();
+    dpp::mapid _robj = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
 	dpp::object *lobj = vm->obj_map.get(_lobj);
 	dpp::object *robj = vm->obj_map.get(_robj);
@@ -419,11 +419,11 @@ void _or(dpp::vm vm) {
 
 // jmp when false
 void _jnt(dpp::vm vm) {
-    Object _jmpto = vm->_theap->PopFront();
+    dpp::mapid _jmpto = vm->_theap->PopFront();
 
     try {
         if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-            vm->state.runat = _jmpto.id;
+            vm->state.runat = static_cast<uint32_t>(_jmpto.data());
         }
     } catch (NoOperatorError &) {
         dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("invaild bool object"));
@@ -431,11 +431,11 @@ void _jnt(dpp::vm vm) {
 }
 
 void _jnf(dpp::vm vm) {
-    Object _jmpto = vm->_theap->PopFront();
+    dpp::mapid _jmpto = vm->_theap->PopFront();
 
     try {
         if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-            vm->state.runat = _jmpto.id;
+            vm->state.runat = static_cast<uint32_t>(_jmpto.data());
         }
     } catch (NoOperatorError &) {
         dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("invaild bool object"));
@@ -443,13 +443,13 @@ void _jnf(dpp::vm vm) {
 }
 
 void _jmp(dpp::vm vm) {
-    Object _jmpto = vm->_theap->PopFront();
+    dpp::mapid _jmpto = vm->_theap->PopFront();
 
-    vm->state.runat = _jmpto.id;
+    vm->state.runat = static_cast<uint32_t>(_jmpto.data());
 }
 
 void _call(dpp::vm vm) {
-	Object _func = vm->_theap->PopFront();
+    dpp::mapid _func = vm->_theap->PopFront();
     FunctionObject *func = (FunctionObject *)vm->obj_map.get(_func);
 
     // if is native
@@ -476,7 +476,7 @@ void _call(dpp::vm vm) {
 
         dpp::object *ret = func->function->native_func(vm);
         if (ret != nullptr && !vm->_theap->isEmpty()) {
-            Object _to = vm->_theap->PopFront();
+            dpp::mapid _to = vm->_theap->PopFront();
             vm->obj_map.write(_to, ret, true);
         }
 
@@ -488,9 +488,9 @@ void _call(dpp::vm vm) {
     uint32_t func_mapping_id = vm->obj_map.getLastCreateID();
     vm->obj_map.create_mapping(func_mapping_id);
 
-    uint32_t i = 0;
+    int32_t i = 0;
     while (!vm->_theap->isEmpty()) {
-        const Object &param = vm->_theap->PopFront();
+        const auto &param = vm->_theap->PopFront();
         vm->obj_map.write({ false, i }, vm->obj_map.get(param, func_mapping_id - 1));
     }
     vm->callstack.push(vm->state);
@@ -511,7 +511,7 @@ void _ret(dpp::vm vm) {
 }
 
 void _getret(dpp::vm vm) {
-    Object to = vm->_theap->PopFront();
+    dpp::mapid to = vm->_theap->PopFront();
 
     dpp::object *val = vm->return_values.top();
     if (val != nullptr) {
@@ -525,8 +525,8 @@ void _import(dpp::vm vm) {
 }
 
 void _new(dpp::vm vm) {
-	Object _type = vm->_theap->PopFront();
-	Object _to = vm->_theap->PopFront();
+    dpp::mapid _type = vm->_theap->PopFront();
+    dpp::mapid _to = vm->_theap->PopFront();
 
     dpp::object *type = vm->obj_map.get(_type);
 
@@ -542,7 +542,7 @@ void _new(dpp::vm vm) {
 }
 
 void _del(dpp::vm vm) {
-    Object _obj = vm->_theap->PopFront();
+    dpp::mapid _obj = vm->_theap->PopFront();
 
     dpp::object *obj = vm->obj_map.get(_obj);
 
@@ -551,8 +551,8 @@ void _del(dpp::vm vm) {
 }
 
 void _mov(dpp::vm vm) {
-	Object _src = vm->_theap->PopFront();
-	Object _to = vm->_theap->PopFront();
+    dpp::mapid _src = vm->_theap->PopFront();
+    dpp::mapid _to = vm->_theap->PopFront();
 
 	dpp::object *src = vm->obj_map.get(_src);
 	dpp::object *to = vm->obj_map.get(_to);
@@ -572,9 +572,9 @@ void _mov(dpp::vm vm) {
 }
 
 void _method(dpp::vm vm) {
-    Object _container = vm->_theap->PopFront();
-    Object _method = vm->_theap->PopFront();
-    Object _to = vm->_theap->PopFront();
+    dpp::mapid _container = vm->_theap->PopFront();
+    dpp::mapid _method = vm->_theap->PopFront();
+    dpp::mapid _to = vm->_theap->PopFront();
 
     dpp::object *container = vm->obj_map.get(_container);
 
