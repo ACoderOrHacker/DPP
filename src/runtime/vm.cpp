@@ -120,14 +120,14 @@ std::string getDateString() {
     std::time_t t = std::time(nullptr);
     std::tm tm{};
     
-    #if defined(_WIN32)
-        localtime_s(&tm, &t);  // Windows
-    #else
-        localtime_r(&t, &tm);  // Linux/macOS
-    #endif
+#if defined(_WIN32)
+    localtime_s(&tm, &t);  // Windows
+#else
+    localtime_r(&t, &tm);  // Linux/macOS
+#endif
 
     std::stringstream ss;
-    ss << std::put_time(&tm, "%Y-%m-%d");
+    ss << std::put_time(&tm, "%Y-%m-%d-%H-%M-%S");
     return ss.str();
 }
 
