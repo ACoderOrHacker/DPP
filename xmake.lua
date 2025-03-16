@@ -34,7 +34,8 @@ target("vm")
     set_kind("shared")
     add_files("src/runtime/*.cpp")
 
-    add_packages("cereal", "jemalloc")
+    add_packages("cereal", {public = true})
+    add_packages("jemalloc", {public = true})
 target_end()
 
 target("compiler")
@@ -44,7 +45,7 @@ target("compiler")
 
     add_rules("@antlr4/lexer", "@antlr4/parser", {visitor = true, listener = false})
     add_deps("vm")
-    add_packages("antlr4-runtime", "antlr4", "cereal", "jemalloc")
+    add_packages("antlr4-runtime", "antlr4")
 target_end()
 
 target("dpp")
@@ -52,7 +53,7 @@ target("dpp")
     add_files("src/main/dpp.cpp")
 
     add_deps("compiler", "vm")
-    add_packages("cxxopts", "cereal", "jemalloc")
+    add_packages("cxxopts", "cereal")
 
     add_installfiles("$(projectdir)/include/*", {prefixdir = "include"})
     add_installfiles("$(projectdir)/include/dpp/*", {prefixdir = "include/dpp"})
@@ -102,7 +103,7 @@ option("enable-tests")
         add_files("src/tests/*.cpp")
 
         add_deps("compiler", "vm")
-        add_packages("doctest", "cereal")
+        add_packages("doctest")
     target_end()
 option_end()
 
@@ -116,7 +117,6 @@ option("enable-plugins")
         add_files("src/plugins/*.cpp")
 
         add_deps("vm")
-        add_packages("cereal")
     target_end()
 option_end()
 

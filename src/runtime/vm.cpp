@@ -116,7 +116,29 @@ VM_API dpp::vm dpp::create_vm(bool add_builtin) {
 	return vm;
 }
 
+std::string getDateString() {
+    std::time_t t = std::time(nullptr);
+    std::tm tm{};
+    
+    #if defined(_WIN32)
+        localtime_s(&tm, &t);  // Windows
+    #else
+        localtime_r(&t, &tm);  // Linux/macOS
+    #endif
+
+    std::stringstream ss;
+    ss << std::put_time(&tm, "%Y-%m-%d");
+    return ss.str();
+}
+
 VM_API int dpp::run(dpp::vm vm, bool noExit) {
+#ifdef Dpp_LOG_IN_FILE
+        std::ofstream log_file(dpp::get_logdir() / "log-dpp" / (getDateString() + ".log"));
+        vm->log = dpp::logger(dynmaic_cast<std::ostream &>(log_file));
+#else
+        vm->log = dpp::logger(std::cout);
+#endif
+
 	while(vm->state.vmopcodes.size() > vm->state.runat) {
 		const OpCode &opcode = vm->state.vmopcodes.GetData(vm->state.runat); // get opcode from state
 
@@ -129,7 +151,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
             goto EXIT;
         }
 
-		if(isfail == EXEC_FAILED && vm->_error != nullptr) {
+		if(isfail == EXEC_FAILED) {
             dpp::catch_error(vm);
 		}
 
@@ -147,6 +169,11 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
 	}
 
 EXIT:
+
+#ifdef Dpp_LOG_IN_FILE
+    log_file.close();
+#endif
+
 	// exit
 	int exit_code = vm->exit_code;
     // TODO: there is a bug when delete

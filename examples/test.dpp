@@ -5,4 +5,5 @@ s: string = "Hello World\n";
 
 fun main(): void {
     out(s);
+    out(1 /0)
 }

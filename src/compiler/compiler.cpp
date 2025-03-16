@@ -91,8 +91,9 @@ public:
         make_type("type", TYPE_TYPE);
         make_type("bool", INT_TYPE);
 
-        fObj->files.push(file);
-        fObj->obj_map.set_currentfile(file);
+        this->file = std::filesystem::path(file).filename().string();
+        fObj->state.file = this->file;
+        fObj->state.funcname = "<global>";
     }
 
     /**
@@ -254,6 +255,8 @@ public:
         return_value = nullptr;
 
         ((FunctionObject *)func)->state = fObj->state;
+        ((FunctionObject *)func)->state.file = this->file;
+        ((FunctionObject *)func)->state.funcname = id;
 
         fObj->state = fObj->callstack.top();
         fObj->callstack.pop();
@@ -1567,6 +1570,7 @@ private:
         return tmp;
     }
 private:
+    std::string file;
     antlr4::ParserRuleContext *main_context = nullptr;
 
     Namespace *globalNamespace = new Namespace;

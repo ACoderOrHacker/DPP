@@ -483,8 +483,6 @@ void _call(dpp::vm vm) {
         return;
     }
 
-    vm->files.push(vm->obj_map.get_currentfile());
-
     uint32_t func_mapping_id = vm->obj_map.getLastCreateID();
     vm->obj_map.create_mapping(func_mapping_id);
 
@@ -495,6 +493,7 @@ void _call(dpp::vm vm) {
     }
     vm->callstack.push(vm->state);
     vm->state = func->state;
+    vm->state.funcname = func->name;
     vm->state.runat = -1;
 }
 
@@ -506,8 +505,6 @@ void _ret(dpp::vm vm) {
 	vm->state = vm->callstack.top();
     vm->callstack.pop();
     vm->obj_map.pop_mapping();
-
-    vm->files.pop();
 }
 
 void _getret(dpp::vm vm) {

@@ -24,7 +24,6 @@
 
 #ifndef _STRUCT_H
 #define _STRUCT_H
-#include <map>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -39,6 +38,7 @@
 #pragma warning(disable : 4251)
 #endif // _MSC_VER
 
+#include "logger.hpp"
 #include "searcher.hpp"
 #include "acassert.h"
 #include "acdpp.h"
@@ -70,21 +70,33 @@ class mapid {
 private:
     /// sign bit : 1 when the object is global
     int32_t id;
+
+    int32_t set_sign_bit_1(int32_t x) const {
+        return (int32_t)((uint32_t)x | UINT32_C(0x80000000));
+    }
+    
+    int32_t set_sign_bit_0(int32_t x) const {
+        return (int32_t)((uint32_t)x & UINT32_C(0x7FFFFFFF));
+    }
 public:
     mapid() = default;
     
-    mapid(bool is_global, int32_t id) : id(is_global ? -std::abs(id) : std::abs(id)) {}
+    mapid(bool is_global, int32_t id) {
+        this->id = is_global ? set_sign_bit_1(id) : set_sign_bit_0(id);
+    }
     
-    explicit mapid(std::pair<bool, int32_t> &map) : id(map.first ? -std::abs(map.second) : std::abs(map.second)) {}
+    explicit mapid(std::pair<bool, int32_t> &map) {
+        this->id = map.first ? set_sign_bit_1(map.second) : set_sign_bit_0(map.second);
+    }
 
     ~mapid() = default;
 
     bool is_global() const {
-        return (static_cast<uint32_t>(id) >> 31) != 0;
+        return (((uint32_t)id >> 31) & 1) == 1;
     }
     
     int32_t get_id() const {
-        return std::abs(id);
+        return set_sign_bit_0(id);
     }
 
     int32_t data() const {
@@ -92,11 +104,11 @@ public:
     }
 
     bool operator ==(const mapid &other) const {
-        return this->data() == other.data();
+        return (is_global() == other.is_global()) && (this->data() == other.data());
     }
 
     bool operator !=(const mapid &other) const {
-        return this->data() != other.data();
+        return !(*this == other);
     }
     
 Dpp_SERIALIZE(Dpp_NVP(id))
@@ -279,10 +291,11 @@ public:
 		Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o);
         auto ptr = std::make_shared<Dpp_Object>();
         ptr.reset(obj);
+        uint32_t id = (uint32_t)o.get_id();
 		if(!isRewrite) {
-            func_mapping->write(o.get_id(), ptr);
+            func_mapping->write(id, ptr);
         } else {
-            func_mapping->rewrite(o.get_id(), ptr);
+            func_mapping->rewrite(id, ptr);
         }
 	}
 
@@ -293,14 +306,6 @@ public:
 
     void pop_mapping() {
         mappings.pop();
-    }
-
-    [[nodiscard]] const std::string &get_currentfile() const {
-        return currentfile;
-    }
-
-    void set_currentfile(const std::string &currentfile) {
-        ObjectMapping::currentfile = currentfile;
     }
 
     /**
@@ -322,7 +327,6 @@ public:
     }
 
 private:
-    std::string currentfile;
     Array<std::shared_ptr<Dpp_Object>> global;
 	Array<Array<std::shared_ptr<Dpp_Object>>> mappings;
     inline auto getMapping(dpp::mapid _o) -> Array<std::shared_ptr<Dpp_Object>> * {
@@ -340,7 +344,7 @@ private:
 		return const_cast<Array<std::shared_ptr<Dpp_Object>> *>(&*(mappings.begin() + mapping_id - 1));
 	}
 
-Dpp_SERIALIZE(Dpp_NVP(global), Dpp_NVP(currentfile))
+Dpp_SERIALIZE(Dpp_NVP(global))
 };
 
 typedef struct _VMError {
@@ -362,8 +366,10 @@ typedef Heap<dpp::mapid> Tmp_Heap;
 struct VMState {
 	Heap<OpCode> vmopcodes;
 	uint32_t runat = 0;
+    std::string file;
+    std::string funcname;
 
-Dpp_SERIALIZE(Dpp_NVP(vmopcodes))
+Dpp_SERIALIZE(Dpp_NVP(vmopcodes), Dpp_NVP(file), Dpp_NVP(funcname))
 };
 
 typedef struct _FObject {
@@ -376,6 +382,8 @@ public:
 public:
 	Tmp_Heap *_theap;
     VMError *_error = nullptr;
+
+    dpp::logger log;
 public:
     std::unordered_map<std::string, dylib> libraries;
 	ObjectMapping obj_map; // mapped object
@@ -384,10 +392,8 @@ public:
 	struct VMState state;
     dpp::searcher module_searcher;
 	int exit_code = EXIT_SUCCESS;
-public:
-    std::stack<std::string> files; // storge files
 
-Dpp_SERIALIZE(Dpp_NVP(obj_map),  Dpp_NVP(state), Dpp_NVP(files))
+Dpp_SERIALIZE(Dpp_NVP(obj_map),  Dpp_NVP(state))
 } FObject;
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);

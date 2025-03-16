@@ -25,7 +25,7 @@ bool dpp::call_function(dpp::vm vm,
     vm->state.runat = 0;
 
     while (_paramnum > 0) {
-        vm->obj_map.write({false, paramnum - _paramnum}, va_arg(l, Dpp_Object *));
+        vm->obj_map.write({false, (int32_t)(paramnum - _paramnum)}, va_arg(l, Dpp_Object *));
 
         --paramnum;
     }
@@ -52,7 +52,6 @@ DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
     acassert(vm == nullptr);
 
     auto callstack = vm->callstack;
-    auto files = vm->files;
 
     callstack.push(vm->state);
 
@@ -60,8 +59,7 @@ DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
     while (callstack.size() > 0) {
         auto &state = callstack.top();
         OpCode op = state.vmopcodes.GetData(state.runat);
-        fmt::print_error("  at file: <", files.top(), ">, line: ", op.line, ", column: ", op.pos, "\n");
-        files.pop();
+        vm->log << "  -> " << state.funcname << " (" << state.file << ":" << op.line << ", " << op.pos << ")" << "\n";
         callstack.pop();
     }
 
