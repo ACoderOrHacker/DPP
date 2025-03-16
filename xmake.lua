@@ -1,4 +1,3 @@
--- D++ Build & Package Script
 set_xmakever("2.9.3")
 
 set_project("D++")
@@ -9,11 +8,8 @@ includes("@builtin/xpack")
 add_rules("mode.debug", "mode.release") -- debug mode and release mode
 set_languages("c++17") -- set c++ standard
 add_defines("_DXX_EXPORT") -- for export
-add_defines("Dpp_USING_STRING") -- for string
 
---local vs_runtime_MD = is_mode("debug") and "MDd" or "MD"
---set_runtimes(vs_runtime_MD)
-
+-- configs
 set_configdir("include")
 add_configfiles("include/config.h.in")
 
@@ -22,7 +18,6 @@ add_requires("antlr4-runtime 4.13.2")
 add_requires("antlr4 4.13.2")
 add_requires("cxxopts 3.2.1")
 add_requires("cereal 1.3.2")
-add_requires("doctest 2.4.11")
 add_requires("jemalloc 5.3.0")
 
 -- include directories
@@ -98,6 +93,7 @@ option("enable-tests")
     set_default(false)
     set_showmenu(true)
 
+    add_requires("doctest 2.4.11")
     target("tests")
         set_kind("binary")
         add_files("src/tests/*.cpp")
@@ -126,6 +122,7 @@ target("conf")
     add_installfiles("$(projectdir)/conf/*", {prefixdir = "etc/dpp/"})
 target_end()
 
+-- create a tag for this project (like v1.0.0) by git
 task("tag")
     on_run(function ()
         import("core.base.option")

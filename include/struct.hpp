@@ -50,15 +50,10 @@
 typedef long long Integer;
 typedef double FloatNum;
 
-#ifdef Dpp_USING_STRING
+// String defines
 using String = std::string;
 using Char = char;
 #define Dpp_TEXT(str) str
-#else
-using String = std::wstring;
-using Char = wchar_t;
-#define Dpp_TEXT(str) L##str
-#endif
 
 struct VMState;
 class Dpp_Object;
