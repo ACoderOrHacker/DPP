@@ -8,4 +8,5 @@ fun native("io", "out") out(o: object): void;
 
 fun main(): void {
     out(x(1));
+    var x: int = 1 / 0
 }

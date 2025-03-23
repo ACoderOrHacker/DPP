@@ -69,17 +69,17 @@ private:
     int32_t set_sign_bit_1(int32_t x) const {
         return (int32_t)((uint32_t)x | UINT32_C(0x80000000));
     }
-    
+
     int32_t set_sign_bit_0(int32_t x) const {
         return (int32_t)((uint32_t)x & UINT32_C(0x7FFFFFFF));
     }
 public:
     mapid() = default;
-    
+
     mapid(bool is_global, int32_t id) {
         this->id = is_global ? set_sign_bit_1(id) : set_sign_bit_0(id);
     }
-    
+
     explicit mapid(std::pair<bool, int32_t> &map) {
         this->id = map.first ? set_sign_bit_1(map.second) : set_sign_bit_0(map.second);
     }
@@ -87,9 +87,9 @@ public:
     ~mapid() = default;
 
     bool is_global() const {
-        return (((uint32_t)id >> 31) & 1) == 1;
+        return (set_sign_bit_1(id) == id);
     }
-    
+
     int32_t get_id() const {
         return set_sign_bit_0(id);
     }
@@ -105,7 +105,7 @@ public:
     bool operator !=(const mapid &other) const {
         return !(*this == other);
     }
-    
+
 Dpp_SERIALIZE(Dpp_NVP(id))
 };
 

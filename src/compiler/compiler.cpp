@@ -13,6 +13,7 @@
 #include "vm.hpp"
 #include "compiler.hpp"
 #include "compileinfos.h"
+#include <exception>
 #include <fstream>
 #include <memory>
 
@@ -1160,17 +1161,25 @@ private:
      * Create a dpp::mapid structure from the iterator
      */
     dpp::mapid allocMapping(bool isConst = false) {
-        int32_t it = idIt.GetGlobalIterator();
+        int32_t it;
+        bool is_global;
+
+        if (isConst || isInGlobal()) {
+            it = idIt.GetGlobalIterator();
+            idIt.IncGlobalIterator();
+            is_global = true;
+        } else {
+            it = idIt.GetTopIterator();
+            idIt.IncIterator();
+            is_global = false;
+        }
 
         if (!(it > INT32_MIN && it < INT32_MAX)) {
             // TODO: MAY BE WE NEED A THROW
             E0026();
         }
 
-
-        idIt.IncGlobalIterator();
-
-        return dpp::mapid(isConst ? true : isInGlobal(), it);
+        return dpp::mapid(is_global, it);
     }
 
     /*
