@@ -2,10 +2,10 @@
 
 #### Dependencies
 - XMake >= 2.2.2
-    * Optional, Compile-time only, Build & Package this project
+    * Not Optional, Compile-time only, Build & Package this project
     * See [xmake-io](https://xmake.io/)
 - [conventional-changelog-cli](https://www.npmjs.com/package/conventional-changelog-cli)
-    * Not Optional, Genrate CHANGELOG
+    * Optional, Genrate CHANGELOG
 
 #### Compile
 ```

@@ -19,6 +19,16 @@ add_requires("antlr4 4.13.2")
 add_requires("cxxopts 3.2.1")
 add_requires("cereal 1.3.2")
 add_requires("jemalloc 5.3.0")
+add_requires("doctest 2.4.11")
+
+-- debug policies
+if is_mode("debug") then
+    set_policy("build.sanitizer.address", true)
+    -- set_policy("build.sanitizer.thread", true)
+    -- set_policy("build.sanitizer.memory", true)
+    set_policy("build.sanitizer.leak", true)
+    -- set_policy("build.sanitizer.undefined", true)
+end
 
 -- include directories
 add_includedirs("include", "src")
@@ -93,7 +103,6 @@ option("enable-tests")
     set_default(false)
     set_showmenu(true)
 
-    add_requires("doctest 2.4.11")
     target("tests")
         set_kind("binary")
         add_files("src/tests/*.cpp")
