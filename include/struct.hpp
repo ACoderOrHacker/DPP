@@ -239,7 +239,7 @@ public:
             throw NoOperatorError();
         }
         virtual std::string get_typeid() {
-            throw NoOperatorError();
+            return "unknown";
         }
         virtual Dpp_Object *notval(Dpp_Object *) {
             throw NoOperatorError();

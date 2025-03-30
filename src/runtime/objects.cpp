@@ -33,7 +33,7 @@ dpp::object *IntObject::add(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_int(lval) + rval_int);
@@ -46,7 +46,7 @@ dpp::object *IntObject::sub(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_int(lval) - rval_int);
@@ -59,7 +59,7 @@ dpp::object *IntObject::mul(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_int(lval) * rval_int);
@@ -72,7 +72,7 @@ dpp::object *IntObject::div(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     if (rval_int == 0) throw DivideZeroError();
@@ -87,7 +87,7 @@ dpp::object *IntObject::mod(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     if (rval_int == 0) throw DivideZeroError();
@@ -137,7 +137,7 @@ dpp::object *IntObject::equal(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_int(lval) == rval_int);
@@ -151,7 +151,7 @@ dpp::object *IntObject::bigger(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_int(lval) > rval_int);
@@ -165,7 +165,7 @@ dpp::object *IntObject::smaller(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_int = dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_int(lval) < rval_int);
@@ -186,7 +186,7 @@ dpp::object *FloatObject::add(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_float(dpp::get_float(lval) + rval_float);
@@ -199,7 +199,7 @@ dpp::object *FloatObject::sub(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_float(dpp::get_float(lval) - rval_float);
@@ -212,7 +212,7 @@ dpp::object *FloatObject::mul(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_float(dpp::get_float(lval) * rval_float);
@@ -225,7 +225,7 @@ dpp::object *FloatObject::div(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     if (rval_float == 0.0) throw DivideZeroError();
@@ -251,7 +251,7 @@ dpp::object *FloatObject::equal(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_float(lval) == rval_float);
@@ -265,7 +265,7 @@ dpp::object *FloatObject::bigger(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_float(lval) > rval_float);
@@ -279,7 +279,7 @@ dpp::object *FloatObject::smaller(dpp::object *lval, dpp::object *rval) {
     } else if (dpp::is_int(rval)) {
         rval_float = (FloatNum)dpp::get_int(rval);
     } else {
-        throw TypeNotRightError();
+        throw NoOperatorError();
     }
 
     return dpp::make_int(dpp::get_float(lval) < rval_float);
@@ -298,7 +298,7 @@ dpp::object *StringObject::add(dpp::object *lval, dpp::object *rval) {
 }
 
 dpp::object *StringObject::mul(dpp::object *lval, dpp::object *rval) {
-    if (!dpp::is_int(rval)) throw TypeNotRightError();
+    if (!dpp::is_int(rval)) throw NoOperatorError();
 
     String buf;
     String src = dpp::get_string(lval);

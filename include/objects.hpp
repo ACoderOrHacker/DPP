@@ -35,8 +35,6 @@ SOFTWARE.
 #include "macros.hpp"
 #include "acassert.h"
 
-Dpp_DEFINE_ERROR(TypeNotRightError)
-
 NAMESPACE_DPP_BEGIN
 
 // This function may throw an std::bad_alloc
@@ -247,7 +245,11 @@ forceinline std::string to_hex(const T &val) {
 forceinline std::string get_typeid(dpp::object *obj) {
     acassert(obj == nullptr);
 
-    return (obj->name == "null" ? "null" : obj->get_typeid());
+    if (obj == Dpp_NullObject) {
+        return "null";
+    }
+
+    return obj->get_typeid();
 }
 
 NAMESPACE_DPP_END

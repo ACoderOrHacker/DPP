@@ -47,3 +47,6 @@
 
 # TODO: docs not successful
 /docs/
+
+# Local Files (scripts, etc)
+/local/
