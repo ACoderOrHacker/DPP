@@ -83,7 +83,7 @@ public:
             if (result.count("help")) {
                 fmt::print(options.help());
             } else if (result.count("version")) {
-                fmt::print("Standard D++ Compiler & Runtime v", dpp::get_version_string(dpp::get_version()), "\n");
+                fmt::print("v", dpp::get_thisversion().to_string(), "\n");
             } else if (result.count("compile")) {
                 for (auto &it : result["compile"].as<std::vector<std::string>>()) {
                     std::ifstream ifs = dpp::open_file<std::ifstream>(it, std::ios::binary,

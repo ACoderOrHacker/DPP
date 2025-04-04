@@ -252,17 +252,7 @@ forceinline const char *get_platform() {
  * @return void
  */
 forceinline void output_information() {
-    fmt::print("D++ ", DXX_VERSION, "(", dpp::get_compile_time(), ") ", "[", dpp::get_compiler_infos(), "] on ", dpp::get_platform());
-}
-
-/**
- * @brief Get the version string
- *
- * @param ver the version structure
- * @return std::string
- */
-forceinline std::string get_version_string(Version ver) {
-    return std::to_string(ver.ver.high) + "." + std::to_string(ver.ver.low);
+    fmt::print("D++ ", dpp::get_thisversion().to_string(), "(", dpp::get_compile_time(), ") ", "[", dpp::get_compiler_infos(), "] on ", dpp::get_platform());
 }
 
 /**

@@ -31,8 +31,6 @@
 #include "objects.hpp"
 #include "struct.hpp"
 
-struct Version version; // Runtime Machine Version
-
 void _add(dpp::vm vm) {
 
     dpp::mapid _lval = vm->_theap->PopFront();

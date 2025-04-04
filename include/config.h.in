@@ -2,8 +2,9 @@
 
 
 #define DXX_VERSION "${VERSION}"
-#define VERSION_HIGH ${VERSION_MAJOR}
-#define VERSION_LOW ${VERSION_MINOR}
+#define DXX_VERSION_MAJOR ${VERSION_MAJOR}
+#define DXX_VERSION_MINOR ${VERSION_MINOR}
+#define DXX_VERSION_PATCH ${VERSION_ALTER}
 #define DXX_PLAT "${plat}"
 #define DXX_ARCH "${arch}"
 #define DXX_BUILD_MODE "${mode}"

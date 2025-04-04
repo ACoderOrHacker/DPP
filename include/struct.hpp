@@ -38,6 +38,7 @@
 #pragma warning(disable : 4251)
 #endif // _MSC_VER
 
+#include "versiondef.hpp"
 #include "logger.hpp"
 #include "searcher.hpp"
 #include "acassert.h"
@@ -143,18 +144,6 @@ enum rt_opcode : unsigned char {
     OPCODE_METHOD,
     OPCODE_END
 };
-
-struct _Version {
-	unsigned char low;
-	unsigned char high;
-};
-
-struct Version {
-	union {
-		struct _Version ver;
-		short version;
-	};
-}; // D++ Version structure
 
 class DXX_API Dpp_Object {
 public:
@@ -405,13 +394,6 @@ using error = VMError;
 using opcode = OpCode;
 using mapping = ObjectMapping; // mapped object
 
-forceinline Version get_version() {
-    Version ver = {};
-    ver.ver.high = VERSION_HIGH;
-    ver.ver.low = VERSION_LOW;
-
-    return ver;
-}
 NAMESPACE_DPP_END
 
 #if defined(_MSC_VER) && !defined(__clang__)
