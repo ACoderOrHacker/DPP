@@ -21,8 +21,10 @@
   SOFTWARE.
 */
 
-#include <string>
 #include "objects.hpp"
+
+#include <string>
+
 #include "builtin.hpp"
 #include "struct.hpp"
 
@@ -122,7 +124,7 @@ dpp::object *IntObject::shr(dpp::object *lval, dpp::object *rval) {
 bool IntObject::is_true() {
     if (this == Dpp_NullObject) return false;
 
-    return dpp::get_int(this) != 0; // 0 is false, non-zero is true (like in C)
+    return dpp::get_int(this) != 0;  // 0 is false, non-zero is true (like in C)
 }
 
 dpp::object *IntObject::notval(dpp::object *val) {
@@ -236,7 +238,8 @@ dpp::object *FloatObject::div(dpp::object *lval, dpp::object *rval) {
 bool FloatObject::is_true() {
     if (this == Dpp_NullObject) return false;
 
-    return dpp::get_float(this) != 0.0; // 0 is false, non-zero is true (like in C)
+    return dpp::get_float(this) !=
+           0.0;  // 0 is false, non-zero is true (like in C)
 }
 
 dpp::object *FloatObject::notval(dpp::object *val) {
@@ -311,7 +314,8 @@ dpp::object *StringObject::mul(dpp::object *lval, dpp::object *rval) {
 bool StringObject::is_true() {
     if (this == Dpp_NullObject) return false;
 
-    return !dpp::get_string(this).empty(); // empty string is false, non-empty string is true (like in C)
+    return !dpp::get_string(this).empty();  // empty string is false, non-empty
+                                            // string is true (like in C)
 }
 
 dpp::object *StringObject::notval(dpp::object *val) {
@@ -331,73 +335,67 @@ std::string StringObject::to_datastring(dpp::object *obj) {
 }
 
 std::string ClassObject::to_string(dpp::object *obj) {
-    return "<class " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<class " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string ErrorObject::to_string(dpp::object *obj) {
-    return "<error " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<error " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string FunctionObject::to_string(dpp::object *obj) {
-    return "<function " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<function " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string TypeObject::to_string(dpp::object *obj) {
-    return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<type " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string VoidObject::to_string(dpp::object *obj) {
-    return "<void " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<void " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string ClassObject::to_datastring(dpp::object *obj) {
-    return "<class " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<class " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string ErrorObject::to_datastring(dpp::object *obj) {
-    return "<error " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<error " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string FunctionObject::to_datastring(dpp::object *obj) {
-    return "<function " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<function " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string TypeObject::to_datastring(dpp::object *obj) {
-    return "<type " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<type " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
 std::string VoidObject::to_datastring(dpp::object *obj) {
-    return "<void " + obj->name + " at " + dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
+    return "<void " + obj->name + " at " +
+           dpp::to_hex(std::to_string(reinterpret_cast<uintptr_t>(obj))) + ">";
 }
 
-std::string IntObject::get_typeid() {
-    return "int";
-}
+std::string IntObject::get_typeid() { return "int"; }
 
-std::string FloatObject::get_typeid() {
-    return "float";
-}
+std::string FloatObject::get_typeid() { return "float"; }
 
-std::string StringObject::get_typeid() {
-    return "string";
-}
+std::string StringObject::get_typeid() { return "string"; }
 
-std::string ClassObject::get_typeid() {
-    return "class";
-}
+std::string ClassObject::get_typeid() { return "class"; }
 
-std::string ErrorObject::get_typeid() {
-    return "error";
-}
+std::string ErrorObject::get_typeid() { return "error"; }
 
-std::string FunctionObject::get_typeid() {
-    return "function";
-}
+std::string FunctionObject::get_typeid() { return "function"; }
 
-std::string TypeObject::get_typeid() {
-    return "type";
-}
+std::string TypeObject::get_typeid() { return "type"; }
 
-std::string VoidObject::get_typeid() {
-    return "void";
-}
+std::string VoidObject::get_typeid() { return "void"; }

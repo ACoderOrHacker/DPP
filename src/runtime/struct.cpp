@@ -22,69 +22,43 @@
   SOFTWARE.
  */
 
-#include <iostream>
 #include "struct.hpp"
+
+#include <iostream>
+
 #include "objects.hpp"
 
 // Runtime Variables
 dpp::mapid null;
 
-Dpp_Object *Dpp_Object::operator +(Dpp_Object *obj) {
-    return add(this, obj);
-}
+Dpp_Object *Dpp_Object::operator+(Dpp_Object *obj) { return add(this, obj); }
 
-Dpp_Object *Dpp_Object::operator -(Dpp_Object *obj) {
-	return sub(this, obj);
-}
+Dpp_Object *Dpp_Object::operator-(Dpp_Object *obj) { return sub(this, obj); }
 
-Dpp_Object *Dpp_Object::operator *(Dpp_Object *obj) {
-	return mul(this, obj);
-}
+Dpp_Object *Dpp_Object::operator*(Dpp_Object *obj) { return mul(this, obj); }
 
-Dpp_Object *Dpp_Object::operator /(Dpp_Object *obj) {
-	return div(this, obj);
-}
+Dpp_Object *Dpp_Object::operator/(Dpp_Object *obj) { return div(this, obj); }
 
-Dpp_Object *Dpp_Object::operator %(Dpp_Object *obj) {
-	return mod(this, obj);
-}
+Dpp_Object *Dpp_Object::operator%(Dpp_Object *obj) { return mod(this, obj); }
 
-Dpp_Object *Dpp_Object::operator >(Dpp_Object *obj) {
-	return bigger(this, obj);
-}
+Dpp_Object *Dpp_Object::operator>(Dpp_Object *obj) { return bigger(this, obj); }
 
-Dpp_Object *Dpp_Object::operator <(Dpp_Object *obj) {
+Dpp_Object *Dpp_Object::operator<(Dpp_Object *obj) {
     return smaller(this, obj);
 }
 
-Dpp_Object *Dpp_Object::operator ==(Dpp_Object *obj) {
-	return equal(this, obj);
-}
+Dpp_Object *Dpp_Object::operator==(Dpp_Object *obj) { return equal(this, obj); }
 
-Dpp_Object *Dpp_Object::operator !() {
-	return notval(this);
-}
+Dpp_Object *Dpp_Object::operator!() { return notval(this); }
 
-Dpp_Object *Dpp_Object::operator <<(Dpp_Object *obj) {
-	return shl(this, obj);
-}
+Dpp_Object *Dpp_Object::operator<<(Dpp_Object *obj) { return shl(this, obj); }
 
-Dpp_Object *Dpp_Object::operator >>(Dpp_Object *obj) {
-	return shr(this, obj);
-}
+Dpp_Object *Dpp_Object::operator>>(Dpp_Object *obj) { return shr(this, obj); }
 
-Dpp_Object *Dpp_Object::operator &(Dpp_Object *obj) {
-	return band(this, obj);
-}
+Dpp_Object *Dpp_Object::operator&(Dpp_Object *obj) { return band(this, obj); }
 
-Dpp_Object *Dpp_Object::operator |(Dpp_Object *obj) {
-	return bor(this, obj);
-}
+Dpp_Object *Dpp_Object::operator|(Dpp_Object *obj) { return bor(this, obj); }
 
-Dpp_Object *Dpp_Object::operator ^(Dpp_Object *obj) {
-	return bxor(this, obj);
-}
+Dpp_Object *Dpp_Object::operator^(Dpp_Object *obj) { return bxor(this, obj); }
 
-Dpp_Object *Dpp_Object::operator ~() {
-	return bneg(this);
-}
+Dpp_Object *Dpp_Object::operator~() { return bneg(this); }

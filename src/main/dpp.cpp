@@ -7,10 +7,10 @@
 
 #include "cereal/archives/json.hpp"
 #include "cxxopts.hpp"
-#include "fmt.h"
-#include "dpp/configs.h"
 #include "dpp/api.h"
+#include "dpp/configs.h"
 #include "dpp/plugins.h"
+#include "fmt.h"
 #include "native.hpp"
 #include "serialize.hpp"
 
@@ -18,10 +18,12 @@ namespace fmt = dpp::fmt;
 
 /**
  * @brief the main application class
- * @details entry point for dpp program, defines the command line options and runs them
+ * @details entry point for dpp program, defines the command line options and
+ * runs them
  * @code {.cpp}
  * application app;
- * int exit_code = app.run(argc, argv); // argc is ref to main:argc, argv is ref to main:argv
+ * int exit_code = app.run(argc, argv); // argc is ref to main:argc, argv is ref
+ * to main:argv
  * @endcode
  *
  */
@@ -39,29 +41,34 @@ public:
      */
     int run(int argc, char *argv[]) {
         try {
-            cxxopts::Options options("dpp","Standard D++ Compiler & Runtime");
-            options.set_width(70).add_options()
-                ("help,h", "show help message")
-                ("version,v", "get dpp version")
-                ("compile,c", "compile sources", cxxopts::value<std::vector<std::string>>())
-                ("run,r", "run object files", cxxopts::value<std::string>())
-                ("run-script,s", "run sources as scripts", cxxopts::value<std::string>())
-                ("debug, d", "debug codes", cxxopts::value<std::string>())
-                ("list,l", "list information in object files", cxxopts::value<std::string>())
-                ("export,e", "export standard configures (always for debug)", cxxopts::value<std::string>())
-                ("plugin,p", "choose a plugin file", cxxopts::value<std::string>()->default_value("builtin"))
-                ("output, o", "set output directory", cxxopts::value<std::string>())
-                ("args,a", "set arguments for plugins or another custom tools", cxxopts::value<std::vector<std::string>>())
-                ("command,cmd", "command in the custom tools", cxxopts::value<std::string>()->default_value("venv"))
-            ;
+            cxxopts::Options options("dpp", "Standard D++ Compiler & Runtime");
+            options.set_width(70).add_options()("help,h", "show help message")(
+                "version,v", "get dpp version")(
+                "compile,c", "compile sources",
+                cxxopts::value<std::vector<std::string>>())(
+                "run,r", "run object files", cxxopts::value<std::string>())(
+                "run-script,s", "run sources as scripts",
+                cxxopts::value<std::string>())("debug, d", "debug codes",
+                                               cxxopts::value<std::string>())(
+                "list,l", "list information in object files",
+                cxxopts::value<std::string>())(
+                "export,e", "export standard configures (always for debug)",
+                cxxopts::value<std::string>())(
+                "plugin,p", "choose a plugin file",
+                cxxopts::value<std::string>()->default_value("builtin"))(
+                "output, o", "set output directory",
+                cxxopts::value<std::string>())(
+                "args,a", "set arguments for plugins or another custom tools",
+                cxxopts::value<std::vector<std::string>>())(
+                "command,cmd", "command in the custom tools",
+                cxxopts::value<std::string>()->default_value("venv"));
 
             if (argc == 1) {
                 fmt::print(options.help());
                 return EXIT_SUCCESS;
             }
 
-            auto result = options.parse(argc,argv);
-
+            auto result = options.parse(argc, argv);
 
             // options for cli
             if (result.count("output")) {
@@ -85,10 +92,14 @@ public:
             } else if (result.count("version")) {
                 fmt::print("v", dpp::get_thisversion().to_string(), "\n");
             } else if (result.count("compile")) {
-                for (auto &it : result["compile"].as<std::vector<std::string>>()) {
-                    std::ifstream ifs = dpp::open_file<std::ifstream>(it, std::ios::binary,
-                        [](const std::string &filename, std::ifstream &fs) -> void {
-                            fmt::print_error("error: cannot find '", filename, "' source file\n");
+                for (auto &it :
+                     result["compile"].as<std::vector<std::string>>()) {
+                    std::ifstream ifs = dpp::open_file<std::ifstream>(
+                        it, std::ios::binary,
+                        [](const std::string &filename,
+                           std::ifstream &fs) -> void {
+                            fmt::print_error("error: cannot find '", filename,
+                                             "' source file\n");
                             exit(EXIT_FAILURE);
                         });
 
@@ -96,7 +107,9 @@ public:
 
                     dpp::close_file(ifs);
 
-                    dpp::set_vm((output_dir.string() + "/" + (dpp::get_stem(it) + ".dppo")), vm);
+                    dpp::set_vm((output_dir.string() + "/" +
+                                 (dpp::get_stem(it) + ".dppo")),
+                                vm);
                 }
             } else if (result.count("run")) {
                 std::string filename = result["run"].as<std::string>();
@@ -108,11 +121,14 @@ public:
             } else if (result.count("run-script")) {
                 std::string filename = result["run-script"].as<std::string>();
 
-                int exit_code = dpp::run_script(filename,
+                int exit_code = dpp::run_script(
+                    filename,
                     [](const std::string &filename, std::ifstream &fs) -> void {
-                        fmt::print_error("error: cannot find '", filename, "' source file\n");
+                        fmt::print_error("error: cannot find '", filename,
+                                         "' source file\n");
                         exit(EXIT_FAILURE);
-                    }, true);
+                    },
+                    true);
                 exit(exit_code);
             } else if (result.count("debug")) {
                 dpp::output_information();
@@ -134,8 +150,9 @@ public:
 
                 try {
                     ifs = dpp::open_file<std::ifstream>(file);
-                } catch(std::runtime_error &) {
-                    fmt::print_error("error: cannot find '", file, "' source file\n");
+                } catch (std::runtime_error &) {
+                    fmt::print_error("error: cannot find '", file,
+                                     "' source file\n");
                     return EXIT_FAILURE;
                 }
                 vm = dpp::compile(ifs, file, true);
@@ -149,7 +166,8 @@ public:
                 std::string type = result["export"].as<std::string>();
                 std::string file;
                 if (type == "runtime-cfg") {
-                    file = (output_dir / "dpp-standard-runtime-cfg.json").string();
+                    file =
+                        (output_dir / "dpp-standard-runtime-cfg.json").string();
                     struct dpp::runtime_config cfg {};
                     dpp::write_runtime_config(file, cfg);
                 }
@@ -166,16 +184,22 @@ public:
 
                     fmt::print_success("plugin '", plugin_file, "' loaded\n\n");
                     if (plugin_lib.has_symbol(command)) {
-                        auto plugin_func = plugin_lib.get_function<dpp::plugin_init_func>(command);
-                        plugin_func(dpp::plugin_args{output_dir, argv[0], args}); // run plugin
+                        auto plugin_func =
+                            plugin_lib.get_function<dpp::plugin_init_func>(
+                                command);
+                        plugin_func(dpp::plugin_args{output_dir, argv[0],
+                                                     args});  // run plugin
                     } else {
-                        fmt::print_error("command '", command, "' not found in plugin '", plugin_file, "'\n");
+                        fmt::print_error("command '", command,
+                                         "' not found in plugin '", plugin_file,
+                                         "'\n");
                         return EXIT_FAILURE;
                     }
 
                     fmt::print_success("\ncommand run successfully\n");
                 } catch (dylib::exception &) {
-                    fmt::print_error("error: cannot find command '", command, "' in plugin '", plugin_file, "'\n");
+                    fmt::print_error("error: cannot find command '", command,
+                                     "' in plugin '", plugin_file, "'\n");
                     return EXIT_FAILURE;
                 }
             }
@@ -193,7 +217,7 @@ private:
     std::string command;
 };
 
-int main(int argc, char *argv[] ) {
+int main(int argc, char *argv[]) {
     application app;
     return app.run(argc, argv);
 }

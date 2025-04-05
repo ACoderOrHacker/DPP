@@ -1,5 +1,7 @@
 #include "venv.h"
+
 #include <string_view>
+
 #include "acdpp.h"
 #include "dpp/api.h"
 #include "dpp/plugins.h"
@@ -10,8 +12,7 @@ NAMESPACE_DPP_BEGIN
 NAMESPACE_BEGIN(venv)
 
 void create(const std::string &path,
-    const std::vector<fs::path> &dpp_executables,
-    bool is_cover) {
+            const std::vector<fs::path> &dpp_executables, bool is_cover) {
     if (fs::exists(path) && !is_cover) {
         fmt::print_error("the directory ", path, " is already exists.\n");
         return;
@@ -21,10 +22,12 @@ void create(const std::string &path,
     fmt::print("creating virtual environment in ", path, "\n");
 
     const fs::path &opt_path = fs::path(path);
-    fs::create_directory(opt_path / "scripts"); // storge D++ binary files and active scripts
-    fs::create_directory(opt_path / "packages"); // storge 3rd packages in D++
+    fs::create_directory(
+        opt_path / "scripts");  // storge D++ binary files and active scripts
+    fs::create_directory(opt_path / "packages");  // storge 3rd packages in D++
     for (auto &it : dpp_executables) {
-        fs::copy_file(it, opt_path / "scripts" / it.filename(), fs::copy_options::overwrite_existing);
+        fs::copy_file(it, opt_path / "scripts" / it.filename(),
+                      fs::copy_options::overwrite_existing);
     }
 
     /// Write activate/deactivate script
@@ -66,16 +69,16 @@ void activate(const std::string &path) {
     const fs::path &venv_path = fs::path(path);
     std::string activate_file =
 #if defined(_WIN32) || defined(_WIN64)
-    (venv_path / "scripts" / "activate.bat").string();
+        (venv_path / "scripts" / "activate.bat").string();
 #else
-    (venv_path / "scripts" / "activate.sh").string();
+        (venv_path / "scripts" / "activate.sh").string();
 #endif
 
     std::string shell =
 #if defined(_WIN32) || defined(_WIN64)
-    "cmd.exe";
+        "cmd.exe";
 #else
-    "sh";
+        "sh";
 #endif
     if (fs::exists(activate_file)) {
         std::ignore = system((shell + " " + activate_file).c_str());
@@ -95,16 +98,16 @@ void deactivate(const std::string &path) {
     const fs::path &venv_path = fs::path(path);
     std::string deactivate_file =
 #if defined(_WIN32) || defined(_WIN64)
-    (venv_path / "scripts" / "deactivate.bat").string();
+        (venv_path / "scripts" / "deactivate.bat").string();
 #else
-    (venv_path / "scripts" / "deactivate.sh").string();
+        (venv_path / "scripts" / "deactivate.sh").string();
 #endif
 
     std::string shell =
 #if defined(_WIN32) || defined(_WIN64)
-    "cmd.exe";
+        "cmd.exe";
 #else
-    "sh";
+        "sh";
 #endif
     if (fs::exists(deactivate_file)) {
         std::ignore = system((shell + " " + deactivate_file).c_str());
@@ -117,28 +120,24 @@ void deactivate(const std::string &path) {
 NAMESPACE_END
 NAMESPACE_END
 
-
 /// Cli Interfaces
 
 _DXX_EXPORT_API void venv(const dpp::plugin_args &args) {
     std::vector<fs::path> files;
     dpp::get_files(files, args.dpp_executable_file.parent_path());
 
-
     if (args.args.empty()) {
-        dpp::venv::create(args.output_dir.string(),
-            files,
-            true);
+        dpp::venv::create(args.output_dir.string(), files, true);
     }
     for (auto &it : args.args) {
         if (it == "create") {
-            dpp::venv::create(args.output_dir.string(),
-                files,
-                true);
-        }else if (dpp::startswith(it, "activate:")) {
-            dpp::venv::activate(it.substr(std::string_view("activate:").size()));
+            dpp::venv::create(args.output_dir.string(), files, true);
+        } else if (dpp::startswith(it, "activate:")) {
+            dpp::venv::activate(
+                it.substr(std::string_view("activate:").size()));
         } else if (dpp::startswith(it, "deactivate:")) {
-            dpp::venv::activate(it.substr(std::string_view("deactivate:").size()));
+            dpp::venv::activate(
+                it.substr(std::string_view("deactivate:").size()));
         } else {
             dpp::fmt::print_error("error: invalid argument: ", it, "\n");
         }

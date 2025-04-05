@@ -1,229 +1,225 @@
 lexer grammar DXXLexer;
 
-options {
-    language = Cpp;
-}
+options { language = Cpp; }
 
 /*Keywords*/
 
-Asm: 'asm';
+Asm : 'asm';
 
-Bool: 'bool';
+Bool : 'bool';
 
-Break: 'break';
+Break : 'break';
 
-Case: 'case';
+Case : 'case';
 
-Catch: 'catch';
+Catch : 'catch';
 
-Char: 'char';
+Char : 'char';
 
-Class: 'class';
+Class : 'class';
 
-Compiletime: 'compiletime';
+Compiletime : 'compiletime';
 
-Continue: 'continue';
+Continue : 'continue';
 
-Default: 'default';
+Default : 'default';
 
-Delete: 'delete';
+Delete : 'delete';
 
-Do: 'do';
+Do : 'do';
 
-Enum: 'enum';
+Enum : 'enum';
 
-Extends: 'extends';
+Extends : 'extends';
 
-False: 'false';
+False : 'false';
 
-Final: 'final';
+Final : 'final';
 
-Finally: 'finally';
+Finally : 'finally';
 
-Float: 'float';
+Float : 'float';
 
-Foreach: 'foreach';
+Foreach : 'foreach';
 
-Fun: 'fun';
+Fun : 'fun';
 
-Goto: 'goto';
+Goto : 'goto';
 
-If: 'if';
+If : 'if';
 
-Import: 'import';
+Import : 'import';
 
-Inline: 'inline';
+Inline : 'inline';
 
-Int: 'int';
+Int : 'int';
 
-Implements: 'implements';
+Implements : 'implements';
 
-Interface_: 'interface';
+Interface_ : 'interface';
 
-Long: 'long';
+Long : 'long';
 
-Native: 'native';
+Native : 'native';
 
-New: 'new';
+New : 'new';
 
-Null: 'null';
+Null : 'null';
 
-Object: 'object';
+Object : 'object';
 
-Operator: 'operator';
+Operator : 'operator';
 
-Override: 'override';
+Override : 'override';
 
-Private: 'private';
+Private : 'private';
 
-Protected: 'protected';
+Protected : 'protected';
 
-Public: 'public';
+Public : 'public';
 
-Return: 'return';
+Return : 'return';
 
-Short: 'short';
+Short : 'short';
 
-Static: 'static';
+Static : 'static';
 
-String: 'string';
+String : 'string';
 
-Super: 'super';
+Super : 'super';
 
-Switch: 'switch';
+Switch : 'switch';
 
-Template: 'template';
+Template : 'template';
 
-This: 'this';
+This : 'this';
 
-Throw: 'throw';
+Throw : 'throw';
 
-True: 'true';
+True : 'true';
 
-Try: 'try';
+Try : 'try';
 
-Type: 'type';
+Type : 'type';
 
-Using: 'using';
+Using : 'using';
 
-Var: 'var';
+Var : 'var';
 
-Virtual: 'virtual';
+Virtual : 'virtual';
 
-Void: 'void';
+Void : 'void';
 
-When: 'when';
+When : 'when';
 
-While: 'while';
+While : 'while';
 
-With: 'with';
+With : 'with';
 
 /* Operators */
 
-LeftParen: '(';
+LeftParen : '(';
 
-RightParen: ')';
+RightParen : ')';
 
-LeftBracket: '[';
+LeftBracket : '[';
 
-RightBracket: ']';
+RightBracket : ']';
 
-LeftBrace: '{';
+LeftBrace : '{';
 
-RightBrace: '}';
+RightBrace : '}';
 
-Arrow: '->';
+Arrow : '->';
 
-Plus: '+';
+Plus : '+';
 
-Minus: '-';
+Minus : '-';
 
-Star: '*';
+Star : '*';
 
-Div: '/';
+Div : '/';
 
-Mod: '%';
+Mod : '%';
 
-Caret: '^';
+Caret : '^';
 
-And: '&';
+And : '&';
 
-Or: '|';
+Or : '|';
 
-Tilde: '~';
+Tilde : '~';
 
-Not: '!' | 'not';
+Not : '!' | 'not';
 
-Assign: '=';
+Assign : '=';
 
-ColonAssign: ':=';
+ColonAssign : ':=';
 
-Less: '<';
+Less : '<';
 
-Greater: '>';
+Greater : '>';
 
-PlusAssign: '+=';
+PlusAssign : '+=';
 
-MinusAssign: '-=';
+MinusAssign : '-=';
 
-StarAssign: '*=';
+StarAssign : '*=';
 
-DivAssign: '/=';
+DivAssign : '/=';
 
-ModAssign: '%=';
+ModAssign : '%=';
 
-XorAssign: '^=';
+XorAssign : '^=';
 
-AndAssign: '&=';
+AndAssign : '&=';
 
-OrAssign: '|=';
+OrAssign : '|=';
 
-LeftShiftAssign: '<<=';
+LeftShiftAssign : '<<=';
 
-RightShiftAssign: '>>=';
+RightShiftAssign : '>>=';
 
-Equal: '==';
+Equal : '==';
 
-NotEqual: '!=';
+NotEqual : '!=';
 
-LessEqual: '<=';
+LessEqual : '<=';
 
-GreaterEqual: '>=';
+GreaterEqual : '>=';
 
-AndAnd: '&&' | 'and';
+AndAnd : '&&' | 'and';
 
-OrOr: '||' | 'or';
+OrOr : '||' | 'or';
 
-PlusPlus: '++';
+PlusPlus : '++';
 
-MinusMinus: '--';
+MinusMinus : '--';
 
-Comma: ',';
+Comma : ',';
 
-Colon: ':';
+Colon : ':';
 
-Semi: ';';
+Semi : ';';
 
-Dot: '.';
+Dot : '.';
 
-Ellipsis: '...';
+Ellipsis : '...';
 
-LeftShift: '<<';
+LeftShift : '<<';
 
-RightShift: '>>';
+RightShift : '>>';
 
-ID:
-   [a-zA-Z_] ([a-zA-Z_] | [0-9])*
-;
+ID : [a - zA - Z_]([a - zA - Z_] | [0 - 9]) *;
 
-Constructor: '__constructor__';
-Destructor: '__destructor__';
+Constructor : '__constructor__';
+Destructor : '__destructor__';
 
-fragment NONZERODIGIT: [1-9];
+fragment NONZERODIGIT : [1 - 9];
 
-fragment OCTALDIGIT: [0-7];
+fragment OCTALDIGIT : [0 - 7];
 
-fragment HEXADECIMALDIGIT: [0-9a-fA-F];
+fragment HEXADECIMALDIGIT : [0 - 9a - fA - F];
 
 fragment Simpleescapesequence:
     '\\\''
@@ -240,7 +236,7 @@ fragment Simpleescapesequence:
     | '\\v'
 ;
 
-fragment SIGN: '-';
+fragment SIGN : '-';
 
 fragment ESC: '\\' [\\'"/bfnrt] ;
 

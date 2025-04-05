@@ -1,21 +1,23 @@
+#include "compiler.hpp"
+
+#include <exception>
+#include <fstream>
+#include <memory>
+
 #include "DXXLexer.h"
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
 #include "ParserRuleContext.h"
 #include "acdpp.h"
 #include "builtin.hpp"
+#include "compileinfos.h"
 #include "dpp/api.h"
-#include "macros.hpp"
 #include "errors.hpp"
+#include "macros.hpp"
 #include "metadata.h"
 #include "objects.hpp"
 #include "struct.hpp"
 #include "vm.hpp"
-#include "compiler.hpp"
-#include "compileinfos.h"
-#include <exception>
-#include <fstream>
-#include <memory>
 
 using namespace errors;
 
@@ -35,7 +37,8 @@ DXX_API dpp::vm fObj = new FObject;
 #define REPORT(id, ...) id(GET_LINE(ctx), GET_POS(ctx), __VA_ARGS__);
 
 /**
- * @brief report an error or warning for the given context (ctx) without arguments
+ * @brief report an error or warning for the given context (ctx) without
+ * arguments
  *
  */
 #define REPORT_NPARAM(id) id(GET_LINE(ctx), GET_POS(ctx));
@@ -55,14 +58,17 @@ inline std::string get_ctypeid(Dpp_CObject *co) {
 #include "import.h"
 class DXXVisitor : public DXXParserBaseVisitor {
 public:
-    explicit DXXVisitor(const std::string &file, FObject *_fObj = nullptr, bool _is_output = true) {
+    explicit DXXVisitor(const std::string &file, FObject *_fObj = nullptr,
+                        bool _is_output = true) {
         is_output = _is_output;
         if (!is_output) {
             dpp::switch_ostream(opts.rdbuf());
         }
 
-        if (_fObj != nullptr) fObj = _fObj;
-        else fObj = dpp::create_vm();
+        if (_fObj != nullptr)
+            fObj = _fObj;
+        else
+            fObj = dpp::create_vm();
 
         loop_end = 0;
         block_end = 0;
@@ -70,7 +76,7 @@ public:
         // init the globalNamespace
         int32_t builtin_it = 0;
         for (; builtin_it < BUILTIN_END; ++builtin_it) {
-            dpp::mapid o({ true, builtin_it });
+            dpp::mapid o({true, builtin_it});
             Dpp_Object *obj = fObj->obj_map.get(o);
             Dpp_CObject *co = new Dpp_CObject;
 
@@ -82,7 +88,7 @@ public:
         auto make_type = [&, this](const std::string &id, int32_t type_id) {
             Dpp_CObject *type = new Dpp_CObject;
             type->id = id;
-            type->object = { true, type_id};
+            type->object = {true, type_id};
             type->type = Dpp_TypeType;
             globalNamespace->objects.write(type);
         };
@@ -116,17 +122,20 @@ public:
         if (main->type != Dpp_FunctionType) {
             E0006();
         }
-        if (_cast(Heap<Dpp_CObject *> *, main->metadata[function::FUNCTION_METADATA::PARAMS])->size() > 0) {
+        if (_cast(Heap<Dpp_CObject *> *,
+                  main->metadata[function::FUNCTION_METADATA::PARAMS])
+                ->size() > 0) {
             E0007();
         }
         LoadOpcode(main_context, OPCODE_CALL, {main->object});
 
-        dpp::fmt::print(error_count, " errors found, ", warning_count, " warnings found.\n");
+        dpp::fmt::print(error_count, " errors found, ", warning_count,
+                        " warnings found.\n");
         if (error_count != 0) {
             exit(EXIT_FAILURE);
         }
 
-        RETURN:
+    RETURN:
         reset_count();
         if (!is_output) {
             dpp::switch_ostream();
@@ -140,7 +149,7 @@ public:
      * @return dpp::compile_infos the compile-information
      */
     dpp::compile_infos get_compile_infos() {
-        dpp::compile_infos infos {globalNamespace, idIt};
+        dpp::compile_infos infos{globalNamespace, idIt};
         return infos;
     }
 
@@ -164,7 +173,7 @@ public:
      * @return std::any always NONE
      */
     std::any visitBlock(DXXParser::BlockContext *ctx) override {
-        if(!blockNoNamespace) {
+        if (!blockNoNamespace) {
             namespaces.push(thisNamespace);
             thisNamespace = thisNamespace->NewNamespace();
         }
@@ -173,19 +182,20 @@ public:
 
         block_end = fObj->state.vmopcodes.size();
 
-        for(auto &it : gotos) {
+        for (auto &it : gotos) {
             const std::string &id = it.first;
             Dpp_CObject *label = FindObject(id, true);
             if (label == nullptr) {
                 REPORT(E0009, id);
             }
 
-            int32_t pos = *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
-            ResetOpcode(ctx, it.second, OPCODE_JMP, { {true, pos} });
+            int32_t pos =
+                *_cast(uint32_t *, label->metadata[label::LABEL_METADATA::POS]);
+            ResetOpcode(ctx, it.second, OPCODE_JMP, {{true, pos}});
         }
         gotos.clear();
 
-        if(!blockNoNamespace) {
+        if (!blockNoNamespace) {
             thisNamespace = namespaces.top();
             namespaces.pop();
         }
@@ -247,9 +257,10 @@ public:
 
         return_value = ret;
         noLoadVarOp = true;
-        Heap<Dpp_CObject *> *params = anycast(Heap<Dpp_CObject *> *, visitParamList(_params));
+        Heap<Dpp_CObject *> *params =
+            anycast(Heap<Dpp_CObject *> *, visitParamList(_params));
         noLoadVarOp = false;
-        if(block != nullptr) {
+        if (block != nullptr) {
             visitBlock(block);
             isNone = false;
         }
@@ -266,7 +277,8 @@ public:
         namespaces.pop();
         blockNoNamespace = false;
 
-        Dpp_CObject *co = MakeFunction(ctx, func, infos, params, func_autovalues, ret, throws, isNone);
+        Dpp_CObject *co = MakeFunction(ctx, func, infos, params,
+                                       func_autovalues, ret, throws, isNone);
         func_autovalues = nullptr;
 
         return co;
@@ -322,7 +334,6 @@ public:
                 // type is always in global namespace
                 co = FindObject(id, true);
                 if (co == nullptr) {
-
                 }
 
                 co->infos |= GetInfos(&infos);
@@ -332,16 +343,19 @@ public:
         return co;
     }
 
-	std::any visitVarDefine(DXXParser::VarDefineContext *ctx) override {
-		DXXParser::TheTypeContext *_type = ctx->theType();
-		std::vector<DXXParser::InfoContext *> infos = ctx->info();
-		DXXParser::DataContext *_data = ctx->data();
+    std::any visitVarDefine(DXXParser::VarDefineContext *ctx) override {
+        DXXParser::TheTypeContext *_type = ctx->theType();
+        std::vector<DXXParser::InfoContext *> infos = ctx->info();
+        DXXParser::DataContext *_data = ctx->data();
 
-		std::string id = ctx->ID()->toString();
-		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
-		Dpp_CObject *data;
+        std::string id = ctx->ID()->toString();
+        Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(_type));
+        Dpp_CObject *data;
         Dpp_CObject *to = MakeObject(id, true);
-        to->type = type->object == dpp::mapid({true, OBJECT_TYPE}) ? Dpp_ObjectType : fObj->obj_map.get(type->object); // TODO: may be have bug
+        to->type =
+            type->object == dpp::mapid({true, OBJECT_TYPE})
+                ? Dpp_ObjectType
+                : fObj->obj_map.get(type->object);  // TODO: may be have bug
         Dpp_CObject *result = FindObject(to);
         if (result != nullptr) {
             REPORT(E0002, id);
@@ -349,10 +363,11 @@ public:
         thisNamespace->objects.write(to);
 
         if (!noLoadVarOp) {
-            LoadOpcode(ctx, OPCODE_NEW, { type->object, to->object });
+            LoadOpcode(ctx, OPCODE_NEW, {type->object, to->object});
             if (_data != nullptr) {
-                data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
-                LoadOpcode(ctx, OPCODE_MOV, { data->object, to->object });
+                data =
+                    anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+                LoadOpcode(ctx, OPCODE_MOV, {data->object, to->object});
             }
         }
 
@@ -362,17 +377,18 @@ public:
             }
         }
 
-		return to;
-	}
+        return to;
+    }
 
-	std::any visitVarSet(DXXParser::VarSetContext *ctx) override {
-		Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
-		Dpp_CObject *val = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
+    std::any visitVarSet(DXXParser::VarSetContext *ctx) override {
+        Dpp_CObject *o = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
+        Dpp_CObject *val =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
-		LoadOpcode(ctx, OPCODE_MOV, { val->object, o->object });
+        LoadOpcode(ctx, OPCODE_MOV, {val->object, o->object});
 
-		return NONE;
-	}
+        return NONE;
+    }
 
     std::any visitIdEx(DXXParser::IdExContext *ctx) override {
         const auto &idex = ctx->ID();
@@ -397,7 +413,8 @@ public:
             }
             dpp::mapid tmp = allocMapping();
 
-            LoadOpcode(ctx, OPCODE_METHOD, {container->object, method->object, tmp});
+            LoadOpcode(ctx, OPCODE_METHOD,
+                       {container->object, method->object, tmp});
             o = tmp;
             container = method;
         }
@@ -407,18 +424,20 @@ public:
 
     std::any visitTypedef(DXXParser::TypedefContext *ctx) override {
         std::string id = ctx->ID()->toString();
-        Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(ctx->theType()));
+        Dpp_CObject *type =
+            anycast(Dpp_CObject *, visitTheType(ctx->theType()));
 
         LinkObject(id, type);
         return NONE;
     }
 
     std::any visitEnum(DXXParser::EnumContext *ctx) override {
-        Dpp_CObject *enum_object = MakeObject(ctx->ID()->toString(), false, true);
+        Dpp_CObject *enum_object =
+            MakeObject(ctx->ID()->toString(), false, true);
         enum_object->type = Dpp_ClassType;
         Integer _idata_it = 0;
 
-        for(auto it: ctx->enumSub()) {
+        for (auto it : ctx->enumSub()) {
             std::string id = it->ID()->toString();
             Integer _idata = _idata_it;
             antlr4::tree::TerminalNode *node = it->IntegerData();
@@ -434,7 +453,6 @@ public:
             ++_idata_it;
         }
 
-
         return NONE;
     }
 
@@ -448,13 +466,15 @@ public:
     /// 2  call-a ...
     /// 3  call-b ...
     std::any visitWhen(DXXParser::WhenContext *ctx) override {
-        Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
+        Dpp_CObject *is_jmp =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         uint32_t jmp_pos = fObj->state.vmopcodes.size();
 
         LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
         visitBlock(ctx->block());
-        dpp::mapid jmp_to = {true /* unused */, static_cast<int32_t>(block_end - 1)};
-        ResetOpcode(ctx, jmp_pos, OPCODE_JNT, { jmp_to, is_jmp->object });
+        dpp::mapid jmp_to = {true /* unused */,
+                             static_cast<int32_t>(block_end - 1)};
+        ResetOpcode(ctx, jmp_pos, OPCODE_JNT, {jmp_to, is_jmp->object});
 
         return NONE;
     }
@@ -485,14 +505,17 @@ public:
         Heap<uint32_t> placeholders;
 
         for (auto it : ctx->whenExtendsSub()) {
-            Dpp_CObject *is_jmp = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it->data()));
+            Dpp_CObject *is_jmp =
+                anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it->data()));
 
             uint32_t jmp1 = fObj->state.vmopcodes.size();
 
-            LoadOpcode(it, OPCODE_JNT, { placeholder, placeholder });
+            LoadOpcode(it, OPCODE_JNT, {placeholder, placeholder});
             visitBlock(it->block());
-            dpp::mapid next_block_begin = { true, (int32_t)(fObj->state.vmopcodes.size())};
-            ResetOpcode(it, jmp1, OPCODE_JNT, {next_block_begin, is_jmp->object});
+            dpp::mapid next_block_begin = {
+                true, (int32_t)(fObj->state.vmopcodes.size())};
+            ResetOpcode(it, jmp1, OPCODE_JNT,
+                        {next_block_begin, is_jmp->object});
             LoadOpcode(it, OPCODE_JMP, {placeholder});
             placeholders.PushData(fObj->state.vmopcodes.size() - 1);
         }
@@ -503,7 +526,8 @@ public:
         }
 
         for (uint32_t _placeholder : placeholders) {
-            ResetOpcode(ctx, _placeholder, OPCODE_JMP, { {true, (int32_t)fObj->state.vmopcodes.size() - 1} });
+            ResetOpcode(ctx, _placeholder, OPCODE_JMP,
+                        {{true, (int32_t)fObj->state.vmopcodes.size() - 1}});
         }
 
         return NONE;
@@ -513,7 +537,8 @@ public:
      * @return: NONE
      * Make 'switch' opcode
      */
-    std::any visitWhenSwitchStatement(DXXParser::WhenSwitchStatementContext *ctx) override {
+    std::any visitWhenSwitchStatement(
+        DXXParser::WhenSwitchStatementContext *ctx) override {
         // TODO: Not success
         return NONE;
     }
@@ -526,28 +551,31 @@ public:
         DXXParser::DataContext *_data = ctx->data();
         uint32_t state_end = fObj->state.vmopcodes.size() - 1;
 
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         if (data->type != Dpp_IntType) {
             REPORT_NPARAM(E0014);
         }
 
         uint32_t jmp1 = fObj->state.vmopcodes.size();
-        LoadOpcode(ctx, OPCODE_JNT, { placeholder, placeholder });
+        LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
 
         in_loop = true;
         visitChildren(_block);
         // visitBlock(_block);
         in_loop = false;
 
-        ResetOpcode(ctx, jmp1, OPCODE_JNT, { {true, (int32_t)(fObj->state.vmopcodes.size())}, data->object });
-        LoadOpcode(ctx, OPCODE_JMP, { {true, (int32_t)state_end}});
+        ResetOpcode(
+            ctx, jmp1, OPCODE_JNT,
+            {{true, (int32_t)(fObj->state.vmopcodes.size())}, data->object});
+        LoadOpcode(ctx, OPCODE_JMP, {{true, (int32_t)state_end}});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)loop_end} });
+            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)loop_end}});
         }
         for (auto it : continues) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)(loop_end - 1)} });
+            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)(loop_end - 1)}});
         }
         breaks.clear();
         continues.clear();
@@ -568,20 +596,21 @@ public:
         visitChildren(_block);
         // visitBlock(_block);
         in_loop = false;
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
 
         if (data->type != Dpp_IntType) {
             REPORT_NPARAM(E0014);
         }
 
-        LoadOpcode(ctx, OPCODE_JNF, { {true, (int32_t)state_end}, data->object });
+        LoadOpcode(ctx, OPCODE_JNF, {{true, (int32_t)state_end}, data->object});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)loop_end} });
+            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)loop_end}});
         }
         for (auto it : continues) {
-            ResetOpcode(ctx, it, OPCODE_JMP, { {true, (int32_t)(loop_end - 1)} });
+            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)(loop_end - 1)}});
         }
         breaks.clear();
         continues.clear();
@@ -599,7 +628,7 @@ public:
         }
 
         breaks.PushData(fObj->state.vmopcodes.size());
-        LoadOpcode(ctx, OPCODE_JMP, { placeholder });
+        LoadOpcode(ctx, OPCODE_JMP, {placeholder});
 
         return NONE;
     }
@@ -613,7 +642,7 @@ public:
         }
 
         continues.PushData(fObj->state.vmopcodes.size());
-        LoadOpcode(ctx, OPCODE_JMP, { placeholder });
+        LoadOpcode(ctx, OPCODE_JMP, {placeholder});
 
         return NONE;
     }
@@ -636,15 +665,17 @@ public:
             LoadOpcode(ctx, OPCODE_RET);
         }
 
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         if (data->type == Dpp_VoidType) {
             REPORT_NPARAM(E0011);
         }
-        if (return_value->type != data->type && return_value->type != Dpp_ObjectType) {
+        if (return_value->type != data->type &&
+            return_value->type != Dpp_ObjectType) {
             REPORT_NPARAM(E0012);
         }
 
-        LoadOpcode(ctx, OPCODE_RET, { data->object });
+        LoadOpcode(ctx, OPCODE_RET, {data->object});
 
         return NONE;
     }
@@ -655,32 +686,39 @@ public:
      */
     std::any visitFunctionCall(DXXParser::FunctionCallContext *ctx) override {
         Dpp_CObject *func = anycast(Dpp_CObject *, visitIdEx(ctx->idEx()));
-        Dpp_CObject *co = ((Dpp_CObject *)(func->metadata[function::FUNCTION_METADATA::RETURN_TYPE]))->object == dpp::mapid {true, VOID_TYPE} ? NONE : MakeObject("");
+        Dpp_CObject *co =
+            ((Dpp_CObject
+                  *)(func->metadata[function::FUNCTION_METADATA::RETURN_TYPE]))
+                        ->object == dpp::mapid{true, VOID_TYPE}
+                ? NONE
+                : MakeObject("");
         Heap<dpp::mapid> params;
         Heap<Dpp_CObject *> param_list;
 
-
-        if(func->type != Dpp_FunctionType && func->infos.native_function.empty()) {
+        if (func->type != Dpp_FunctionType &&
+            func->infos.native_function.empty()) {
             REPORT(E0018, func->id);
         }
 
-        if(func->isNone && func->infos.native_function.empty()) {
+        if (func->isNone && func->infos.native_function.empty()) {
             REPORT(E0019, func->id);
         }
 
-        // TODO: the autovalue cannot be a function paramter, the code not write it
+        // TODO: the autovalue cannot be a function paramter, the code not write
+        // it
         // TODO: cannot compile no-paramter function call
-        for(auto *it : ctx->callParamList()->data()) {
-            Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it));
+        for (auto *it : ctx->callParamList()->data()) {
+            Dpp_CObject *data =
+                anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(it));
             params.PushData(data->object);
             param_list.PushData(data);
         }
 
         /******************** Check the paramters ********************/
-        auto __check_call_params = [&, ctx](Dpp_CObject *func,
-            Heap<Dpp_CObject *> *params,
-            Heap<Dpp_CObject *> *call_params,
-            Heap<Dpp_CObject *> *autovalues) -> bool {
+        auto __check_call_params =
+            [&, ctx](Dpp_CObject *func, Heap<Dpp_CObject *> *params,
+                     Heap<Dpp_CObject *> *call_params,
+                     Heap<Dpp_CObject *> *autovalues) -> bool {
             if (params->size() < call_params->size()) {
                 REPORT(E0022, func->id);
             }
@@ -693,8 +731,7 @@ public:
                         REPORT(E0023, func->id);
                     }
                     call_arg = autovalue;
-                }
-                else {
+                } else {
                     call_arg = call_params->GetData(i);
                 }
 
@@ -702,10 +739,12 @@ public:
                 if (call_arg->type == Dpp_VoidType) {
                     REPORT_NPARAM(E0024);
                 }
-                if (call_arg->type == Dpp_ObjectType && arg->type != Dpp_ObjectType) {
+                if (call_arg->type == Dpp_ObjectType &&
+                    arg->type != Dpp_ObjectType) {
                     REPORT_NPARAM(W0001);
                 }
-                if (call_arg->type != arg->type && arg->type != Dpp_ObjectType) {
+                if (call_arg->type != arg->type &&
+                    arg->type != Dpp_ObjectType) {
                     // TODO: there need two types
                     REPORT(E0025, get_ctypeid(call_arg), get_ctypeid(arg));
                 }
@@ -714,15 +753,18 @@ public:
             return true;
         };
 
-        if (!__check_call_params(func,
-            _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::PARAMS]),
-            &param_list,
-            _cast(Heap<Dpp_CObject *> *, func->metadata[function::FUNCTION_METADATA::AUTOVALUES]))) {
+        if (!__check_call_params(
+                func,
+                _cast(Heap<Dpp_CObject *> *,
+                      func->metadata[function::FUNCTION_METADATA::PARAMS]),
+                &param_list,
+                _cast(
+                    Heap<Dpp_CObject *> *,
+                    func->metadata[function::FUNCTION_METADATA::AUTOVALUES]))) {
             REPORT(E0020, func->id);
         }
 
-
-        if(!func->infos.native_function.empty()) {
+        if (!func->infos.native_function.empty()) {
             params.PushData(func->object);
             if (co != NONE) params.PushEnd(co->object);
             LoadOpcode(ctx, OPCODE_CALL, params);
@@ -731,7 +773,7 @@ public:
 
         params.PushData(func->object);
         LoadOpcode(ctx, OPCODE_CALL, params);
-        if (co != NONE) LoadOpcode(ctx, OPCODE_GETRET, { co->object });
+        if (co != NONE) LoadOpcode(ctx, OPCODE_GETRET, {co->object});
 
         return co;
     }
@@ -743,8 +785,8 @@ public:
     std::any visitGoto(DXXParser::GotoContext *ctx) override {
         const std::string &id = ctx->ID()->toString();
 
-        gotos.insert({ id, fObj->state.vmopcodes.size() });
-        LoadOpcode(ctx, OPCODE_JMP, { placeholder });
+        gotos.insert({id, fObj->state.vmopcodes.size()});
+        LoadOpcode(ctx, OPCODE_JMP, {placeholder});
 
         return NONE;
     }
@@ -753,33 +795,37 @@ public:
      * @return: Dpp_CObject *
      * Define a label of runtime opcode id
      */
-    std::any visitGotoLabelDefine(DXXParser::GotoLabelDefineContext *ctx) override {
-        return MakeLabel(ctx->ID()->toString(), fObj->state.vmopcodes.size() - 1);
+    std::any visitGotoLabelDefine(
+        DXXParser::GotoLabelDefineContext *ctx) override {
+        return MakeLabel(ctx->ID()->toString(),
+                         fObj->state.vmopcodes.size() - 1);
     }
 
     /*
      * @return: Dpp_CObject *
      * make 'new' opcode and returns the value of object
      */
-	std::any visitNew(DXXParser::NewContext *ctx) override {
-		Dpp_CObject *type = anycast(Dpp_CObject *, visitTheType(ctx->theType()));
+    std::any visitNew(DXXParser::NewContext *ctx) override {
+        Dpp_CObject *type =
+            anycast(Dpp_CObject *, visitTheType(ctx->theType()));
         Dpp_CObject *co = MakeObject("");
 
-        LoadOpcode(ctx, OPCODE_NEW, { type->object, co->object });
-		return co;
-	}
+        LoadOpcode(ctx, OPCODE_NEW, {type->object, co->object});
+        return co;
+    }
 
     /*
      * @return: NONE
      * Make 'delete' opcode
      */
-	std::any visitDelete(DXXParser::DeleteContext *ctx) override {
-		Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
+    std::any visitDelete(DXXParser::DeleteContext *ctx) override {
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
 
-        LoadOpcode(ctx, OPCODE_DEL, { data->object });
+        LoadOpcode(ctx, OPCODE_DEL, {data->object});
 
-		return NONE;
-	}
+        return NONE;
+    }
 
     /*
      * @return: Dpp_CObject *
@@ -793,7 +839,7 @@ public:
      * @return: Dpp_CObject *
      * return floating number data
      */
-    std::any visitFloatingExpr(DXXParser::FloatingExprContext* ctx) override {
+    std::any visitFloatingExpr(DXXParser::FloatingExprContext *ctx) override {
         return MakeFloating(std::stod(ctx->FloatingNumberData()->toString()));
     }
 
@@ -834,7 +880,8 @@ public:
         rt_opcode op = OPCODE_START;
         DXXParser::DataContext *_data = ctx->data();
 
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -849,8 +896,8 @@ public:
         }
 
         Dpp_CObject *int1 = MakeInteger(1);
-        LoadOpcode(ctx, op, { data->object, int1->object, co->object });
-        LoadOpcode(ctx, OPCODE_MOV, { co->object, data->object });
+        LoadOpcode(ctx, op, {data->object, int1->object, co->object});
+        LoadOpcode(ctx, OPCODE_MOV, {co->object, data->object});
 
         return co;
     }
@@ -860,11 +907,12 @@ public:
      */
     std::any visitNotClassExpr(DXXParser::NotClassExprContext *ctx) override {
         rt_opcode op = OPCODE_START;
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(ctx->data()));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
-        if(data->type == Dpp_VoidType) {
+        if (data->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
 
@@ -874,7 +922,7 @@ public:
             op = OPCODE_BNEG;
         }
 
-        LoadOpcode(ctx, op, { data->object, co->object });
+        LoadOpcode(ctx, op, {data->object, co->object});
         return co;
     }
 
@@ -885,15 +933,17 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
         if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
-        LoadOpcode(ctx, OPCODE_AND, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_AND, {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -905,15 +955,17 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
         if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
-        LoadOpcode(ctx, OPCODE_OR, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_OR, {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -921,22 +973,25 @@ public:
     /*
      * @return: Dpp_CObject *
      */
-    std::any visitEqualOrNotEqualExpr(DXXParser::EqualOrNotEqualExprContext *ctx) override {
+    std::any visitEqualOrNotEqualExpr(
+        DXXParser::EqualOrNotEqualExprContext *ctx) override {
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
         if (ldata->type == Dpp_VoidType || rdata->type == Dpp_VoidType) {
             REPORT_NPARAM(E0010);
         }
-        LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_EQ, {ldata->object, rdata->object, co->object});
         if (ctx->NotEqual() != nullptr) {
             Dpp_CObject *co2 = MakeObject("");
-            LoadOpcode(ctx, OPCODE_NOT, { co->object, co2->object });
+            LoadOpcode(ctx, OPCODE_NOT, {co->object, co2->object});
             return co2;
         }
 
@@ -951,8 +1006,10 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -962,12 +1019,12 @@ public:
 
         if (ctx->Star() != nullptr) {
             op = OPCODE_MUL;
-        } else if (ctx->Div()!= nullptr) {
+        } else if (ctx->Div() != nullptr) {
             op = OPCODE_DIV;
-        } else if (ctx->Mod()!= nullptr) {
+        } else if (ctx->Mod() != nullptr) {
             op = OPCODE_MOD;
         }
-        LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, op, {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -980,8 +1037,10 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -991,10 +1050,10 @@ public:
 
         if (ctx->Plus() != nullptr) {
             op = OPCODE_ADD;
-        } else if (ctx->Minus()!= nullptr) {
+        } else if (ctx->Minus() != nullptr) {
             op = OPCODE_SUB;
         }
-        LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, op, {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -1002,13 +1061,16 @@ public:
     /*
      * @return: Dpp_CObject *
      */
-    std::any visitLeftOrRightShiftExpr(DXXParser::LeftOrRightShiftExprContext *ctx) override {
+    std::any visitLeftOrRightShiftExpr(
+        DXXParser::LeftOrRightShiftExprContext *ctx) override {
         rt_opcode op = OPCODE_START;
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -1021,7 +1083,7 @@ public:
         } else if (ctx->RightShift() != nullptr) {
             op = OPCODE_SHR;
         }
-        LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, op, {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -1034,8 +1096,10 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -1045,24 +1109,30 @@ public:
 
         if (ctx->Less() != nullptr) {
             op = OPCODE_SMALLER;
-            LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
-        } else if (ctx->Greater()!= nullptr) {
+            LoadOpcode(ctx, op, {ldata->object, rdata->object, co->object});
+        } else if (ctx->Greater() != nullptr) {
             op = OPCODE_BIGGER;
-            LoadOpcode(ctx, op, { ldata->object, rdata->object, co->object });
+            LoadOpcode(ctx, op, {ldata->object, rdata->object, co->object});
         } else if (ctx->LessEqual() != nullptr) {
             Dpp_CObject *less_tmp = MakeObject("");
             Dpp_CObject *equal_tmp = MakeObject("");
 
-            LoadOpcode(ctx, OPCODE_SMALLER, { ldata->object, rdata->object, less_tmp->object });
-            LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, equal_tmp->object });
-            LoadOpcode(ctx, OPCODE_OR, { less_tmp->object, equal_tmp->object, co->object });
+            LoadOpcode(ctx, OPCODE_SMALLER,
+                       {ldata->object, rdata->object, less_tmp->object});
+            LoadOpcode(ctx, OPCODE_EQ,
+                       {ldata->object, rdata->object, equal_tmp->object});
+            LoadOpcode(ctx, OPCODE_OR,
+                       {less_tmp->object, equal_tmp->object, co->object});
         } else if (ctx->GreaterEqual() != nullptr) {
             Dpp_CObject *greater_tmp = MakeObject("");
             Dpp_CObject *equal_tmp = MakeObject("");
 
-            LoadOpcode(ctx, OPCODE_BIGGER, { ldata->object, rdata->object, greater_tmp->object });
-            LoadOpcode(ctx, OPCODE_EQ, { ldata->object, rdata->object, equal_tmp->object });
-            LoadOpcode(ctx, OPCODE_OR, { greater_tmp->object, equal_tmp->object, co->object });
+            LoadOpcode(ctx, OPCODE_BIGGER,
+                       {ldata->object, rdata->object, greater_tmp->object});
+            LoadOpcode(ctx, OPCODE_EQ,
+                       {ldata->object, rdata->object, equal_tmp->object});
+            LoadOpcode(ctx, OPCODE_OR,
+                       {greater_tmp->object, equal_tmp->object, co->object});
         }
         return co;
     }
@@ -1074,8 +1144,10 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -1083,7 +1155,8 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(ctx, OPCODE_BAND, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_BAND,
+                   {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -1095,8 +1168,10 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -1104,7 +1179,8 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(ctx, OPCODE_BXOR, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_BXOR,
+                   {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -1116,8 +1192,10 @@ public:
         DXXParser::DataContext *_ldata = ctx->data(0);
         DXXParser::DataContext *_rdata = ctx->data(1);
 
-        Dpp_CObject *ldata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
-        Dpp_CObject *rdata = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
+        Dpp_CObject *ldata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_ldata));
+        Dpp_CObject *rdata =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_rdata));
         Dpp_CObject *co = MakeObject("");
         co->type = Dpp_IntType;
 
@@ -1125,7 +1203,7 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(ctx, OPCODE_BOR, { ldata->object, rdata->object, co->object });
+        LoadOpcode(ctx, OPCODE_BOR, {ldata->object, rdata->object, co->object});
 
         return co;
     }
@@ -1136,7 +1214,8 @@ public:
     std::any visitNegative(DXXParser::NegativeContext *ctx) override {
         DXXParser::DataContext *_data = ctx->data();
 
-        Dpp_CObject *data = anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
+        Dpp_CObject *data =
+            anycast(Dpp_CObject *, DXXParserBaseVisitor::visit(_data));
         Dpp_CObject *co = MakeObject("");
         Dpp_CObject *int_1 = MakeInteger(-1);
         co->type = Dpp_IntType;
@@ -1145,7 +1224,7 @@ public:
             REPORT_NPARAM(E0010);
         }
 
-        LoadOpcode(ctx, OPCODE_MUL, { data->object, int_1->object, co->object });
+        LoadOpcode(ctx, OPCODE_MUL, {data->object, int_1->object, co->object});
 
         return co;
     }
@@ -1186,36 +1265,37 @@ private:
      * @return: void
      * Create a opcode and push it to main state(fObj->state)
      */
-    static void LoadOpcode(antlr4::ParserRuleContext *ctx,
-        rt_opcode op,
-        std::initializer_list<dpp::mapid> l = {}) {
-        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
+    static void LoadOpcode(antlr4::ParserRuleContext *ctx, rt_opcode op,
+                           std::initializer_list<dpp::mapid> l = {}) {
+        fObj->state.vmopcodes.PushEnd(
+            MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
     }
 
-    static void LoadOpcode(antlr4::ParserRuleContext *ctx,
-        rt_opcode op,
-        Heap<dpp::mapid> &params) {
-        fObj->state.vmopcodes.PushEnd(MakeOpCode(op, params, GET_LINE(ctx), GET_POS(ctx)));
+    static void LoadOpcode(antlr4::ParserRuleContext *ctx, rt_opcode op,
+                           Heap<dpp::mapid> &params) {
+        fObj->state.vmopcodes.PushEnd(
+            MakeOpCode(op, params, GET_LINE(ctx), GET_POS(ctx)));
     }
 
     /*
      * @return: void
      * Reset the opcode in the state
      */
-    static void ResetOpcode(antlr4::ParserRuleContext *ctx,
-        uint32_t pos,
-        rt_opcode op,
-        std::initializer_list<dpp::mapid> l = {}) {
-        fObj->state.vmopcodes.ResetData(pos, MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
+    static void ResetOpcode(antlr4::ParserRuleContext *ctx, uint32_t pos,
+                            rt_opcode op,
+                            std::initializer_list<dpp::mapid> l = {}) {
+        fObj->state.vmopcodes.ResetData(
+            pos, MakeOpCode(op, l, GET_LINE(ctx), GET_POS(ctx)));
     }
 
     /*
      * @return: Dpp_CObject *
-     * Make a 'Compile-time dpp::mapid'(See at doc/compiler/compile-time-object.md)
-     * And Push the constant to the object pool
+     * Make a 'Compile-time dpp::mapid'(See at
+     * doc/compiler/compile-time-object.md) And Push the constant to the object
+     * pool
      */
-    Dpp_CObject *MakeConst(dpp::mapid o, Dpp_Object *obj,
-                            bool isCheck = true, bool noWrite = false) {
+    Dpp_CObject *MakeConst(dpp::mapid o, Dpp_Object *obj, bool isCheck = true,
+                           bool noWrite = false) {
         Dpp_CObject *_co = new Dpp_CObject;
         _co->object = o;
         _co->id = obj->name;
@@ -1226,10 +1306,10 @@ private:
         }
 
         Dpp_CObject *result = FindObject(_co);
-        if(result != nullptr) {
+        if (result != nullptr) {
             delete _co;
             _co = nullptr;
-            idIt.DecGlobalIterator(); // Restore
+            idIt.DecGlobalIterator();  // Restore
             return result;
         }
 
@@ -1261,9 +1341,9 @@ private:
         return co;
     }
 
-    Dpp_CObject* MakeFloating(FloatNum data) {
+    Dpp_CObject *MakeFloating(FloatNum data) {
         dpp::mapid o = allocMapping(true);
-        Dpp_Object* obj = dpp::make_float(data);
+        Dpp_Object *obj = dpp::make_float(data);
         obj->name = std::to_string(data);
         obj->type = create_ptr(Dpp_FloatType);
         Dpp_CObject *co = MakeConst(o, obj);
@@ -1273,17 +1353,15 @@ private:
 
     /*
      * @return: Dpp_CObject *
-     * Make a 'Compile-time dpp::mapid'(See at doc/compiler/compile-time-object.md) of FunctionObject
-     * And Push the function object to the object pool
+     * Make a 'Compile-time dpp::mapid'(See at
+     * doc/compiler/compile-time-object.md) of FunctionObject And Push the
+     * function object to the object pool
      */
-    Dpp_CObject *MakeFunction(DXXParser::FunctionContext *ctx,
-            Dpp_Object *func,
-            const struct INFOS &infos,
-            Heap<Dpp_CObject *> *params,
-            Heap<Dpp_CObject *> *autovalues,
-            Dpp_CObject *ret,
-            Throwtable *throws,
-            bool isNone) {
+    Dpp_CObject *MakeFunction(DXXParser::FunctionContext *ctx, Dpp_Object *func,
+                              const struct INFOS &infos,
+                              Heap<Dpp_CObject *> *params,
+                              Heap<Dpp_CObject *> *autovalues, Dpp_CObject *ret,
+                              Throwtable *throws, bool isNone) {
         dpp::mapid o = allocMapping(true);
         Dpp_CObject *co = MakeConst(o, func, false, true);
         co->id = func->name;
@@ -1308,12 +1386,11 @@ private:
 
         try {
             result = FindObject(co);
-        }
-        catch (RetTypeNeqError &) {
+        } catch (RetTypeNeqError &) {
             REPORT(E0002, result->id);
         }
 
-        if(result != nullptr) {
+        if (result != nullptr) {
             if (!result->isNone || co->isNone) {
                 REPORT(E0002, result->id);
             }
@@ -1337,11 +1414,11 @@ private:
 
     /*
      * @return: Dpp_CObject *
-     * Make a 'Compile-time dpp::mapid'(See at doc/compiler/compile-time-object.md) of label
-     * And Push the string constant to the object pool
+     * Make a 'Compile-time dpp::mapid'(See at
+     * doc/compiler/compile-time-object.md) of label And Push the string
+     * constant to the object pool
      */
-    Dpp_CObject *MakeLabel(const std::string &_label,
-            uint32_t pos) {
+    Dpp_CObject *MakeLabel(const std::string &_label, uint32_t pos) {
         uint32_t *_pos = new uint32_t;
         *_pos = pos;
         Dpp_CObject *co = MakeInteger(pos);
@@ -1366,15 +1443,18 @@ private:
      * @return: Dpp_CObject *
      * Make a normal object
      */
-    Dpp_CObject *MakeObject(const std::string &id, bool noWrite = false, bool noMapping = false, bool alwaysConst = false) {
+    Dpp_CObject *MakeObject(const std::string &id, bool noWrite = false,
+                            bool noMapping = false, bool alwaysConst = false) {
         Dpp_CObject *co = new Dpp_CObject;
         co->id = id;
         if (!noMapping) {
             co->object = allocMapping();
         }
-        if(!noWrite) {
-            if (alwaysConst) globalNamespace->objects.write(co);
-            else thisNamespace->objects.write(co);
+        if (!noWrite) {
+            if (alwaysConst)
+                globalNamespace->objects.write(co);
+            else
+                thisNamespace->objects.write(co);
         }
 
         return co;
@@ -1384,8 +1464,7 @@ private:
      * @return: Dpp_CObject *
      * link the source object and a object
      */
-    Dpp_CObject *LinkObject(const std::string &id,
-                            Dpp_CObject *src,
+    Dpp_CObject *LinkObject(const std::string &id, Dpp_CObject *src,
                             bool alwaysConst = false) {
         Dpp_CObject *co = MakeObject(id, false, true, alwaysConst);
         co->object = src->object;
@@ -1397,8 +1476,7 @@ private:
      * @return: Dpp_CObject *
      * link the source object and a object
      */
-    Dpp_CObject *LinkConst(const std::string &id,
-                            Dpp_CObject *src) {
+    Dpp_CObject *LinkConst(const std::string &id, Dpp_CObject *src) {
         Dpp_CObject *co = MakeObject(id, false, true);
         co->object = src->object;
 
@@ -1410,7 +1488,7 @@ private:
      * Get a run-time object(constant) from compile-time object
      */
     static Dpp_Object *GetConstFromCObject(Dpp_CObject *co) {
-        if(!co->object.is_global()) return nullptr;
+        if (!co->object.is_global()) return nullptr;
 
         return fObj->obj_map.get(co->object);
     }
@@ -1436,7 +1514,7 @@ private:
     Dpp_CObject *FindObject(const std::string &id, bool onlyGlobal = false) {
         Dpp_CObject *co = FindObject(globalNamespace, id);
 
-        if(onlyGlobal || co != nullptr) {
+        if (onlyGlobal || co != nullptr) {
             return co;
         }
 
@@ -1444,18 +1522,17 @@ private:
     }
 
     static Dpp_CObject *FindObject(Namespace *ns, const std::string &id) {
+        for (auto it : ns->objects) {
+            if (it == nullptr) continue;
 
-        for(auto it: ns->objects) {
-            if(it == nullptr) continue;
-
-            if(it->id == id) {
+            if (it->id == id) {
                 return it;
             }
         }
 
-        for(auto it: ns->parents) {
-            for(auto it: ns->objects) {
-                if(it->id == id) {
+        for (auto it : ns->parents) {
+            for (auto it : ns->objects) {
+                if (it->id == id) {
                     return it;
                 }
             }
@@ -1471,7 +1548,7 @@ private:
     Dpp_CObject *FindObject(Dpp_CObject *_co, bool onlyGlobal = false) {
         Dpp_CObject *co = FindObject(globalNamespace, _co);
 
-        if(onlyGlobal || co != nullptr) {
+        if (onlyGlobal || co != nullptr) {
             return co;
         }
 
@@ -1479,20 +1556,19 @@ private:
     }
 
     static Dpp_CObject *FindObject(Namespace *ns, Dpp_CObject *co) {
-
-        for(auto it: ns->objects) {
+        for (auto it : ns->objects) {
             if (it == nullptr) continue;
 
-            if(*it == co) {
+            if (*it == co) {
                 return it;
             }
         }
 
-        for(auto it: ns->parents) {
-            for(auto _it: ns->objects) {
-                if(_it == nullptr) continue;
+        for (auto it : ns->parents) {
+            for (auto _it : ns->objects) {
+                if (_it == nullptr) continue;
 
-                if(*_it == co) {
+                if (*_it == co) {
                     return _it;
                 }
             }
@@ -1501,19 +1577,24 @@ private:
         return nullptr;
     }
 
-	static struct INFOS GetInfos(std::vector<DXXParser::InfoContext *> *_infos) {
-		struct INFOS infos;
+    static struct INFOS GetInfos(
+        std::vector<DXXParser::InfoContext *> *_infos) {
+        struct INFOS infos;
 
         for (auto it : *_infos) {
             for (auto info : it->children) {
                 if (info != nullptr) {
-                    std::string info_str = info->toString(), native_lib, native_func;
-                    if(info->children.size() > 1) {
-                        DXXParser::NativeContext *native_ctx = _cast(DXXParser::NativeContext *, info);
+                    std::string info_str = info->toString(), native_lib,
+                                native_func;
+                    if (info->children.size() > 1) {
+                        DXXParser::NativeContext *native_ctx =
+                            _cast(DXXParser::NativeContext *, info);
                         info_str = native_ctx->Native()->toString();
 
-                        native_lib = SpiltQuote(native_ctx->StringData(0)->toString());
-                        native_func = SpiltQuote(native_ctx->StringData(1)->toString());
+                        native_lib =
+                            SpiltQuote(native_ctx->StringData(0)->toString());
+                        native_func =
+                            SpiltQuote(native_ctx->StringData(1)->toString());
                     }
                     infos |= GetInfoFromID(info_str, native_lib, native_func);
                 }
@@ -1521,42 +1602,44 @@ private:
         }
 
         return infos;
-	}
+    }
 
     static struct INFOS GetInfoFromID(const std::string &id,
                                       const std::string &native_lib,
                                       const std::string &native_func) {
         struct INFOS infos;
 
-        if(id == "compiletime") {
+        if (id == "compiletime") {
             infos.is_compiletime = true;
-        } else if(id == "inline") {
+        } else if (id == "inline") {
             infos.is_inline = true;
-        } else if(id == "static") {
+        } else if (id == "static") {
             infos.is_static = true;
-        } else if(id == "final") {
+        } else if (id == "final") {
             infos.is_final = true;
-        } else if(id == "native") {
+        } else if (id == "native") {
             infos.native_function = native_func;
             infos.native_library = native_lib;
-        } else if(id == "constructor") {
+        } else if (id == "constructor") {
             infos.is_constructor = true;
-        } else if(id == "destructor") {
+        } else if (id == "destructor") {
             infos.is_destructor = true;
-        } else if(id == "override") {
+        } else if (id == "override") {
             infos.is_override = true;
-        } else if(id == "private") {
+        } else if (id == "private") {
             infos.is_private = true;
-        } else if(id == "protected") {
+        } else if (id == "protected") {
             infos.is_protected = true;
-        } else if(id == "public") {
+        } else if (id == "public") {
             infos.is_public = true;
         }
 
         return infos;
     }
 
-    static std::string subreplace(const std::string &resource_str, const std::string &sub_str, const std::string &new_str) {
+    static std::string subreplace(const std::string &resource_str,
+                                  const std::string &sub_str,
+                                  const std::string &new_str) {
         std::string dst_str = resource_str;
         std::string::size_type pos = 0;
         while ((pos = dst_str.find(sub_str)) != std::string::npos) {
@@ -1578,6 +1661,7 @@ private:
 
         return tmp;
     }
+
 private:
     std::string file;
     antlr4::ParserRuleContext *main_context = nullptr;
@@ -1591,8 +1675,8 @@ private:
      */
     IDIterator idIt;
 
-    uint32_t block_end; // for jump statements
-    uint32_t loop_end; // for break and continue
+    uint32_t block_end;  // for jump statements
+    uint32_t loop_end;   // for break and continue
     bool in_loop = false;
     Heap<uint32_t> breaks;
     Heap<uint32_t> continues;
@@ -1612,13 +1696,12 @@ private:
     std::ostringstream opts;
 
     /// Configures
-    bool is_output = true; // is output errors and verboses
+    bool is_output = true;  // is output errors and verboses
 };
 #include "export.h"
 
 forceinline dpp::vm _compile(antlr4::ANTLRInputStream &input,
-    const std::string &file,
-    bool is_output = false) {
+                             const std::string &file, bool is_output = false) {
     DXXLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     DXXParser parser(&tokens);
@@ -1637,12 +1720,14 @@ DXX_API dpp::vm compile(const std::string &code, bool is_output) {
     return _compile(input, "<stdin>", is_output);
 }
 
-DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file, bool is_output) {
+DXX_API dpp::vm compile(std::ifstream &ifs, const std::string &file,
+                        bool is_output) {
     antlr4::ANTLRInputStream input(ifs);
     return _compile(input, file, is_output);
 }
 
-DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file, bool is_output) {
+DXX_API dpp::vm compile(std::fstream &ifs, const std::string &file,
+                        bool is_output) {
     antlr4::ANTLRInputStream input(dynamic_cast<std::ifstream &>(ifs));
     return _compile(input, file, is_output);
 }

@@ -1,7 +1,8 @@
 #ifndef _DPP_PATHS_HPP
 #define _DPP_PATHS_HPP
-#include "macros.hpp"
 #include <filesystem>
+
+#include "macros.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -30,23 +31,23 @@ inline std::filesystem::path get_logdir() {
     const char *home = std::getenv("HOME");
     if (home) {
 #ifdef __APPLE__
-      path = std::filesystem::path(home) / "/Library" / "Logs" / "dpp";
+        path = std::filesystem::path(home) / "/Library" / "Logs" / "dpp";
 #else
-      path = std::filesystem::path(home) / ".local" / "share" / "dpp" / "logs";
+        path =
+            std::filesystem::path(home) / ".local" / "share" / "dpp" / "logs";
 #endif
     } else {
         path = "/var/log/dpp";
     }
 #endif
 
+    try {
+        std::filesystem::create_directories(path);
 
-  try {
-    std::filesystem::create_directories(path);
-
-    return path;
-  } catch (const std::exception &e) {
-    return {};
-  }
+        return path;
+    } catch (const std::exception &e) {
+        return {};
+    }
 }
 
 /**
@@ -58,47 +59,43 @@ inline std::filesystem::path get_logdir() {
  * @return std::filesystem::path the executable directory
  */
 inline std::filesystem::path get_exepath() {
-  std::filesystem::path exe_path;
+    std::filesystem::path exe_path;
 
 #ifdef _WIN32
-  char buffer[MAX_PATH];
-  DWORD length = GetModuleFileNameA(nullptr, buffer, MAX_PATH);
-  if (length == 0)
-    return {};
-  exe_path = buffer;
+    char buffer[MAX_PATH];
+    DWORD length = GetModuleFileNameA(nullptr, buffer, MAX_PATH);
+    if (length == 0) return {};
+    exe_path = buffer;
 
 #elif defined(__APPLE__)
-  char buffer[PATH_MAX];
-  uint32_t size = PATH_MAX;
-  if (_NSGetExecutablePath(buffer, &size) != 0) {
-    buffer[size] = '\0';
-  }
-  char real_path[PATH_MAX];
-  if (realpath(buffer, real_path) == nullptr)
-    return {};
-  exe_path = real_path;
+    char buffer[PATH_MAX];
+    uint32_t size = PATH_MAX;
+    if (_NSGetExecutablePath(buffer, &size) != 0) {
+        buffer[size] = '\0';
+    }
+    char real_path[PATH_MAX];
+    if (realpath(buffer, real_path) == nullptr) return {};
+    exe_path = real_path;
 
 #else
-  char buffer[PATH_MAX];
-  ssize_t length = readlink("/proc/self/exe", buffer, PATH_MAX);
-  if (length == -1)
-    return {};
-  buffer[length] = '\0';
-  exe_path = buffer;
+    char buffer[PATH_MAX];
+    ssize_t length = readlink("/proc/self/exe", buffer, PATH_MAX);
+    if (length == -1) return {};
+    buffer[length] = '\0';
+    exe_path = buffer;
 #endif
 
-  if (exe_path.empty())
-    return {};
-  return exe_path;
+    if (exe_path.empty()) return {};
+    return exe_path;
 }
 
 /**
  * @brief get the install directory
  */
 inline std::filesystem::path get_installdir() {
-  return get_exepath().parent_path().parent_path();
+    return get_exepath().parent_path().parent_path();
 }
 
 NAMESPACE_DPP_END
 
-#endif // !_DPP_PATHS_HPP
+#endif  // !_DPP_PATHS_HPP

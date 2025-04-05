@@ -22,9 +22,11 @@
   SOFTWARE.
  */
 
+#include "opcodes.hpp"
+
 #include <cstdint>
 #include <stdexcept>
-#include "opcodes.hpp"
+
 #include "builtin.hpp"
 #include "macros.hpp"
 #include "native.hpp"
@@ -32,28 +34,33 @@
 #include "struct.hpp"
 
 void _add(dpp::vm vm) {
-
     dpp::mapid _lval = vm->_theap->PopFront();
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for +: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-    dpp::object *_c = nullptr;
-	try {
-        _c = *lobj + robj;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for +: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for +: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lobj + robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for +: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _sub(dpp::vm vm) {
@@ -61,50 +68,62 @@ void _sub(dpp::vm vm) {
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for -: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-	try {
-        _c = *lobj - robj;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for -: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for -: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lobj - robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for -: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _mul(dpp::vm vm) {
 #ifdef __TEST
-	std::cout << "add" << std::endl;
+    std::cout << "add" << std::endl;
 #endif
     dpp::mapid _lval = vm->_theap->PopFront();
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for *: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-	try {
-        _c = *lobj * robj;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for *: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for *: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lobj * robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for *: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _div(dpp::vm vm) {
@@ -112,27 +131,32 @@ void _div(dpp::vm vm) {
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for /: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
 
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for /: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-	try {
+    dpp::object *_c = nullptr;
+    try {
         _c = *lobj / robj;
     } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for /: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for /: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     } catch (DivideZeroError &) {
         dpp::set_error(vm, Dpp_DivideZeroError, Dpp_TEXT("division by zero"));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    vm->obj_map.write(to, _c, true);
 }
 
 void _mod(dpp::vm vm) {
@@ -140,44 +164,51 @@ void _mod(dpp::vm vm) {
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for %: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
 
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for %: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-	try {
+    dpp::object *_c = nullptr;
+    try {
         _c = *lobj % robj;
     } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for %: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for %: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     } catch (DivideZeroError &) {
         dpp::set_error(vm, Dpp_DivideZeroError, Dpp_TEXT("division by zero"));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    vm->obj_map.write(to, _c, true);
 }
 
 void _bneg(dpp::vm vm) {
     dpp::mapid _obj = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *obj = vm->obj_map.get(_obj);
+    dpp::object *obj = vm->obj_map.get(_obj);
 
     dpp::object *_c = nullptr;
     try {
         _c = ~(*obj);
     } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for ~: ") + dpp::get_typeid(obj));
+        dpp::set_error(
+            vm, Dpp_DataCantOperatorError,
+            Dpp_TEXT("unsopprted operation(s) for ~: ") + dpp::get_typeid(obj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    vm->obj_map.write(to, _c, true);
 }
 
 void _band(dpp::vm vm) {
@@ -185,23 +216,29 @@ void _band(dpp::vm vm) {
     dpp::mapid _rnum = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lnum = vm->obj_map.get(_lnum);
-	dpp::object *rnum = vm->obj_map.get(_rnum);
+    dpp::object *lnum = vm->obj_map.get(_lnum);
+    dpp::object *rnum = vm->obj_map.get(_rnum);
 
-	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for &: ") + dpp::get_typeid(lnum) + Dpp_TEXT(", ") + dpp::get_typeid(rnum));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-    try {
-        _c = *lnum & rnum;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for &: ") + dpp::get_typeid(lnum) + Dpp_TEXT(", ") + dpp::get_typeid(rnum));
+    if (lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for &: ") +
+                           dpp::get_typeid(lnum) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(rnum));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lnum & rnum;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for &: ") +
+                           dpp::get_typeid(lnum) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(rnum));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _bor(dpp::vm vm) {
@@ -209,23 +246,29 @@ void _bor(dpp::vm vm) {
     dpp::mapid _rnum = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lnum = vm->obj_map.get(_lnum);
-	dpp::object *rnum = vm->obj_map.get(_rnum);
+    dpp::object *lnum = vm->obj_map.get(_lnum);
+    dpp::object *rnum = vm->obj_map.get(_rnum);
 
-	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for |: ") + dpp::get_typeid(lnum) + Dpp_TEXT(", ") + dpp::get_typeid(rnum));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-    try {
-        _c = *lnum | rnum;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for |: ") + dpp::get_typeid(lnum) + Dpp_TEXT(", ") + dpp::get_typeid(rnum));
+    if (lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for |: ") +
+                           dpp::get_typeid(lnum) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(rnum));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lnum | rnum;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for |: ") +
+                           dpp::get_typeid(lnum) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(rnum));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _bxor(dpp::vm vm) {
@@ -233,23 +276,29 @@ void _bxor(dpp::vm vm) {
     dpp::mapid _rnum = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lnum = vm->obj_map.get(_lnum);
-	dpp::object *rnum = vm->obj_map.get(_rnum);
+    dpp::object *lnum = vm->obj_map.get(_lnum);
+    dpp::object *rnum = vm->obj_map.get(_rnum);
 
-	if(lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for ^: ") + dpp::get_typeid(lnum) + Dpp_TEXT(", ") + dpp::get_typeid(rnum));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-    try {
-        _c = *lnum ^ rnum;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for ^: ") + dpp::get_typeid(lnum) + Dpp_TEXT(", ") + dpp::get_typeid(rnum));
+    if (lnum == Dpp_NullObject || rnum == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for ^: ") +
+                           dpp::get_typeid(lnum) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(rnum));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lnum ^ rnum;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for ^: ") +
+                           dpp::get_typeid(lnum) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(rnum));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _shl(dpp::vm vm) {
@@ -257,23 +306,29 @@ void _shl(dpp::vm vm) {
     dpp::mapid _shl_count = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *num = vm->obj_map.get(_num);
-	dpp::object *shl_count = vm->obj_map.get(_shl_count);
+    dpp::object *num = vm->obj_map.get(_num);
+    dpp::object *shl_count = vm->obj_map.get(_shl_count);
 
-	if(num == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for <<: ") + dpp::get_typeid(num) + Dpp_TEXT(", ") + dpp::get_typeid(shl_count));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-    try {
-        _c = *num << shl_count;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for <<: ") + dpp::get_typeid(num) + Dpp_TEXT(", ") + dpp::get_typeid(shl_count));
+    if (num == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for <<: ") +
+                           dpp::get_typeid(num) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(shl_count));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *num << shl_count;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for <<: ") +
+                           dpp::get_typeid(num) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(shl_count));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _shr(dpp::vm vm) {
@@ -281,39 +336,47 @@ void _shr(dpp::vm vm) {
     dpp::mapid _shr_count = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *num = vm->obj_map.get(_num);
-	dpp::object *shr_count = vm->obj_map.get(_shr_count);
+    dpp::object *num = vm->obj_map.get(_num);
+    dpp::object *shr_count = vm->obj_map.get(_shr_count);
 
-	if(num == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for >>: ") + dpp::get_typeid(num) + Dpp_TEXT(", ") + dpp::get_typeid(shr_count));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-    try {
-        _c = *num >> shr_count;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for >>: ") + dpp::get_typeid(num) + Dpp_TEXT(", ") + dpp::get_typeid(shr_count));
+    if (num == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for >>: ") +
+                           dpp::get_typeid(num) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(shr_count));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *num >> shr_count;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for >>: ") +
+                           dpp::get_typeid(num) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(shr_count));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _not(dpp::vm vm) {
     dpp::mapid _obj = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *obj = vm->obj_map.get(_obj);
-	dpp::object *_c = nullptr;
+    dpp::object *obj = vm->obj_map.get(_obj);
+    dpp::object *_c = nullptr;
     try {
         _c = !(*obj);
     } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for !: ") + dpp::get_typeid(obj));
+        dpp::set_error(
+            vm, Dpp_DataCantOperatorError,
+            Dpp_TEXT("unsopprted operation(s) for !: ") + dpp::get_typeid(obj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    vm->obj_map.write(to, _c, true);
 }
 
 void _eq(dpp::vm vm) {
@@ -321,24 +384,29 @@ void _eq(dpp::vm vm) {
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
-
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for ==: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-    try {
-        _c = *lobj == robj;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for ==: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for ==: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lobj == robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for ==: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _bigger(dpp::vm vm) {
@@ -346,24 +414,29 @@ void _bigger(dpp::vm vm) {
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
-
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for >: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-	try {
-        _c = *lobj > robj;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for >: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for >: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lobj > robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for >: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _smaller(dpp::vm vm) {
@@ -371,24 +444,29 @@ void _smaller(dpp::vm vm) {
     dpp::mapid _rval = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lval);
-	dpp::object *robj = vm->obj_map.get(_rval);
+    dpp::object *lobj = vm->obj_map.get(_lval);
+    dpp::object *robj = vm->obj_map.get(_rval);
 
-
-	if(lobj == Dpp_NullObject || robj == Dpp_NullObject) {
-		dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("unsopprted operation(s) for <: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
-		return;
-	}
-
-	dpp::object *_c = nullptr;
-	try {
-        _c = *lobj < robj;
-    } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("unsopprted operation(s) for <: ") + dpp::get_typeid(lobj) + Dpp_TEXT(", ") + dpp::get_typeid(robj));
+    if (lobj == Dpp_NullObject || robj == Dpp_NullObject) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("unsopprted operation(s) for <: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
         return;
     }
 
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = nullptr;
+    try {
+        _c = *lobj < robj;
+    } catch (NoOperatorError &) {
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("unsopprted operation(s) for <: ") +
+                           dpp::get_typeid(lobj) + Dpp_TEXT(", ") +
+                           dpp::get_typeid(robj));
+        return;
+    }
+
+    vm->obj_map.write(to, _c, true);
 }
 
 void _and(dpp::vm vm) {
@@ -396,11 +474,11 @@ void _and(dpp::vm vm) {
     dpp::mapid _robj = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lobj);
-	dpp::object *robj = vm->obj_map.get(_robj);
+    dpp::object *lobj = vm->obj_map.get(_lobj);
+    dpp::object *robj = vm->obj_map.get(_robj);
 
-	dpp::object *_c = dpp::make_int(dpp::is_true(lobj) && dpp::is_true(robj));
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = dpp::make_int(dpp::is_true(lobj) && dpp::is_true(robj));
+    vm->obj_map.write(to, _c, true);
 }
 
 void _or(dpp::vm vm) {
@@ -408,11 +486,11 @@ void _or(dpp::vm vm) {
     dpp::mapid _robj = vm->_theap->PopFront();
     dpp::mapid to = vm->_theap->PopFront();
 
-	dpp::object *lobj = vm->obj_map.get(_lobj);
-	dpp::object *robj = vm->obj_map.get(_robj);
+    dpp::object *lobj = vm->obj_map.get(_lobj);
+    dpp::object *robj = vm->obj_map.get(_robj);
 
-	dpp::object *_c = dpp::make_int(dpp::is_true(lobj) || dpp::is_true(robj));
-	vm->obj_map.write(to, _c, true);
+    dpp::object *_c = dpp::make_int(dpp::is_true(lobj) || dpp::is_true(robj));
+    vm->obj_map.write(to, _c, true);
 }
 
 // jmp when false
@@ -424,7 +502,8 @@ void _jnt(dpp::vm vm) {
             vm->state.runat = static_cast<uint32_t>(_jmpto.data());
         }
     } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("invaild bool object"));
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("invaild bool object"));
     }
 }
 
@@ -436,7 +515,8 @@ void _jnf(dpp::vm vm) {
             vm->state.runat = static_cast<uint32_t>(_jmpto.data());
         }
     } catch (NoOperatorError &) {
-        dpp::set_error(vm, Dpp_DataCantOperatorError, Dpp_TEXT("invaild bool object"));
+        dpp::set_error(vm, Dpp_DataCantOperatorError,
+                       Dpp_TEXT("invaild bool object"));
     }
 }
 
@@ -457,11 +537,16 @@ void _call(dpp::vm vm) {
 
         try {
             if (it != vm->libraries.end()) {
-                func->function->native_func = (*it).second.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
+                func->function->native_func =
+                    (*it).second.get_function<dpp::object *(dpp::vm)>(
+                        func->function->func_id);
             } else {
-                std::filesystem::path lib_pth = vm->module_searcher.search(dylib::decoration(func->function->lib));
+                std::filesystem::path lib_pth = vm->module_searcher.search(
+                    dylib::decoration(func->function->lib));
                 dylib lib(lib_pth);
-                func->function->native_func = lib.get_function<dpp::object *(dpp::vm)>(func->function->func_id);
+                func->function->native_func =
+                    lib.get_function<dpp::object *(dpp::vm)>(
+                        func->function->func_id);
                 vm->libraries.insert(std::make_pair(func->function->lib, lib));
             }
         } catch (dylib::exception &e) {
@@ -487,7 +572,8 @@ void _call(dpp::vm vm) {
     int32_t i = 0;
     while (!vm->_theap->isEmpty()) {
         const auto &param = vm->_theap->PopFront();
-        vm->obj_map.write({ false, i }, vm->obj_map.get(param, func_mapping_id - 1));
+        vm->obj_map.write({false, i},
+                          vm->obj_map.get(param, func_mapping_id - 1));
     }
     vm->callstack.push(vm->state);
     vm->state = func->state;
@@ -497,10 +583,11 @@ void _call(dpp::vm vm) {
 
 void _ret(dpp::vm vm) {
     if (!vm->_theap->isEmpty()) {
-        vm->return_values.push(vm->obj_map.get(vm->_theap->PopFront())->move(nullptr));
+        vm->return_values.push(
+            vm->obj_map.get(vm->_theap->PopFront())->move(nullptr));
     }
 
-	vm->state = vm->callstack.top();
+    vm->state = vm->callstack.top();
     vm->callstack.pop();
     vm->obj_map.pop_mapping();
 }
@@ -515,9 +602,7 @@ void _getret(dpp::vm vm) {
     vm->return_values.pop();
 }
 
-void _import(dpp::vm vm) {
-
-}
+void _import(dpp::vm vm) {}
 
 void _new(dpp::vm vm) {
     dpp::mapid _type = vm->_theap->PopFront();
@@ -525,15 +610,16 @@ void _new(dpp::vm vm) {
 
     dpp::object *type = vm->obj_map.get(_type);
 
-	dpp::object *obj = nullptr;
-	try {
-		obj = type->new_object();
-	} catch(std::bad_alloc &) {
-        dpp::set_error(vm, Dpp_NoMemoryError, Dpp_TEXT("no memory to create a new object"));
-		return;
-	}
+    dpp::object *obj = nullptr;
+    try {
+        obj = type->new_object();
+    } catch (std::bad_alloc &) {
+        dpp::set_error(vm, Dpp_NoMemoryError,
+                       Dpp_TEXT("no memory to create a new object"));
+        return;
+    }
 
-	vm->obj_map.write(_to, obj, true);
+    vm->obj_map.write(_to, obj, true);
 }
 
 void _del(dpp::vm vm) {
@@ -542,26 +628,29 @@ void _del(dpp::vm vm) {
     dpp::object *obj = vm->obj_map.get(_obj);
 
     // TODO: bug in it
-    //dpp::_delete_object(obj);
+    // dpp::_delete_object(obj);
 }
 
 void _mov(dpp::vm vm) {
     dpp::mapid _src = vm->_theap->PopFront();
     dpp::mapid _to = vm->_theap->PopFront();
 
-	dpp::object *src = vm->obj_map.get(_src);
-	dpp::object *to = vm->obj_map.get(_to);
+    dpp::object *src = vm->obj_map.get(_src);
+    dpp::object *to = vm->obj_map.get(_to);
 
-    if(src == nullptr || to == nullptr) {
-        dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("cannot move a null object or move to"));
+    if (src == nullptr || to == nullptr) {
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("cannot move a null object or move to"));
         return;
     }
 
-	dpp::object *status = src->move(to);
-	if(status == nullptr) {
-		// failed
-        dpp::set_error(vm, Dpp_TypeNotRightError, Dpp_TEXT("cannot move from ") + dpp::get_typeid(src) + " type to " + dpp::get_typeid(to) + " type");
-	}
+    dpp::object *status = src->move(to);
+    if (status == nullptr) {
+        // failed
+        dpp::set_error(vm, Dpp_TypeNotRightError,
+                       Dpp_TEXT("cannot move from ") + dpp::get_typeid(src) +
+                           " type to " + dpp::get_typeid(to) + " type");
+    }
 
     vm->obj_map.write(_to, status, true);
 }
@@ -574,7 +663,8 @@ void _method(dpp::vm vm) {
     dpp::object *container = vm->obj_map.get(_container);
 
     if (container == Dpp_NullObject) {
-        dpp::set_error(vm, Dpp_NullPointerError, Dpp_TEXT("cannot call method on null object"));
+        dpp::set_error(vm, Dpp_NullPointerError,
+                       Dpp_TEXT("cannot call method on null object"));
         return;
     }
 
@@ -598,7 +688,9 @@ void _method(dpp::vm vm) {
         }
 
         if (found_method == nullptr) {
-            dpp::set_error(vm, Dpp_NoMethodError, Dpp_TEXT("method '") + method_name + Dpp_TEXT("' not found"));
+            dpp::set_error(
+                vm, Dpp_NoMethodError,
+                Dpp_TEXT("method '") + method_name + Dpp_TEXT("' not found"));
             return;
         }
 
