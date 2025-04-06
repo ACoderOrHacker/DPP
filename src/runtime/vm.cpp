@@ -110,15 +110,7 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
         }
 
         if (vm->state.vmopcodes.size() == vm->state.runat &&
-            !vm->callstack.empty()) {
-            vm->state = vm->callstack.top();
-            vm->callstack.pop();
-            vm->obj_map.pop_mapping();
-            vm->return_values.push(nullptr);
-
-            ++vm->state.runat;
-            continue;
-        }
+            !vm->callstack.empty()) { exit_frame(vm, nullptr); }
 
         ++vm->state.runat;
     }

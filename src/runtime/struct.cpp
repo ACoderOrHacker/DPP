@@ -22,11 +22,10 @@
   SOFTWARE.
  */
 
-#include "struct.hpp"
-
 #include <iostream>
 
 #include "objects.hpp"
+#include "struct.hpp"
 
 // Runtime Variables
 dpp::mapid null;
@@ -62,3 +61,10 @@ Dpp_Object *Dpp_Object::operator|(Dpp_Object *obj) { return bor(this, obj); }
 Dpp_Object *Dpp_Object::operator^(Dpp_Object *obj) { return bxor(this, obj); }
 
 Dpp_Object *Dpp_Object::operator~() { return bneg(this); }
+
+void exit_frame(Fobject *vm, Dpp_Object *val) {
+    vm->state = vm->callstack.top();
+    vm->callstack.pop();
+    vm->obj_map.pop_mapping();
+    vm->return_values.push(val);
+}

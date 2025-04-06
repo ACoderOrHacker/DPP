@@ -380,6 +380,15 @@ public:
 Dpp_SERIALIZE(Dpp_NVP(obj_map),  Dpp_NVP(state))
 } FObject;
 
+/**
+ * @brief Pop the current object mapping and the state.
+ * Returns a value to FObject::return_values.
+ *
+ * @param vm the virtual machine
+ * @param val the return value
+ */
+void exit_frame(FObject *vm, Dpp_Object *val);
+
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);
 
 // apis
