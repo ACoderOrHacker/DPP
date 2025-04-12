@@ -585,7 +585,7 @@ void _ret(dpp::vm vm) {
     exit_frame(
         vm,
         vm->_theap->isEmpty() ? nullptr : 
-            vm->obj_map.get(vm->_theap->PopFront()->move(nullptr))
+            vm->obj_map.get(vm->_theap->PopFront())->move(nullptr)
     );
 }
 

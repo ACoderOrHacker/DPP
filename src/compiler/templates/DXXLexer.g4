@@ -244,9 +244,11 @@ Whitespace: [ \t]+ -> skip;
 
 Newline: ('\r' '\n'? | '\n') -> skip;
 
-BlockComment: '/*' .*? '*/' -> skip;
+BlockComment: '-*' .*? '*-' -> channel(HIDDEN);
 
-LineComment: ('//' | '#' ) ~ [\r\n]* -> skip;
+LineComment: ('//' | '#' ) ~ [\r\n]* -> channel(HIDDEN);
+
+DocumentComment: '\'\'\'' .*? '\'\'\'' -> channel(HIDDEN);
 
 IntegerData:  [0-9]+;
 

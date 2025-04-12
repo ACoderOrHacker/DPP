@@ -62,7 +62,7 @@ Dpp_Object *Dpp_Object::operator^(Dpp_Object *obj) { return bxor(this, obj); }
 
 Dpp_Object *Dpp_Object::operator~() { return bneg(this); }
 
-void exit_frame(Fobject *vm, Dpp_Object *val) {
+void exit_frame(FObject *vm, Dpp_Object *val) {
     vm->state = vm->callstack.top();
     vm->callstack.pop();
     vm->obj_map.pop_mapping();
