@@ -6,10 +6,9 @@
 #define _HEAP_H
 #include <cstdint>
 #include <deque>
+#include <iterator>
 #include <cereal/types/deque.hpp>
 #include "macros.hpp"
-
-#define to_iterator(list, index) (list.begin() + index)
 
 /*
 * Base Heap
@@ -40,15 +39,15 @@ template<typename T, typename container = std::deque<T>> class Heap {
             Data.push_back(data);
         }
         void ResetData(uint32_t index, T data) {
-            it = to_iterator(Data, index);
+            it = std::next(Data.begin(), index);
             Remove();
 
-            it = to_iterator(Data, index);
+            it = std::next(Data.begin(), index);
             ItSetData(it, data);
             it = Data.begin();
         }
         void SetData(uint32_t index, T data) {
-        	Data.insert(to_iterator(Data, index), data);
+        	Data.insert(std::next(Data.begin(), index), data);
 		}
 		void ItSetData(typename container::iterator index, T data) {
         	Data.insert(index, data);

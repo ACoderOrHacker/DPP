@@ -21,7 +21,7 @@
  *
  * @tparam T the array contains type
  */
-template<typename T> class Array {
+template<typename T, size_t bounding = 1000> class Array {
 public:
     Array() = default;
     ~Array() = default;
@@ -73,8 +73,9 @@ public:
         * @param data the data to write
         */
     void write(uint32_t n, const T &data) {
-        if(array.size() < n) {
-            array.resize(n);
+        size_t size = array.size();
+        if(size < n) {
+            resize(size);
         }
         array.insert(array.begin() + n, data);
     }
@@ -87,8 +88,9 @@ public:
         * @deprecated bool is not used
         */
     void write(uint32_t n, const T &&data, bool) {
-        if(array.size() < n) {
-            array.resize(n);
+        size_t size = array.size();
+        if(size < n) {
+            resize(size);
         }
         array.insert(array.begin() + n, std::move(data));
     }
@@ -99,8 +101,6 @@ public:
         * @param data the data to insert
         */
     void write(const T &data) {
-        array.resize(array.size());
-
         array.insert(array.end(), data);
     }
 
@@ -111,8 +111,9 @@ public:
         * @param data the data to write
         */
     void rewrite(uint32_t n, T data) {
-        if(array.size() <= n) {
-            array.resize(n + 1);
+        size_t size = array.size();
+        if(size <= n) {
+            resize(size);
         }
         array.at(n) = data;
     }
@@ -167,6 +168,14 @@ private:
      *
      */
     std::vector<T> array;
+
+    void resize(size_t nowSize) {
+        if (nowSize <= bounding) {
+            array.resize(nowSize * 2);
+        } else {
+            array.resize((size_t)((double)nowSize * 1.5));
+        }
+    }
 
 Dpp_SERIALIZE(Dpp_NVP(array))
 };
