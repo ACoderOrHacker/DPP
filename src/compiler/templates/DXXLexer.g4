@@ -210,7 +210,8 @@ LeftShift : '<<';
 
 RightShift : '>>';
 
-ID : [a - zA - Z_]([a - zA - Z_] | [0 - 9]) *;
+//ID : [a - zA - Z_]([a - zA - Z_] | [0 - 9]) *;
+ID: [a-zA-Z_]([a-zA-Z_] | [0-9])*;
 
 Constructor : '__constructor__';
 Destructor : '__destructor__';
@@ -219,7 +220,7 @@ fragment NONZERODIGIT : [1 - 9];
 
 fragment OCTALDIGIT : [0 - 7];
 
-fragment HEXADECIMALDIGIT : [0 - 9a - fA - F];
+fragment HEXADECIMALDIGIT : [0-9 a-f A-F];
 
 fragment Simpleescapesequence:
     '\\\''

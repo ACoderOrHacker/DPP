@@ -284,8 +284,7 @@ public:
 	}
 
 	void create_mapping(uint32_t mapping_id) {
-		Array<std::shared_ptr<Dpp_Object>> *mapping = new Array<std::shared_ptr<Dpp_Object>>;
-		mappings.write(mapping_id, *mapping);
+		mappings.push([](Array<std::shared_ptr<Dpp_Object>> &&mapping) { mapping.resize(1); });
 	}
 
     void pop_mapping() {

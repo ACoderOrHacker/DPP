@@ -26,6 +26,10 @@ public:
     Array() = default;
     ~Array() = default;
 
+    explicit Array(const size_t n, const T &fill_data) {
+        array(std::vector<T>(n, fill_data));
+    }
+
     /**
         * @brief Construct a new Array object and fill it with 'fill_data'
         *
@@ -34,6 +38,8 @@ public:
     explicit Array(const T &fill_data) {
         array.fill(fill_data);
     }
+
+    void resize(size_t n) { array.resize(n); }
 
     /**
         * @brief Get the Container object
@@ -75,7 +81,7 @@ public:
     void write(uint32_t n, const T &data) {
         size_t size = array.size();
         if(size < n) {
-            resize(size);
+            resize(size, n);
         }
         array.insert(array.begin() + n, data);
     }
@@ -90,7 +96,7 @@ public:
     void write(uint32_t n, const T &&data, bool) {
         size_t size = array.size();
         if(size < n) {
-            resize(size);
+            resize(size, n);
         }
         array.insert(array.begin() + n, std::move(data));
     }
@@ -113,7 +119,7 @@ public:
     void rewrite(uint32_t n, T data) {
         size_t size = array.size();
         if(size <= n) {
-            resize(size);
+            resize(size, n);
         }
         array.at(n) = data;
     }
@@ -154,6 +160,12 @@ public:
         return array.end();
     }
 
+    auto push(std::function<void(T &&)> initializer = [](T &&) {}) {
+        auto &&data = std::move(T {});
+        initializer(std::move(data));
+        array.push_back(std::move(data));
+    }
+
     /**
         * @brief remove the last element of the array
         *
@@ -169,12 +181,11 @@ private:
      */
     std::vector<T> array;
 
-    void resize(size_t nowSize) {
-        if (nowSize <= bounding) {
-            array.resize(nowSize * 2);
-        } else {
-            array.resize((size_t)((double)nowSize * 1.5));
-        }
+    void resize(size_t nowSize, size_t min_size) {
+        size_t size = nowSize <= bounding ? nowSize * 2 : (size_t)((double)nowSize * 1.5);
+        if (size < min_size) size = min_size * 2;
+
+        array.resize(size);
     }
 
 Dpp_SERIALIZE(Dpp_NVP(array))

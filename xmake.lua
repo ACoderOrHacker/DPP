@@ -18,20 +18,19 @@ add_requires("antlr4-runtime 4.13.2")
 add_requires("antlr4 4.13.2")
 add_requires("cxxopts 3.2.1")
 add_requires("cereal 1.3.2")
-add_requires("jemalloc 5.3.0")
 add_requires("doctest 2.4.11")
 
 -- include directories
-add_includedirs("include", "src")
+add_includedirs("include", "src", "src/runtime/objects")
 
 set_optimize("fastest")
 
 target("vm")
     set_kind("shared")
     add_files("src/runtime/*.cpp")
+    add_files("src/runtime/objects/*.cpp")
 
     add_packages("cereal", {public = true})
-    add_packages("jemalloc", {public = true})
 target_end()
 
 target("compiler")

@@ -36,6 +36,7 @@ enum BUILTIN : uint32_t {
     FUNCTION_TYPE,
     TYPE_TYPE,
     VOID_TYPE,
+    BOOL_TYPE,
     BUILTIN_END // the builtin list end
 };
 
@@ -173,5 +174,11 @@ DXX_API const std::vector<dpp::object *> &get_builtins();
  *
  */
 #define Dpp_VoidType _BUILTINS(VOID_TYPE)
+
+/**
+ * @brief reference to 'bool'
+ * 
+ */
+#define Dpp_BoolType _BUILTINS(BOOL_TYPE)
 
 #endif // !_DXX_BUILTIN_H

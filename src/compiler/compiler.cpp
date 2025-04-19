@@ -1,13 +1,26 @@
 #include "compiler.hpp"
-
 #include <exception>
 #include <fstream>
 #include <memory>
 
+/*
+ * Disable macros
+ */
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include "DXXLexer.h"
 #include "DXXParser.h"
 #include "DXXParserBaseVisitor.h"
-#include "ParserRuleContext.h"
 #include "acdpp.h"
 #include "builtin.hpp"
 #include "compileinfos.h"
@@ -96,7 +109,7 @@ public:
         make_type("void", VOID_TYPE);
         make_type("object", OBJECT_TYPE);
         make_type("type", TYPE_TYPE);
-        make_type("bool", INT_TYPE);
+        make_type("bool", BOOL_TYPE);
 
         this->file = std::filesystem::path(file).filename().string();
         fObj->state.file = this->file;
@@ -558,7 +571,7 @@ public:
         }
 
         uint32_t jmp1 = fObj->state.vmopcodes.size();
-        LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
+        LoadOpcode(ctx, OPCODE_JNF, {placeholder, placeholder});
 
         in_loop = true;
         visitChildren(_block);
@@ -566,7 +579,7 @@ public:
         in_loop = false;
 
         ResetOpcode(
-            ctx, jmp1, OPCODE_JNT,
+            ctx, jmp1, OPCODE_JNF,
             {{true, (int32_t)(fObj->state.vmopcodes.size())}, data->object});
         LoadOpcode(ctx, OPCODE_JMP, {{true, (int32_t)state_end}});
         loop_end = fObj->state.vmopcodes.size() - 1;
@@ -856,7 +869,7 @@ public:
      * return integer data of true or false
      */
     std::any visitBoolean(DXXParser::BooleanContext *ctx) override {
-        return MakeInteger(ctx->True() != nullptr ? 1 : 0);
+        return MakeBool(ctx->True() != nullptr);
     }
 
     /*
@@ -1336,6 +1349,16 @@ private:
         Dpp_Object *obj = dpp::make_int(idata);
         obj->name = std::to_string(idata);
         obj->type = create_ptr(Dpp_IntType);
+        Dpp_CObject *co = MakeConst(o, obj);
+
+        return co;
+    }
+
+    Dpp_CObject *MakeBool(bool data) {
+        dpp::mapid o = allocMapping(true);
+        Dpp_Object *obj = dpp::make_bool(data);
+        obj->name = std::to_string(data);
+        obj->type = create_ptr(Dpp_BoolType);
         Dpp_CObject *co = MakeConst(o, obj);
 
         return co;

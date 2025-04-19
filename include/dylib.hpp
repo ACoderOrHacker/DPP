@@ -16,6 +16,7 @@
 #endif
 
 #if (defined(_WIN32) || defined(_WIN64))
+#define NOMINMAX // fuck the macros
 #include <windows.h>
 #else
 #include <dlfcn.h>

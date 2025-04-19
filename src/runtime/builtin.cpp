@@ -41,7 +41,8 @@ const std::vector<dpp::object *> builtins = {
     mk_type<ErrorObject>("error"),
     mk_type<FunctionObject>("function"),
     type_object,
-    mk_type<VoidObject>("void")};
+    mk_type<VoidObject>("void"),
+    mk_type<BoolObject>("bool")};
 
 DXX_API const std::vector<dpp::object *> &get_builtins() { return builtins; }
 
