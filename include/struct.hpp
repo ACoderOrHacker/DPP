@@ -85,6 +85,12 @@ public:
         this->id = map.first ? set_sign_bit_1(map.second) : set_sign_bit_0(map.second);
     }
 
+    /**
+     * @brief this function converts a uint32_t number from int32_t. Storge as a uint32_t.
+     * 
+     */
+    explicit mapid(uint32_t number) { this->id = *(int32_t *)(&number); }
+
     ~mapid() = default;
 
     bool is_global() const {
@@ -97,6 +103,14 @@ public:
 
     int32_t data() const {
         return id;
+    }
+
+    /**
+     * @brief return as a uint32_t number. Must initialize with mapid(uint32_t).
+     * 
+     */
+    uint32_t as_number() const { 
+        return *(uint32_t *)(&id);
     }
 
     bool operator ==(const mapid &other) const {
@@ -289,6 +303,10 @@ public:
 
     void pop_mapping() {
         mappings.pop();
+    }
+
+    void tiny_global() {
+        global.resize(global.size());
     }
 
     /**

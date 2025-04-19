@@ -1,6 +1,6 @@
 fun native("io", "out") out(o: object): void;
 
-fun main(): void {
+fun main(): void {-*
     i: int = 0;
     while (i < 10) {
         when i == 5 {
@@ -22,7 +22,7 @@ fun main(): void {
 
         out(i2);
 
-    }
+    }*-
 
     i3: int = 0;
     do {

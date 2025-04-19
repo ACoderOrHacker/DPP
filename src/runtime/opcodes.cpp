@@ -31,6 +31,7 @@
 #include "macros.hpp"
 #include "native.hpp"
 #include "objects.hpp"
+#include "objects/utils.h"
 #include "struct.hpp"
 
 void _add(dpp::vm vm) {
@@ -497,9 +498,11 @@ void _or(dpp::vm vm) {
 void _jnt(dpp::vm vm) {
     dpp::mapid _jmpto = vm->_theap->PopFront();
 
+    dpp::object *condition = vm->obj_map.get(vm->_theap->PopFront());
+
     try {
-        if (!dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-            vm->state.runat = static_cast<uint32_t>(_jmpto.data());
+        if (!dpp::is_true(condition)) {
+            vm->state.runat = _jmpto.as_number();
         }
     } catch (NoOperatorError &) {
         dpp::set_error(vm, Dpp_DataCantOperatorError,
@@ -510,9 +513,11 @@ void _jnt(dpp::vm vm) {
 void _jnf(dpp::vm vm) {
     dpp::mapid _jmpto = vm->_theap->PopFront();
 
+    dpp::object *condition = vm->obj_map.get(vm->_theap->PopFront());
+
     try {
-        if (dpp::is_true(vm->obj_map.get(vm->_theap->PopFront()))) {
-            vm->state.runat = static_cast<uint32_t>(_jmpto.data());
+        if (dpp::is_true(condition)) {
+            vm->state.runat = _jmpto.as_number();
         }
     } catch (NoOperatorError &) {
         dpp::set_error(vm, Dpp_DataCantOperatorError,
@@ -523,7 +528,7 @@ void _jnf(dpp::vm vm) {
 void _jmp(dpp::vm vm) {
     dpp::mapid _jmpto = vm->_theap->PopFront();
 
-    vm->state.runat = static_cast<uint32_t>(_jmpto.data());
+    vm->state.runat = _jmpto.as_number();
 }
 
 void _call(dpp::vm vm) {

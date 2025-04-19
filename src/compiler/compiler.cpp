@@ -142,6 +142,8 @@ public:
         }
         LoadOpcode(main_context, OPCODE_CALL, {main->object});
 
+        fObj->obj_map.tiny_global();
+
         dpp::fmt::print(error_count, " errors found, ", warning_count,
                         " warnings found.\n");
         if (error_count != 0) {
@@ -485,8 +487,7 @@ public:
 
         LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
         visitBlock(ctx->block());
-        dpp::mapid jmp_to = {true /* unused */,
-                             static_cast<int32_t>(block_end - 1)};
+        dpp::mapid jmp_to(block_end - 1);
         ResetOpcode(ctx, jmp_pos, OPCODE_JNT, {jmp_to, is_jmp->object});
 
         return NONE;
@@ -525,8 +526,7 @@ public:
 
             LoadOpcode(it, OPCODE_JNT, {placeholder, placeholder});
             visitBlock(it->block());
-            dpp::mapid next_block_begin = {
-                true, (int32_t)(fObj->state.vmopcodes.size())};
+            dpp::mapid next_block_begin(fObj->state.vmopcodes.size());
             ResetOpcode(it, jmp1, OPCODE_JNT,
                         {next_block_begin, is_jmp->object});
             LoadOpcode(it, OPCODE_JMP, {placeholder});
@@ -540,7 +540,7 @@ public:
 
         for (uint32_t _placeholder : placeholders) {
             ResetOpcode(ctx, _placeholder, OPCODE_JMP,
-                        {{true, (int32_t)fObj->state.vmopcodes.size() - 1}});
+                        {dpp::mapid(fObj->state.vmopcodes.size() - 1)});
         }
 
         return NONE;
@@ -571,7 +571,7 @@ public:
         }
 
         uint32_t jmp1 = fObj->state.vmopcodes.size();
-        LoadOpcode(ctx, OPCODE_JNF, {placeholder, placeholder});
+        LoadOpcode(ctx, OPCODE_JNT, {placeholder, placeholder});
 
         in_loop = true;
         visitChildren(_block);
@@ -579,16 +579,16 @@ public:
         in_loop = false;
 
         ResetOpcode(
-            ctx, jmp1, OPCODE_JNF,
-            {{true, (int32_t)(fObj->state.vmopcodes.size())}, data->object});
-        LoadOpcode(ctx, OPCODE_JMP, {{true, (int32_t)state_end}});
+            ctx, jmp1, OPCODE_JNT,
+                    {dpp::mapid(fObj->state.vmopcodes.size()), data->object});
+        LoadOpcode(ctx, OPCODE_JMP, {dpp::mapid(state_end)});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)loop_end}});
+            ResetOpcode(ctx, it, OPCODE_JMP, {dpp::mapid(loop_end)});
         }
         for (auto it : continues) {
-            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)(loop_end - 1)}});
+            ResetOpcode(ctx, it, OPCODE_JMP, {dpp::mapid(loop_end - 1)});
         }
         breaks.clear();
         continues.clear();
@@ -616,14 +616,14 @@ public:
             REPORT_NPARAM(E0014);
         }
 
-        LoadOpcode(ctx, OPCODE_JNF, {{true, (int32_t)state_end}, data->object});
+        LoadOpcode(ctx, OPCODE_JNF, {dpp::mapid(state_end), data->object});
         loop_end = fObj->state.vmopcodes.size() - 1;
 
         for (auto it : breaks) {
-            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)loop_end}});
+            ResetOpcode(ctx, it, OPCODE_JMP, {dpp::mapid(loop_end)});
         }
         for (auto it : continues) {
-            ResetOpcode(ctx, it, OPCODE_JMP, {{true, (int32_t)(loop_end - 1)}});
+            ResetOpcode(ctx, it, OPCODE_JMP, {dpp::mapid(loop_end - 1)});
         }
         breaks.clear();
         continues.clear();

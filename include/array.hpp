@@ -79,8 +79,8 @@ public:
         * @param data the data to write
         */
     void write(uint32_t n, const T &data) {
-        size_t size = array.size();
-        if(size < n) {
+        size_t size = array.capacity();
+        if(size <= (n + 1)) {
             resize(size, n);
         }
         array.insert(array.begin() + n, data);
@@ -94,8 +94,8 @@ public:
         * @deprecated bool is not used
         */
     void write(uint32_t n, const T &&data, bool) {
-        size_t size = array.size();
-        if(size < n) {
+        size_t size = array.capacity();
+        if(size <= (n + 1)) {
             resize(size, n);
         }
         array.insert(array.begin() + n, std::move(data));
@@ -117,8 +117,8 @@ public:
         * @param data the data to write
         */
     void rewrite(uint32_t n, T data) {
-        size_t size = array.size();
-        if(size <= n) {
+        size_t size = array.capacity();
+        if(size <= (n + 1)) {
             resize(size, n);
         }
         array.at(n) = data;
