@@ -32,8 +32,9 @@
 #include "struct.hpp"
 #include "acdpp.h"
 
-constexpr bool EXEC_FAILED = true;
-constexpr bool EXEC_SUCCESS = false;
+using EVAL_STATUS = bool;
+constexpr bool EVAL_FAILED = true;
+constexpr bool EVAL_SUCCESS = false;
 // #define vmswitch switch // unused
 // #define vmcase case // unused
 #define VM_API DXX_API
@@ -49,9 +50,16 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID);
 
 NAMESPACE_DPP_BEGIN
 
+enum OpType {
+    NO_OPERANDS,
+    ONE_OPERAND,
+    TWO_OPERANDS,
+    THREE_OPERANDS
+};
+
 VM_API const char *get_opcode_name(unsigned char opcode_id);
+VM_API dpp::OpType get_opcode_type(unsigned char opcode_id);
 VM_API dpp::vm create_vm(bool add_builtin = true);
-VM_API bool exec(const OpCode &, dpp::vm);
 VM_API int run(FObject *fObj, bool noExit = false);
 
 NAMESPACE_DPP_END

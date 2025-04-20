@@ -31,29 +31,55 @@
 #include <stdexcept>
 
 #include "builtin.hpp"
+#include "eval.h"
 #include "fmt.h"
 #include "macros.hpp"
 #include "native.hpp"
 #include "objects.hpp"
-#include "opcodes.hpp"
 #include "struct.hpp"
+#include "error.hpp"
 
-Dpp_DEFINE_ERROR(InternalError)
 
-    const OpcodeFunc opcode_list[256] = {
-        &_import, &_add,     &_sub,  &_mul, &_div, &_mod, &_bneg,
-        &_band,   &_bor,     &_bxor, &_shl, &_shr, &_not, &_eq,
-        &_bigger, &_smaller, &_and,  &_or,  &_jnt, &_jnf, &_jmp,
-        &_call,   &_getret,  &_ret,  &_new, &_del, &_mov, &_method};
 
-const char *opcode_name_list[256] = {
-    "import", "add",     "sub",  "mul", "div", "mod", "bneg",
-    "band",   "bor",     "bxor", "shl", "shr", "not", "eq",
-    "bigger", "smaller", "and",  "or",  "jnt", "jnf", "jmp",
-    "call",   "getret",  "ret",  "new", "del", "mov", "method"};
+std::map<const char *, dpp::OpType> opcode_infos = {
+    {"nop", dpp::OpType::NO_OPERANDS},
+    {"push", dpp::OpType::ONE_OPERAND},
+    {"pop", dpp::OpType::ONE_OPERAND},
+    {"import", dpp::OpType::ONE_OPERAND}, // TODO
+    {"add", dpp::OpType::THREE_OPERANDS},
+    {"sub", dpp::OpType::THREE_OPERANDS},
+    {"mul", dpp::OpType::THREE_OPERANDS},
+    {"div", dpp::OpType::THREE_OPERANDS},
+    {"mod", dpp::OpType::THREE_OPERANDS},
+    {"bneg", dpp::OpType::TWO_OPERANDS},
+    {"band", dpp::OpType::THREE_OPERANDS},
+    {"bor", dpp::OpType::THREE_OPERANDS},
+    {"bxor", dpp::OpType::THREE_OPERANDS},
+    {"shl", dpp::OpType::THREE_OPERANDS},
+    {"shr", dpp::OpType::THREE_OPERANDS},
+    {"not", dpp::OpType::TWO_OPERANDS},
+    {"eq", dpp::OpType::THREE_OPERANDS},
+    {"bigger", dpp::OpType::THREE_OPERANDS},
+    {"smaller", dpp::OpType::THREE_OPERANDS},
+    {"and", dpp::OpType::THREE_OPERANDS},
+    {"or", dpp::OpType::THREE_OPERANDS},
+    {"jnt", dpp::OpType::TWO_OPERANDS},
+    {"jnf", dpp::OpType::TWO_OPERANDS},
+    {"jmp", dpp::OpType::ONE_OPERAND},
+    {"call", dpp::OpType::ONE_OPERAND},
+    {"ret", dpp::OpType::NO_OPERANDS},
+    {"new", dpp::OpType::TWO_OPERANDS},
+    {"del", dpp::OpType::ONE_OPERAND},
+    {"mov", dpp::OpType::TWO_OPERANDS},
+    {"method", dpp::OpType::THREE_OPERANDS}
+};
 
 VM_API const char *dpp::get_opcode_name(unsigned char opcode_id) {
-    return opcode_name_list[opcode_id - 1];
+    return std::next(opcode_infos.begin(), opcode_id - 1)->first;
+}
+
+VM_API dpp::OpType dpp::get_opcode_type(unsigned char opcode_id) {
+    return std::next(opcode_infos.begin(), opcode_id - 1)->second;
 }
 
 VM_API dpp::vm dpp::create_vm(bool add_builtin) {
@@ -92,27 +118,31 @@ VM_API int dpp::run(dpp::vm vm, bool noExit) {
     vm->log = dpp::logger(std::cout);
 #endif
 
-    while (vm->state.vmopcodes.size() > vm->state.runat) {
-        const OpCode &opcode = vm->state.vmopcodes.GetData(
-            vm->state.runat);  // get opcode from state
+    dpp::bytecode code;
+    try {
+        while (vm->state.vmopcodes.size() > vm->state.runat) {
+            code = vm->state.vmopcodes.GetData(
+                vm->state.runat);  // get opcode from state
 
-        bool isfail = EXEC_SUCCESS;
-        try {
+            EVAL_STATUS isfail = EVAL_SUCCESS;
             // execute the opcode and get the error code(isfail variable)
-            isfail = dpp::exec(opcode, vm);
-        } catch (InternalError &) {
-            vm->exit_code = EXIT_FAILURE;
-            goto EXIT;
+            isfail = dpp::eval(vm, code);
+
+            if (isfail == EVAL_FAILED) {
+                dpp::catch_error(vm);
+            }
+
+            if (vm->state.vmopcodes.size() == vm->state.runat &&
+                !vm->callstack.empty()) {
+                exit_frame(vm);
+            }
+
+            ++vm->state.runat;
         }
-
-        if (isfail == EXEC_FAILED) {
-            dpp::catch_error(vm);
-        }
-
-        if (vm->state.vmopcodes.size() == vm->state.runat &&
-            !vm->callstack.empty()) { exit_frame(vm, nullptr); }
-
-        ++vm->state.runat;
+    } catch (InternalError &e) {
+        vm->exit_code = EXIT_FAILURE;
+        vm->log << "[ERROR] Internal error: " << e.what() << "\n";
+        goto EXIT;
     }
 
 EXIT:
@@ -128,25 +158,3 @@ EXIT:
     if (!noExit) exit(exit_code);
     return exit_code;
 }
-
-VM_API bool dpp::exec(const OpCode &opcode, dpp::vm vm) {
-    *vm->_theap =
-        opcode.params;  // write the params to the 'vm->_theap' for the opcode
-
-    if (opcode.opcode > OPCODE_START && opcode.opcode < OPCODE_END) {
-        opcode_list[opcode.opcode - 1](vm);  // call opcode
-        if (vm->_error == nullptr)
-            return EXEC_SUCCESS;
-        else
-            return EXEC_FAILED;  // failed
-    } else {
-        throw InternalError();  // no opcode
-    }
-}
-
-#ifndef _WIN32
-void InitVMLibrary() __attribute__((constructor));
-void InitVMLibrary() {}
-#else
-BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID) { return TRUE; }
-#endif

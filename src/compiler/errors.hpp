@@ -187,11 +187,11 @@ inline void E0013(LP) {
 }
 
 /**
- * @brief E0014: the data type of 'while' loop must be integer
+ * @brief E0014: the data type of 'while' loop must be boolean
  *
  */
 inline void E0014(LP) {
-    E("the data type of 'while' loop must be integer");
+    E("the data type of 'while' loop must be boolean");
 }
 
 /**

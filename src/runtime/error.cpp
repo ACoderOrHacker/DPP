@@ -14,9 +14,8 @@ bool dpp::call_function(dpp::vm vm, FunctionObject *func, uint32_t _paramnum,
     va_start(l, _paramnum);
     uint32_t paramnum = _paramnum;
 
-    uint32_t create_frame = vm->obj_map.getLastCreateID();
     ::VMState jmp_state = func->state;
-    vm->obj_map.create_mapping(create_frame);
+    vm->obj_map.create_mapping();
 
     // Save the last state
     ::VMState state = vm->state;
@@ -59,9 +58,9 @@ DXX_API void dpp::__StdErrorHandleCatch(dpp::vm vm) {
     fmt::print_error(vm->_error->err->name, ": ", vm->_error->msg, "\n");
     while (callstack.size() > 0) {
         auto &state = callstack.top();
-        OpCode op = state.vmopcodes.GetData(state.runat);
+        const dpp::bytecode &code = state.vmopcodes.GetData(state.runat);
         vm->log << "  -> " << state.funcname << " (" << state.file << ":"
-                << op.line << ", " << op.pos << ")"
+                << code.get_op().line << ", " << code.get_op().pos << ")"
                 << "\n";
         callstack.pop();
     }

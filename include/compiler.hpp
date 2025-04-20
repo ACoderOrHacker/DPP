@@ -292,49 +292,4 @@ private:
     int32_t global;
 };
 
-/**
- * @brief genrate a opcode from op and l
- *
- * @param op the opcode
- * @param l the opcode's paramters
- * @return OpCode the genrated opcode
- */
-DXX_API OpCode MakeOpCode(rt_opcode op,
-    std::initializer_list<dpp::mapid> l = {},
-    uint32_t line = 0,
-    uint32_t pos = 0) {
-    OpCode _op;
-    _op.opcode = op;
-    _op.line = line;
-    _op.pos = pos;
-
-    uint32_t i = 0;
-    for (auto it : l) {
-        _op.params.SetData(i, it);
-        ++i;
-    }
-
-    return _op;
-}
-
-/**
- * @brief genrate a opcode from op and l
- *
- * @param op the opcode
- * @param params the opcode's paramters
- * @return OpCode the genrated opcode
- */
-DXX_API OpCode MakeOpCode(rt_opcode op,
-    Heap<dpp::mapid> &params,
-    uint32_t line,
-    uint32_t pos) {
-    OpCode _op;
-    _op.opcode = op;
-    _op.params = params;
-    _op.line = line;
-    _op.pos = pos;
-
-    return _op;
-}
-
 #endif

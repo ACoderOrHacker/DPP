@@ -354,9 +354,26 @@ forceinline void output_vm(dpp::vm vm, bool isOutputInformation = true) {
         for(auto &it : state.vmopcodes) {
             std::string s;
 
-            s += std::string("    .") + std::to_string(i) + ": " + dpp::get_opcode_name(it.opcode) + " ";
+            s += std::string("    .") + std::to_string(i) + ": " + dpp::get_opcode_name(it.get_op().op) + " ";
 
-            for (auto &param : it.params) {
+            for (uint8_t i = 0; i < 3; ++i) {
+                if (i == dpp::get_opcode_type(it.get_op().op)) break;
+
+                dpp::mapid param;
+                switch(i) {
+                    case 0:
+                        param = it.get_operand0();
+                        break;
+                    case 1:
+                        param = it.get_operand1();
+                        break;
+                    case 2:
+                        param = it.get_operand2();
+                        break;
+                    default:
+                        break;
+                }
+
                 s += std::string(param.is_global() ? GLOBAL_OBJECT_SHOW_SIGN : LOCAL_OBJECT_SHOW_SIGN) + std::to_string(param.get_id()) + std::string(" ");
             }
             fmt::print(s, "\n");

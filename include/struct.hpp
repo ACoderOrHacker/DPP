@@ -128,6 +128,9 @@ NAMESPACE_DPP_END
 
 enum rt_opcode : unsigned char {
     OPCODE_START,
+    OPCODE_NOP,
+    OPCODE_PUSH,
+    OPCODE_POP,
     OPCODE_IMPORT,
 	OPCODE_ADD,
 	OPCODE_SUB,
@@ -150,7 +153,6 @@ enum rt_opcode : unsigned char {
     OPCODE_JNF,
     OPCODE_JMP,
 	OPCODE_CALL,
-    OPCODE_GETRET,
 	OPCODE_RET,
 	OPCODE_NEW,
     OPCODE_DEL,
@@ -264,12 +266,12 @@ public:
 	ObjectMapping() = default;
     ~ObjectMapping() = default;
 
-public:
+public:/*
 	uint32_t getLastCreateObjectID() {
         return mappings.size() == 0 ? global.size() + 1 : mappings[mappings.size()].size() + 1;
 	}
 
-	uint32_t getLastCreateID() { return mappings.size() + 1; }
+	uint32_t getLastCreateID() { return mappings.size() + 1; }*/
 
     Dpp_Object *get(dpp::mapid o, uint32_t mapping_id) {
         Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o, mapping_id);
@@ -297,7 +299,7 @@ public:
         }
 	}
 
-	void create_mapping(uint32_t mapping_id) {
+	void create_mapping() {
 		mappings.push([](Array<std::shared_ptr<Dpp_Object>> &&mapping) { mapping.resize(1); });
 	}
 
@@ -353,19 +355,68 @@ typedef struct _VMError {
     String msg;
 } VMError;
 
-typedef struct _OpCode {
-    rt_opcode opcode = OPCODE_START;
-    Heap<dpp::mapid> params;
-    uint32_t line = 1;
-    uint16_t pos = 0;
+class _bytecode {
+public:
+    // TODO: Of course. this is a bug, if there is a object in there, the list will not show. Maybe sometimes I will fix it.
+    constexpr static auto fill = static_cast<uint32_t>(-1);
+    struct ExtendsOpcode {
+        rt_opcode op;
+        uint32_t line;
+        uint32_t pos;
+    Dpp_SERIALIZE(Dpp_NVP(op), Dpp_NVP(line), Dpp_NVP(pos))
+    };
 
-Dpp_SERIALIZE(Dpp_NVP(opcode), Dpp_NVP(params), Dpp_NVP(line), Dpp_NVP(pos))
-} OpCode;
+    _bytecode() = default;
+    ~_bytecode() = default;
 
-typedef Heap<dpp::mapid> Tmp_Heap;
+    /// Constructors
+    explicit _bytecode(struct ExtendsOpcode _op) : op(_op) {}
+    explicit _bytecode(struct ExtendsOpcode _op, dpp::mapid _operand_0) : op(_op), operand_0(_operand_0) {}
+    explicit _bytecode(struct ExtendsOpcode _op, dpp::mapid _operand_0, dpp::mapid _operand_1) : op(_op), operand_0(_operand_0), operand_1(_operand_1) {}
+    explicit _bytecode(struct ExtendsOpcode _op, dpp::mapid _operand_0, dpp::mapid _operand_1, dpp::mapid _oprand_2) : op(_op), operand_0(_operand_0), operand_1(_operand_1), operand_2(_oprand_2) {}
+
+    _bytecode &operator=(const _bytecode &other) = default;
+
+    [[nodiscard]] struct ExtendsOpcode get_op() const { return op; }
+
+    void set_op(struct ExtendsOpcode _op) { op = _op; }
+
+    [[nodiscard]] dpp::mapid get_operand0() const {
+        return operand_0;
+    }
+
+    [[nodiscard]] dpp::mapid get_operand1() const {
+        return operand_1;
+    }
+
+    [[nodiscard]] dpp::mapid get_operand2() const {
+        return operand_2;
+    }
+
+    [[nodiscard]] dpp::mapid set_operand0(dpp::mapid _operand_0) {
+        return operand_0 = _operand_0;
+    }
+
+    [[nodiscard]] dpp::mapid set_operand1(dpp::mapid _operand_1) {
+        return operand_1 = _operand_1;
+    }
+
+    [[nodiscard]] dpp::mapid set_operand2(dpp::mapid _operand_2) {
+        return operand_2 = _operand_2;
+    }
+private:
+    struct ExtendsOpcode op {};
+
+    /// Oprands
+    dpp::mapid operand_0 {fill};
+    dpp::mapid operand_1 {fill};
+    dpp::mapid operand_2 {fill};
+
+Dpp_SERIALIZE(Dpp_NVP(op), Dpp_NVP(operand_0), Dpp_NVP(operand_1), Dpp_NVP(operand_2))
+};
 
 struct VMState {
-	Heap<OpCode> vmopcodes;
+	Heap<_bytecode> vmopcodes;
 	uint32_t runat = 0;
     std::string file;
     std::string funcname;
@@ -375,21 +426,18 @@ Dpp_SERIALIZE(Dpp_NVP(vmopcodes), Dpp_NVP(file), Dpp_NVP(funcname))
 
 typedef struct _FObject {
 public:
-	_FObject() {
-        _theap = new Tmp_Heap;
-    }
+	_FObject() = default;
 	~_FObject() = default;
 
 public:
-	Tmp_Heap *_theap;
     VMError *_error = nullptr;
 
     dpp::logger log;
 public:
+    std::stack<std::shared_ptr<Dpp_Object>> RuntimeStack;
     std::unordered_map<std::string, dylib> libraries;
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
-    std::stack<Dpp_Object *> return_values;
 	struct VMState state;
     dpp::searcher module_searcher;
 	int exit_code = EXIT_SUCCESS;
@@ -404,7 +452,7 @@ Dpp_SERIALIZE(Dpp_NVP(obj_map),  Dpp_NVP(state))
  * @param vm the virtual machine
  * @param val the return value
  */
-void exit_frame(FObject *vm, Dpp_Object *val);
+void exit_frame(FObject *vm);
 
 typedef Dpp_Object *(* NATIVE_FUNC)(FObject *);
 
@@ -415,12 +463,13 @@ NAMESPACE_DPP_BEGIN
 
 using object = Dpp_Object;
 using vm = FObject *;
-using state = struct VMState;
+using bytecode = _bytecode;
+using state = ::VMState;
 using error = VMError;
-using opcode = OpCode;
 using mapping = ObjectMapping; // mapped object
 
 NAMESPACE_DPP_END
+
 
 #if defined(_MSC_VER) && !defined(__clang__)
 #pragma warning(pop)

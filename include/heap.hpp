@@ -74,6 +74,12 @@ template<typename T, typename container = std::deque<T>> class Heap {
 		typename container::iterator end() {
 		    return (Data.end());
 		}
+        typename container::reverse_iterator rbegin() {
+            return (Data.rbegin());
+        }
+        typename container::reverse_iterator rend() {
+            return (Data.rend());
+        }
 		T GetData(uint32_t i) {
 			return (Data[i]);
 		}
