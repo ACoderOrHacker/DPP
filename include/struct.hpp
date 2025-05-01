@@ -161,7 +161,7 @@ enum rt_opcode : unsigned char {
     OPCODE_END
 };
 
-class DXX_API Dpp_Object {
+class DXX_API Dpp_Object{
 public:
     Dpp_Object() = default;
     virtual ~Dpp_Object() = default; // virtual destructor
@@ -266,12 +266,7 @@ public:
 	ObjectMapping() = default;
     ~ObjectMapping() = default;
 
-public:/*
-	uint32_t getLastCreateObjectID() {
-        return mappings.size() == 0 ? global.size() + 1 : mappings[mappings.size()].size() + 1;
-	}
-
-	uint32_t getLastCreateID() { return mappings.size() + 1; }*/
+public:
 
     Dpp_Object *get(dpp::mapid o, uint32_t mapping_id) {
         Array<std::shared_ptr<Dpp_Object>> *func_mapping = this->getMapping(o, mapping_id);
@@ -300,7 +295,7 @@ public:/*
 	}
 
 	void create_mapping() {
-		mappings.push([](Array<std::shared_ptr<Dpp_Object>> &&mapping) { mapping.resize(1); });
+		mappings.push([](Array<std::shared_ptr<Dpp_Object>> &mapping) { mapping.resize(1); });
 	}
 
     void pop_mapping() {
@@ -434,7 +429,7 @@ public:
 
     dpp::logger log;
 public:
-    std::stack<std::shared_ptr<Dpp_Object>> RuntimeStack;
+    std::stack<Dpp_Object *> RuntimeStack;
     std::unordered_map<std::string, dylib> libraries;
 	ObjectMapping obj_map; // mapped object
 	std::stack<struct VMState> callstack;
@@ -461,7 +456,14 @@ NAMESPACE_DPP_BEGIN
 
 // Defines types
 
+template <typename T>
+using ref = std::shared_ptr<T>;
+
 using object = Dpp_Object;
+using pobject = dpp::object *;
+using serializable_object = std::shared_ptr<dpp::object>;
+using serializable_pobject = dpp::serializable_object *;
+
 using vm = FObject *;
 using bytecode = _bytecode;
 using state = ::VMState;

@@ -30,6 +30,10 @@ target("vm")
     add_files("src/runtime/*.cpp")
     add_files("src/runtime/objects/*.cpp")
 
+    if is_os("linux") then
+        add_links("dl")
+    end
+
     add_packages("cereal", {public = true})
 target_end()
 
@@ -46,6 +50,10 @@ target_end()
 target("dpp")
     set_kind("binary")
     add_files("src/main/dpp.cpp")
+
+    if is_os("linux") then
+        add_links("dl")
+    end
 
     add_deps("compiler", "vm")
     add_packages("cxxopts", "cereal")

@@ -80,14 +80,15 @@ DXX_API bool eval(dpp::vm vm, const dpp::bytecode &code) {
         /// push %{0}
         /// @details push %{0} to stack
         vmcase(OPCODE_PUSH): {
-            vm->RuntimeStack.push(std::make_shared<dpp::object>(*GET(UNARY_OPERAND)));
+            // TODO: maybe we need to change it to shared_ptr or a gc pointer?
+            vm->RuntimeStack.push(GET(UNARY_OPERAND));
             break;
         }
 
         /// pop %{0}
         /// @details pop from stack and put it to %{0}
         vmcase(OPCODE_POP): {
-            PUT(GET_MAPID(UNARY_OPERAND), vm->RuntimeStack.top().get());
+            PUT(GET_MAPID(UNARY_OPERAND), vm->RuntimeStack.top());
             vm->RuntimeStack.pop();
             break;
         }

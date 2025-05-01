@@ -160,10 +160,10 @@ public:
         return array.end();
     }
 
-    auto push(std::function<void(T &&)> initializer = [](T &&) {}) {
-        auto &&data = std::move(T {});
-        initializer(std::move(data));
-        array.push_back(std::move(data));
+    auto push(std::function<void(T &)> initializer = [](T &) {}) {
+        T data {};
+        initializer(data);
+        array.push_back(data);
     }
 
     /**
